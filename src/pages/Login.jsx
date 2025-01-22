@@ -16,7 +16,7 @@ const Home = () => {
     console.log("Button clicked");
   }
 
-  // TODO: client-side error validation. Do once backend is set up.
+  // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
