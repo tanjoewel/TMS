@@ -1,5 +1,5 @@
 import React from "react";
-import HomeBody from "../components/HomeBody";
+import HomeBody from "../components/LoginBody";
 
 const Home = () => {
   return (

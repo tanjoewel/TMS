@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const HomeBody = () => {
+const LoginBody = () => {
   return (
     <div>
       <nav>
@@ -13,4 +13,4 @@ const HomeBody = () => {
   );
 };
 
-export default HomeBody;
+export default LoginBody;
