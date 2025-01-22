@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
+import Axios from "axios";
 
 const Home = () => {
   const LoginButton = styled(Button)({
@@ -12,9 +13,15 @@ const Home = () => {
     textTransform: "none",
   });
 
-  function handleClick() {
+  async function handleClick() {
     // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
     console.log("Button clicked");
+    try {
+      const res = await Axios.get("http://localhost:8080");
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
