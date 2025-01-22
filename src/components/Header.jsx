@@ -1,10 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import Box from "@mui/material/Box";
 
 const Header = () => {
   return (
     <div>
-      <h1>Task Management System</h1>
+      <Box component="section" sx={{ pl: 6, py: 2, backgroundColor: "#e9eaea", fontWeight: 800, fontSize: 24 }}>
+        Task Management System
+      </Box>
     </div>
   );
 };
