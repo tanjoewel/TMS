@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { NavLink } from "react-router-dom";
 
 const Home = () => {
   const LoginButton = styled(Button)({
@@ -22,6 +23,9 @@ const Home = () => {
 
   return (
     <div>
+      <nav>
+        <NavLink to="/users">Users</NavLink>
+      </nav>
       <Box
         sx={{
           display: "flex",
