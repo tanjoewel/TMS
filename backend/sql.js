@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-export function executeQuery(pool, query) {
+function executeQuery(query) {
   const result = pool.query(query, (err, results) => {
     if (err) {
       console.error("Error when querying: ", err.message);
@@ -28,6 +28,7 @@ export function executeQuery(pool, query) {
   });
 }
 
-const query = "SELECT * FROM accounts";
-
-executeQuery(pool, query);
+module.exports = {
+  pool,
+  executeQuery,
+};
