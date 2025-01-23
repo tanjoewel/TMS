@@ -11,9 +11,9 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-async function executeQuery(query) {
+async function executeQuery(query, args) {
   try {
-    const [result] = await pool.query(query);
+    const [result] = await pool.query(query, args);
     return result;
   } catch (err) {
     console.error("Error when querying: ", err.message);

@@ -14,8 +14,17 @@ const User = () => {
     action: "create",
   };
 
-  function handleClick() {
+  const dummyCreateUser = {
+    username: "test1",
+    password: "test",
+    email: "test@dummy.com",
+    // the group needs to be a drop down element with rows
+    group: [],
+  };
+
+  async function handleClick() {
     // TODO send an axios request to create a group
+    const result = await Axios.post("http://localhost:8080/users", dummyCreateUser);
     return;
   }
 

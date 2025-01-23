@@ -13,6 +13,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
 
 // routes
 app.use("/users", userRoutes);
