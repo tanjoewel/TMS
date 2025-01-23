@@ -1,4 +1,4 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 require("dotenv").config();
 
 const pool = mysql.createPool({
@@ -11,23 +11,16 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-function executeQuery(query) {
-  const result = pool.query(query, (err, results) => {
-    if (err) {
-      console.error("Error when querying: ", err.message);
-    } else {
-      console.log(results);
-    }
+async function executeQuery(query) {
+  try {
+    const [result] = await pool.query(query);
+    return result;
+  } catch (err) {
+    console.error("Error when querying: ", err.message);
+  }
 
-    // closing the connection is causing errors because after the first query the connection is closed and cannot accept any more queries
-    // pool.end((err) => {
-    //   if (err) {
-    //     console.error("Error closing the connection pool: ", err.message);
-    //     return;
-    //   }
-    //   console.log("Connection pool closed.");
-    // });
-  });
+  // closing the connection is causing errors because after the first query the connection is closed and cannot accept any more queries.
+  // as a result, we simply leave the connection open until the app stops running (which we do by ctrl+c in the terminal).
 }
 
 module.exports = {

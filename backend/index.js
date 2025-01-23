@@ -15,8 +15,9 @@ app.use(cors(corsOptions));
 
 const port = process.env.PORT;
 
-app.get("/", (req, res) => {
-  executeQuery("SELECT * FROM user");
+app.get("/", async (req, res) => {
+  const result = await executeQuery("SELECT * FROM user");
+  console.log(result);
   res.send("Hello!!!!");
 });
 
