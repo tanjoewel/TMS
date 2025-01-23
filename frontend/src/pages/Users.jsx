@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
-import User from "../components/User";
+import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 
 export default function Users() {
@@ -74,7 +74,7 @@ export default function Users() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <User group={group} />
+              <CreateUser group={group} />
               {users.map((row) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>

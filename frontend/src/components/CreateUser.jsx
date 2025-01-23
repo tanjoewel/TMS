@@ -17,7 +17,7 @@ const User = (props) => {
 
   async function handleClick() {
     // TODO send an axios request to create a group
-    const result = await Axios.post("/users", dummyCreateUser);
+    console.log("asd");
     return;
   }
 
