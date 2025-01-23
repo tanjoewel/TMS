@@ -18,13 +18,15 @@ function executeQuery(query) {
     } else {
       console.log(results);
     }
-    pool.end((err) => {
-      if (err) {
-        console.error("Error closing the connection pool: ", err.message);
-        return;
-      }
-      console.log("Connection pool closed.");
-    });
+
+    // closing the connection is causing errors because after the first query the connection is closed and cannot accept any more queries
+    // pool.end((err) => {
+    //   if (err) {
+    //     console.error("Error closing the connection pool: ", err.message);
+    //     return;
+    //   }
+    //   console.log("Connection pool closed.");
+    // });
   });
 }
 
