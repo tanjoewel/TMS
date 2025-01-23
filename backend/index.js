@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { executeQuery } = require("./util/sql");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -13,12 +14,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// routes
+app.use("/users", userRoutes);
+
 const port = process.env.PORT;
 
 app.get("/", async (req, res) => {
-  const result = await executeQuery("SELECT * FROM user");
-  console.log(result);
-  res.send(result);
+  res.send("Server is up and running!");
 });
 
 app.listen(port, () => {

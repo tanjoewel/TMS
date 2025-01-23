@@ -12,7 +12,7 @@ export default function Users() {
   useEffect(() => {
     async function getUsers() {
       try {
-        const result = await Axios.get("http://localhost:8080");
+        const result = await Axios.get("http://localhost:8080/users");
         setUsers(result.data);
       } catch (e) {
         console.log("Error getting users");
