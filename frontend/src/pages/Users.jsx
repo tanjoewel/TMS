@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
+import User from "../components/User";
 
 export default function Users() {
   const [groupname, setGroupname] = useState("");
@@ -24,19 +25,25 @@ export default function Users() {
           <Button>Create</Button>
         </div>
       </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
-            </TableRow>
-          </TableHead>
-        </Table>
-      </TableContainer>
+      <Box sx={{ mx: 3, mt: 2 }}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650, border: "1px solid black" }} aria-label="simple table" size="small">
+            <TableHead>
+              <TableRow sx={{ "& > th:not(:last-child)": { borderRight: "1px solid black" }, borderBottom: "2px solid black" }}>
+                <TableCell label={"username"}>Username</TableCell>
+                <TableCell>Password</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Group</TableCell>
+                <TableCell>Account status</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <User />
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Box>
   );
 }
