@@ -1,7 +1,8 @@
 import React from "react";
-import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
+import { Button, TableRow, TableCell } from "@mui/material";
+import Axios from "axios";
 
-// this component represents one user and its fields, then in the users page we can just loop through the users array we get from the backend and return this component in each loop.
+// this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = () => {
   const dummyuser = {
     username: "test1",
@@ -12,6 +13,11 @@ const User = () => {
     accountStatus: "enabled",
     action: "create",
   };
+
+  function handleClick() {
+    // TODO send an axios request to create a group
+    return;
+  }
 
   // doing it like this to make it more extensible
   const usersArray = [dummyuser];
@@ -27,7 +33,7 @@ const User = () => {
             <TableCell>{row.group}</TableCell>
             <TableCell>{row.accountStatus}</TableCell>
             <TableCell>
-              <Button>{row.action}</Button>
+              <Button onClick={handleClick}>{row.action}</Button>
             </TableCell>
           </TableRow>
         );

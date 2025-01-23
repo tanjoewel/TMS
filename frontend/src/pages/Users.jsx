@@ -1,10 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
 import User from "../components/User";
+import Axios from "axios";
 
 export default function Users() {
   const [groupname, setGroupname] = useState("");
+
+  // when the page first loads, get the users from the database
+  useEffect(() => {
+    async function getUsers() {
+      try {
+        const result = await Axios.get("http://localhost:8080");
+        console.log(result);
+      } catch (e) {
+        console.log("Error getting users");
+      }
+    }
+    getUsers();
+  }, []);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>

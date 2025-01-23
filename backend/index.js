@@ -18,7 +18,7 @@ const port = process.env.PORT;
 app.get("/", async (req, res) => {
   const result = await executeQuery("SELECT * FROM user");
   console.log(result);
-  res.send("Hello!!!!");
+  res.send(result);
 });
 
 app.listen(port, () => {
