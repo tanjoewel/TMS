@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
+Axios.defaults.withCredentials = true;
 
 const Home = () => {
   const LoginButton = styled(Button)({
@@ -23,7 +24,7 @@ const Home = () => {
     console.log("Button clicked");
     try {
       // TODO hash password before sending
-      const res = await Axios.post("/users/login", { username, password });
+      const res = await Axios.post("/users/login", { username, password }, { withCredentials: false });
       console.log(res);
     } catch (e) {
       console.log(e);

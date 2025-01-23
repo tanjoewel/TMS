@@ -1,8 +1,10 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 exports.getAllUsers = async function (req, res) {
   const query = "SELECT * FROM user";
+  console.log(req.cookie);
   try {
     const result = await executeQuery(query);
     // convert the boolean value in the database to a form that is readable by the user.
@@ -39,6 +41,12 @@ exports.login = async function (req, res) {
     return;
   }
   // if we reach here, this is a valid login
+
+  // generate jwt token and send it
+  const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "5m" });
+
+  res.cookie("token", token);
+
   res.status(200).send("Login successful");
 };
 
