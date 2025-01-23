@@ -62,7 +62,7 @@ export default function Users() {
               {users.map((row) => {
                 console.log(row);
                 return (
-                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.username}>
+                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
                     <TableCell>{row.user_username}</TableCell>
                     <TableCell>{row.user_password}</TableCell>
                     <TableCell>{row.user_email}</TableCell>
