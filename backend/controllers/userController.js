@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 exports.getAllUsers = async function (req, res) {
   const query = "SELECT * FROM user";
+  // on the frontend, send the cookie as a header and then in the backend access it with req.header[<header name>]
   console.log(req.cookie);
   try {
     const result = await executeQuery(query);
