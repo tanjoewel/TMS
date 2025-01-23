@@ -60,7 +60,6 @@ export default function Users() {
             <TableBody>
               <User />
               {users.map((row) => {
-                console.log(row);
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
                     <TableCell>{row.user_username}</TableCell>

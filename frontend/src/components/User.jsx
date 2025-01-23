@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, TableRow, TableCell } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, Menu } from "@mui/material";
 import Axios from "axios";
+import DropDown from "./DropDown";
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = () => {
@@ -13,6 +14,8 @@ const User = () => {
     accountStatus: "enabled",
     action: "create",
   };
+
+  const ACCOUNT_STATUSES = ["Enabled", "Disabled"];
 
   const dummyCreateUser = {
     username: "test1",
@@ -36,11 +39,49 @@ const User = () => {
       {usersArray.map((row) => {
         return (
           <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.username}>
-            <TableCell>{row.username}</TableCell>
-            <TableCell>{row.password}</TableCell>
-            <TableCell>{row.email}</TableCell>
-            <TableCell>{row.group}</TableCell>
-            <TableCell>{row.accountStatus}</TableCell>
+            <TableCell>
+              <TextField
+                label="Enter username"
+                fullWidth={true}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    fontSize: "12px",
+                  },
+                }}
+              ></TextField>
+            </TableCell>
+            <TableCell>
+              <TextField
+                label="Enter password"
+                fullWidth={true}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    fontSize: "12px",
+                  },
+                }}
+              >
+                {row.password}
+              </TextField>
+            </TableCell>
+            <TableCell>
+              <TextField
+                label="Enter email"
+                fullWidth={true}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    fontSize: "12px",
+                  },
+                }}
+              >
+                {row.email}
+              </TextField>
+            </TableCell>
+            <TableCell>
+              <DropDown items={["dev", "admin", "manager"]} multiSelect={true} buttonText="Group" />
+            </TableCell>
+            <TableCell>
+              <DropDown items={ACCOUNT_STATUSES} multiSelect={false} buttonText="Status" />
+            </TableCell>
             <TableCell>
               <Button onClick={handleClick}>{row.action}</Button>
             </TableCell>
