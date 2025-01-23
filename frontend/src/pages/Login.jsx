@@ -3,6 +3,7 @@ import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import Axios from "axios";
+Axios.defaults.baseURL = "http://localhost:8080";
 
 const Home = () => {
   const LoginButton = styled(Button)({
@@ -17,7 +18,7 @@ const Home = () => {
     // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
     console.log("Button clicked");
     try {
-      const res = await Axios.get("http://localhost:8080");
+      const res = await Axios.get("/");
       console.log(res);
     } catch (e) {
       console.log(e);
