@@ -27,7 +27,7 @@ const User = () => {
 
   async function handleClick() {
     // TODO send an axios request to create a group
-    const result = await Axios.post("http://localhost:8080/users", dummyCreateUser);
+    const result = await Axios.post("/users", dummyCreateUser);
     return;
   }
 
