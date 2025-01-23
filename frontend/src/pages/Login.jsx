@@ -14,20 +14,23 @@ const Home = () => {
     textTransform: "none",
   });
 
+  // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   async function handleClick() {
     // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
     console.log("Button clicked");
     try {
-      const res = await Axios.get("/");
+      // TODO hash password before sending
+      const res = await Axios.post("/users/login", { username, password });
       console.log(res);
     } catch (e) {
       console.log(e);
     }
+    setUsername("");
+    setPassword("");
   }
-
-  // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
 
   return (
     <div>
@@ -49,6 +52,7 @@ const Home = () => {
         <TextField
           id="username"
           label="Username"
+          value={username}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -56,6 +60,7 @@ const Home = () => {
         <TextField
           id="password"
           label="Password"
+          value={password}
           onChange={(e) => {
             setPassword(e.target.value);
           }}
