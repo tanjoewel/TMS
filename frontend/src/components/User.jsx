@@ -4,7 +4,7 @@ import Axios from "axios";
 import DropDown from "./DropDown";
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
-const User = () => {
+const User = (props) => {
   const dummyuser = {
     username: "test1",
     password: "test",
@@ -14,6 +14,8 @@ const User = () => {
     accountStatus: "enabled",
     action: "create",
   };
+
+  console.log(props.group);
 
   const ACCOUNT_STATUSES = ["Enabled", "Disabled"];
 
@@ -77,7 +79,7 @@ const User = () => {
               </TextField>
             </TableCell>
             <TableCell>
-              <DropDown items={["dev", "admin", "manager"]} multiSelect={true} buttonText="Group" />
+              <DropDown items={props.group} multiSelect={true} buttonText="Group" />
             </TableCell>
             <TableCell>
               <DropDown items={ACCOUNT_STATUSES} multiSelect={false} buttonText="Status" />

@@ -7,22 +7,38 @@ import Axios from "axios";
 export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
+  const [group, setGroups] = useState([]);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
     async function getUsers() {
       try {
-        const result = await Axios.get("/users");
-        setUsers(result.data);
+        const users = await Axios.get("/users");
+        setUsers(users.data);
       } catch (e) {
         console.log("Error getting users");
       }
     }
     getUsers();
+
+    async function getGroups() {
+      try {
+        const groups = await Axios.get("/groups");
+        setGroups(groups.data);
+      } catch (e) {
+        console.log("Error getting groups");
+      }
+    }
+    getGroups();
   }, []);
 
-  function handleClick() {
+  async function handleUpdateClick() {
     // TODO send a request to the backend to update the user
+    console.log("clicked");
+  }
+
+  async function handleCreateClick() {
+    console.log("create");
   }
 
   return (
@@ -41,7 +57,7 @@ export default function Users() {
               setGroupname(e.target.value);
             }}
           />
-          <Button>Create</Button>
+          <Button onClick={handleCreateClick}>Create</Button>
         </div>
       </Box>
       <Box sx={{ mx: 3, mt: 2 }}>
@@ -58,7 +74,7 @@ export default function Users() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <User />
+              <User group={group} />
               {users.map((row) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
@@ -68,7 +84,7 @@ export default function Users() {
                     <TableCell></TableCell>
                     <TableCell>{row.user_enabled}</TableCell>
                     <TableCell>
-                      <Button onClick={handleClick}>Update</Button>
+                      <Button onClick={handleUpdateClick}>Update</Button>
                     </TableCell>
                   </TableRow>
                 );

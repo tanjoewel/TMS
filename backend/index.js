@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { executeQuery } = require("./util/sql");
 const userRoutes = require("./routes/userRoutes");
+const groupRoutes = require("./routes/groupRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // routes
 app.use("/users", userRoutes);
+app.use("/groups", groupRoutes);
 
 const port = process.env.PORT;
 
