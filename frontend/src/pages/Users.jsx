@@ -6,19 +6,24 @@ import Axios from "axios";
 
 export default function Users() {
   const [groupname, setGroupname] = useState("");
+  const [users, setUsers] = useState([]);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
     async function getUsers() {
       try {
         const result = await Axios.get("http://localhost:8080");
-        console.log(result);
+        setUsers(result.data);
       } catch (e) {
         console.log("Error getting users");
       }
     }
     getUsers();
   }, []);
+
+  function handleClick() {
+    // TODO send a request to the backend to update the user
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -54,6 +59,21 @@ export default function Users() {
             </TableHead>
             <TableBody>
               <User />
+              {users.map((row) => {
+                console.log(row);
+                return (
+                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.username}>
+                    <TableCell>{row.user_username}</TableCell>
+                    <TableCell>{row.user_password}</TableCell>
+                    <TableCell>{row.user_email}</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>{row.user_enabled}</TableCell>
+                    <TableCell>
+                      <Button onClick={handleClick}>Update</Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
