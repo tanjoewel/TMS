@@ -14,7 +14,14 @@ const DropDown = (props) => {
     setAnchorEl(e.currentTarget);
   }
 
+  // this probably isn't the best approach but it works for now
   function handleClose() {
+    if (!multiSelect) {
+      setAnchorEl(null);
+    }
+  }
+
+  function handleCloseOutside() {
     setAnchorEl(null);
   }
 
@@ -34,7 +41,7 @@ const DropDown = (props) => {
       >
         {buttonText}
       </Button>
-      <Menu id="basic-button" open={open} anchorEl={anchorEl} onClose={handleClose}>
+      <Menu id="basic-button" open={open} anchorEl={anchorEl} onClose={handleCloseOutside}>
         {items.map((item) => {
           return (
             <MenuItem key={item} onClick={handleClose}>
