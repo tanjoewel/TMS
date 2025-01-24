@@ -21,27 +21,14 @@ exports.getDistinctGroups = async function (req, res) {
 // i probably want two functions, one to create group by itself and one to assign a user to a group (which is basically creating a row in the user_group table)
 exports.assignGroup = async function (req, res) {
   const { username, groupname } = req.body;
-  const query = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
-  // first need to check that the user exists in the database
-  const user = await getUser(username);
-  // by right this should never happen from the user side, but I am still going to blame the user because i can
-  if (user.length === 0) {
-    res.status(401).send("Cannot assign a group to a user that does not exist.");
-    return;
-  }
-  // user exists and we can execute the query
+  // do i want to check if the group name exists in the database first?
+  // also, might need to change this to accept an array of groupnames instead of just one group, in which case I think its fine to just run the query multiple times.
   try {
-    const result = await executeQuery(query, [username, groupname]);
-    res.send(result);
+    const result = await addGroupRow(username, groupname);
+    res.status(200).send("Group successfully assigned");
   } catch (err) {
-    if (err.message.includes("Duplicate entry")) {
-      // again, this should not happen but i am going to blame the user
-      res.status(400).send("User is already assigned to this group!");
-    } else {
-      res.status(500).send("Error assigning user to a group");
-    }
+    res.status(500).send(err.message);
   }
-  return;
 };
 
 // for creating a group without a user
@@ -49,8 +36,12 @@ exports.createGroup = async function (req, res) {
   const { groupname } = req.body;
   // it doesnt work to just leave the user as null, so we give it a username that cannot exist because of validation rules
   const username = "$NULL";
-
-  res.send("Create group");
+  try {
+    const result = await addGroupRow(username, groupname);
+    res.status(200).send("Group successfully created");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 };
 
 // a request version so that it is easy to test
@@ -88,3 +79,24 @@ exports.getGroups = async function (username) {
     console.error("Error getting groups");
   }
 };
+
+async function addGroupRow(username, groupname) {
+  const query = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+  const user = await getUser(username);
+  // by right this should never happen from the user side, but I am still going to blame the user because i can
+  if (user.length === 0 && username !== "$NULL") {
+    throw new Error("Cannot assign a group to a user that does not exist.");
+  }
+  // user exists and we can execute the query
+  try {
+    const result = await executeQuery(query, [username, groupname]);
+    return result;
+  } catch (err) {
+    if (err.message.includes("Duplicate entry")) {
+      // again, this should not happen but i am going to blame the user
+      throw new Error("User is already assigned to this group!");
+    } else {
+      throw new Error("Error assigning user to a group");
+    }
+  }
+}
