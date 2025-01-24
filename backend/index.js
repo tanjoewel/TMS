@@ -4,6 +4,7 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const userController = require("./controllers/userController");
+const groupController = require("./controllers/groupController");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./middleware/authenticateToken");
@@ -58,7 +59,10 @@ app.post("/login", async (req, res) => {
 
   res.cookie("auth_token", token);
 
-  res.status(200).send("Login successful");
+  // check if the user is an admin
+  const isAdmin = await groupController.checkGroup(username, "admin");
+
+  res.status(200).json({ message: "Login successful", isAdmin });
 });
 
 app.post("/logout", authenticateToken, (req, res) => {

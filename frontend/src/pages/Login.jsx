@@ -25,6 +25,9 @@ const Home = (props) => {
       const res = await Axios.post("/login", { username, password });
       props.setIsLoggedIn(true);
       if (res.status === 200) {
+        if (res.data.isAdmin) {
+          props.setIsAdmin(true);
+        }
         navigate("/users");
       }
     } catch (e) {
