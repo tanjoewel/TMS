@@ -51,8 +51,14 @@ exports.login = async function (req, res) {
   }
   // if we reach here, this is a valid login
 
-  // generate jwt token and send it
-  const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "5m" });
+  // get the ip
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  // get the browser type
+  const userAgent = req.headers["user-agent"];
+
+  // generate jwt token and send it. take note of the order
+  const token = jwt.sign({ username, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "5m" });
 
   res.cookie("token", token);
 
