@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
+Axios.defaults.withCredentials = true;
 
-const Home = () => {
+const Home = (props) => {
+  const navigate = useNavigate();
   const LoginButton = styled(Button)({
     backgroundColor: "blue",
     fontSize: 16,
@@ -14,26 +16,29 @@ const Home = () => {
     textTransform: "none",
   });
 
-  async function handleClick() {
-    // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
-    console.log("Button clicked");
-    try {
-      const res = await Axios.get("/");
-      console.log(res);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  async function handleClick() {
+    try {
+      const res = await Axios.post("/login", { username, password });
+      props.setIsLoggedIn(true);
+      if (res.status === 200) {
+        if (res.data.isAdmin) {
+          props.setIsAdmin(true);
+        }
+        navigate("/users");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setUsername("");
+    setPassword("");
+  }
+
   return (
     <div>
-      <nav>
-        <NavLink to="/users">Users</NavLink>
-      </nav>
       <Box
         sx={{
           display: "flex",
@@ -49,6 +54,7 @@ const Home = () => {
         <TextField
           id="username"
           label="Username"
+          value={username}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -56,6 +62,7 @@ const Home = () => {
         <TextField
           id="password"
           label="Password"
+          value={password}
           onChange={(e) => {
             setPassword(e.target.value);
           }}

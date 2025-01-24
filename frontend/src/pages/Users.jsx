@@ -1,35 +1,53 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
-import User from "../components/User";
+import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 
 export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
+  const [group, setGroups] = useState([]);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
     async function getUsers() {
       try {
-        const result = await Axios.get("/users");
-        setUsers(result.data);
+        const users = await Axios.get("/users");
+        setUsers(users.data);
       } catch (e) {
         console.log("Error getting users");
       }
     }
     getUsers();
+
+    async function getDistinctGroups() {
+      try {
+        const groups = await Axios.get("/groups");
+        setGroups(groups.data);
+      } catch (e) {
+        console.log("Error getting groups");
+      }
+    }
+    getDistinctGroups();
   }, []);
 
-  function handleClick() {
+  async function handleUpdateClick() {
     // TODO send a request to the backend to update the user
+    console.log("clicked");
+  }
+
+  // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
+  async function handleCreateClick() {
+    try {
+      const result = await Axios.post("/groups/create", { groupname });
+    } catch (err) {
+      console.log("Error creating group");
+    }
   }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-      <nav>
-        <NavLink to="/">Back to login</NavLink>
-      </nav>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
         <h2>Users</h2>
         <div>
@@ -41,7 +59,7 @@ export default function Users() {
               setGroupname(e.target.value);
             }}
           />
-          <Button>Create</Button>
+          <Button onClick={handleCreateClick}>Create</Button>
         </div>
       </Box>
       <Box sx={{ mx: 3, mt: 2 }}>
@@ -58,7 +76,7 @@ export default function Users() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <User />
+              <CreateUser group={group} />
               {users.map((row) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
@@ -68,7 +86,7 @@ export default function Users() {
                     <TableCell></TableCell>
                     <TableCell>{row.user_enabled}</TableCell>
                     <TableCell>
-                      <Button onClick={handleClick}>Update</Button>
+                      <Button onClick={handleUpdateClick}>Update</Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -80,5 +98,3 @@ export default function Users() {
     </Box>
   );
 }
-
-("display: flex; justify-content: space-between; align-items: center; width:100% ");
