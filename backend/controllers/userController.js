@@ -24,11 +24,19 @@ exports.getAllUsers = async function (req, res) {
   }
 };
 
+/**
+ * Helper function to
+ */
+exports.getUser = async function (username) {
+  const query = "SELECT * FROM tms.user WHERE user_username = ?;";
+  const result = await executeQuery(query, [username]);
+  return result;
+};
+
 exports.login = async function (req, res) {
   // first check if username exists in the database.
-  const query = "SELECT * FROM tms.user WHERE user_username = ?;";
   const { username, password } = req.body;
-  const result = await executeQuery(query, [username]);
+  const result = await exports.getUser(username);
   // query returns nothing, user does not exist, invalid username
   if (result.length === 0) {
     res.status(401).send("Invalid username and password");
