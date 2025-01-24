@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const { getUser } = require("./userController");
+const authenticateToken = require("../middleware/authenticateToken");
 
 // needed to display the groups in drop down
 exports.getGroups = async function (req, res) {
