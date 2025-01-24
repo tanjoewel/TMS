@@ -8,6 +8,7 @@ export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [group, setGroups] = useState([]);
+  const [groupCounter, setGroupCounter] = useState(0);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
@@ -20,7 +21,10 @@ export default function Users() {
       }
     }
     getUsers();
+  }, []);
 
+  // whenever we create a group, update the groups immediately
+  useEffect(() => {
     async function getDistinctGroups() {
       try {
         const groups = await Axios.get("/groups");
@@ -30,7 +34,7 @@ export default function Users() {
       }
     }
     getDistinctGroups();
-  }, []);
+  }, [groupCounter]);
 
   async function handleUpdateClick() {
     // TODO send a request to the backend to update the user
@@ -41,6 +45,8 @@ export default function Users() {
   async function handleCreateClick() {
     try {
       const result = await Axios.post("/groups/create", { groupname });
+      setGroupname("");
+      setGroupCounter((a) => a + 1);
     } catch (err) {
       console.log("Error creating group");
     }
@@ -49,12 +55,13 @@ export default function Users() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
-        <h2>Users</h2>
+        <h2>User Management</h2>
         <div>
           <TextField
             id="groupname"
             label="Group name"
             size="small"
+            value={groupname}
             onChange={(e) => {
               setGroupname(e.target.value);
             }}
@@ -81,8 +88,29 @@ export default function Users() {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
                     <TableCell>{row.user_username}</TableCell>
-                    <TableCell>{row.user_password}</TableCell>
-                    <TableCell>{row.user_email}</TableCell>
+                    <TableCell>
+                      <TextField
+                        label="Enter new password to edit"
+                        fullWidth={true}
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "12px",
+                          },
+                        }}
+                      ></TextField>
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        label="Enter email to update"
+                        value={row.user_email ? row.user_email : ""}
+                        fullWidth={true}
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "12px",
+                          },
+                        }}
+                      ></TextField>
+                    </TableCell>
                     <TableCell></TableCell>
                     <TableCell>{row.user_enabled}</TableCell>
                     <TableCell>
