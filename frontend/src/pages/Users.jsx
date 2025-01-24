@@ -8,6 +8,7 @@ export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [group, setGroups] = useState([]);
+  const [groupCounter, setGroupCounter] = useState(0);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
@@ -20,7 +21,10 @@ export default function Users() {
       }
     }
     getUsers();
+  }, []);
 
+  // whenever we create a group, update the groups immediately
+  useEffect(() => {
     async function getDistinctGroups() {
       try {
         const groups = await Axios.get("/groups");
@@ -30,7 +34,7 @@ export default function Users() {
       }
     }
     getDistinctGroups();
-  }, []);
+  }, [groupCounter]);
 
   async function handleUpdateClick() {
     // TODO send a request to the backend to update the user
@@ -41,6 +45,8 @@ export default function Users() {
   async function handleCreateClick() {
     try {
       const result = await Axios.post("/groups/create", { groupname });
+      setGroupname("");
+      setGroupCounter((a) => a + 1);
     } catch (err) {
       console.log("Error creating group");
     }
@@ -55,6 +61,7 @@ export default function Users() {
             id="groupname"
             label="Group name"
             size="small"
+            value={groupname}
             onChange={(e) => {
               setGroupname(e.target.value);
             }}
