@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
 const Home = () => {
+  const navigate = useNavigate();
   const LoginButton = styled(Button)({
     backgroundColor: "blue",
     fontSize: 16,
@@ -20,11 +21,12 @@ const Home = () => {
   const [password, setPassword] = useState("");
 
   async function handleClick() {
-    // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
-    console.log("Button clicked");
     try {
       const res = await Axios.post("/login", { username, password });
       console.log(res);
+      if (res.status === 200) {
+        navigate("/users");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -34,9 +36,6 @@ const Home = () => {
 
   return (
     <div>
-      <nav>
-        <NavLink to="/users">Users</NavLink>
-      </nav>
       <Box
         sx={{
           display: "flex",
