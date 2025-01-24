@@ -6,6 +6,7 @@ import Users from "./pages/Users";
 import Header from "./components/Header";
 
 function App() {
+  // this is only here because only one level down. if it gets worse it is time to use contexts.
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
