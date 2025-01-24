@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import About from "./pages/About";
 import Users from "./pages/Users";
 import Header from "./components/Header";
+import Tasks from "./pages/Tasks";
 
 function App() {
   // this is only here because only one level down. if it gets worse it is time to use contexts.
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Login setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} />} />
         <Route path="/about" element={<About />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/tasks" element={<Tasks />} />
       </Routes>
     </>
   );

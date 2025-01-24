@@ -28,7 +28,7 @@ const Home = (props) => {
         if (res.data.isAdmin) {
           props.setIsAdmin(true);
         }
-        navigate("/users");
+        navigate("/tasks");
       }
     } catch (e) {
       console.log(e);
