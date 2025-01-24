@@ -48,9 +48,6 @@ export default function Users() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-      <nav>
-        <NavLink to="/">Back to login</NavLink>
-      </nav>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
         <h2>Users</h2>
         <div>
