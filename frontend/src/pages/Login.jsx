@@ -23,8 +23,7 @@ const Home = () => {
     // TODO: submit the request to the backend here. Remember to hash the password before sending it to the backend. Do once backend is set up.
     console.log("Button clicked");
     try {
-      // TODO hash password before sending
-      const res = await Axios.post("/login", { username, password }, { withCredentials: false });
+      const res = await Axios.post("/login", { username, password });
       console.log(res);
     } catch (e) {
       console.log(e);
