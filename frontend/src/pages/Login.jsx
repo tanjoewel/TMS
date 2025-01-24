@@ -24,7 +24,7 @@ const Home = () => {
     console.log("Button clicked");
     try {
       // TODO hash password before sending
-      const res = await Axios.post("/users/login", { username, password }, { withCredentials: false });
+      const res = await Axios.post("/login", { username, password }, { withCredentials: false });
       console.log(res);
     } catch (e) {
       console.log(e);
