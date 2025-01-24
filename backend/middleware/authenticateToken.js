@@ -9,6 +9,7 @@ function authenticateToken(req, res, next) {
     const token = parseCookies(cookies);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.decoded = decoded;
+    // after decoding, check if user exists in the database, then check that the ip and browser type after decoding is the same as in the request header.
     next();
   } catch (err) {
     console.error(err.message);

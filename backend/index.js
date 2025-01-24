@@ -6,6 +6,7 @@ const groupRoutes = require("./routes/groupRoutes");
 const userController = require("./controllers/userController");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const authenticateToken = require("./middleware/authenticateToken");
 
 const app = express();
 
@@ -58,6 +59,11 @@ app.post("/login", async (req, res) => {
   res.cookie("auth_token", token);
 
   res.status(200).send("Login successful");
+});
+
+app.post("/logout", authenticateToken, (req, res) => {
+  res.clearCookie("auth_token");
+  res.status(200).send("Logged out successfully");
 });
 
 app.listen(port, () => {

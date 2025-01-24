@@ -6,7 +6,7 @@ import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
-const Home = () => {
+const Home = (props) => {
   const navigate = useNavigate();
   const LoginButton = styled(Button)({
     backgroundColor: "blue",
@@ -23,7 +23,7 @@ const Home = () => {
   async function handleClick() {
     try {
       const res = await Axios.post("/login", { username, password });
-      console.log(res);
+      props.setIsLoggedIn(true);
       if (res.status === 200) {
         navigate("/users");
       }
