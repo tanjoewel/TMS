@@ -2,7 +2,7 @@ const { executeQuery } = require("../util/sql");
 const { getUser } = require("./userController");
 
 // needed to display the groups in drop down
-exports.getGroups = async function (req, res) {
+exports.getDistinctGroups = async function (req, res) {
   const query = "SELECT DISTINCT user_group_groupName FROM user_group;";
   try {
     const result = await executeQuery(query);
@@ -42,6 +42,15 @@ exports.assignGroup = async function (req, res) {
     }
   }
   return;
+};
+
+// for creating a group without a user
+exports.createGroup = async function (req, res) {
+  const { groupname } = req.body;
+  // it doesnt work to just leave the user as null, so we give it a username that cannot exist because of validation rules
+  const username = "$NULL";
+
+  res.send("Create group");
 };
 
 // a request version so that it is easy to test

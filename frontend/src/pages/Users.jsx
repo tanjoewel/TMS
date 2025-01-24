@@ -21,7 +21,7 @@ export default function Users() {
     }
     getUsers();
 
-    async function getGroups() {
+    async function getDistinctGroups() {
       try {
         const groups = await Axios.get("/groups");
         setGroups(groups.data);
@@ -29,7 +29,7 @@ export default function Users() {
         console.log("Error getting groups");
       }
     }
-    getGroups();
+    getDistinctGroups();
   }, []);
 
   async function handleUpdateClick() {
