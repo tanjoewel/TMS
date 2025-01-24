@@ -81,8 +81,29 @@ export default function Users() {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
                     <TableCell>{row.user_username}</TableCell>
-                    <TableCell>{row.user_password}</TableCell>
-                    <TableCell>{row.user_email}</TableCell>
+                    <TableCell>
+                      <TextField
+                        label="Enter new password to edit"
+                        fullWidth={true}
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "12px",
+                          },
+                        }}
+                      ></TextField>
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        label="Enter email to update"
+                        value={row.user_email ? row.user_email : ""}
+                        fullWidth={true}
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "12px",
+                          },
+                        }}
+                      ></TextField>
+                    </TableCell>
                     <TableCell></TableCell>
                     <TableCell>{row.user_enabled}</TableCell>
                     <TableCell>
