@@ -45,7 +45,38 @@ exports.assignGroup = async function (req, res) {
   return;
 };
 
-// will require some groups in the database first.
-exports.checkGroup = async function (req, res) {
-  return;
+// a request version so that it is easy to test
+exports.checkGroupRoute = async function (req, res) {
+  const { username, groupname } = req.body;
+  const isInGroup = await exports.checkGroup(username, groupname);
+  res.send(isInGroup);
+};
+
+exports.checkGroup = async function (username, groupname) {
+  // first check if the user actually exists
+  const user = await getUser(username);
+  if (user.length === 0) {
+    res.status(401).send("Cannot check the groups of a user that does not exist.");
+    return;
+  }
+  try {
+    const groupArr = await exports.getGroups(username);
+    return groupArr.includes(groupname);
+  } catch (err) {
+    console.error("Error checking group", err.message);
+  }
+};
+
+exports.getGroups = async function (username) {
+  try {
+    const query = "SELECT user_group_groupName FROM user_group WHERE user_group_username=?;";
+    const result = await executeQuery(query, [username]);
+    // convert into a form that is just an array of group names
+    const groupArr = result.map((group) => {
+      return group.user_group_groupName;
+    });
+    return groupArr;
+  } catch (err) {
+    console.error("Error getting groups");
+  }
 };

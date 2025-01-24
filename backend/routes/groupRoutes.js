@@ -8,6 +8,7 @@ router.use(authenticateToken);
 
 router.get("/", groupController.getGroups);
 router.post("/", groupController.assignGroup);
+router.post("/checkgroup", groupController.checkGroupRoute);
 // what about adding a user to a group?
 
 module.exports = router;
