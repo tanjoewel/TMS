@@ -19,7 +19,6 @@ exports.getGroups = async function (req, res) {
 };
 
 // i probably want two functions, one to create group by itself and one to assign a user to a group (which is basically creating a row in the user_group table)
-// but for now, i will just implement this as assigning a user to a group, but not even checking to see if a user exists.
 exports.assignGroup = async function (req, res) {
   const { username, groupname } = req.body;
   const query = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
