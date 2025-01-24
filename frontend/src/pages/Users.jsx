@@ -37,8 +37,13 @@ export default function Users() {
     console.log("clicked");
   }
 
+  // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
-    console.log("create");
+    try {
+      const result = await Axios.post("/groups/create", { groupname });
+    } catch (err) {
+      console.log("Error creating group");
+    }
   }
 
   return (

@@ -87,6 +87,7 @@ async function addGroupRow(username, groupname) {
   if (user.length === 0 && username !== "$NULL") {
     throw new Error("Cannot assign a group to a user that does not exist.");
   }
+  // we also should probably check if the group already exists, but I will save that for later
   // user exists and we can execute the query
   try {
     const result = await executeQuery(query, [username, groupname]);
