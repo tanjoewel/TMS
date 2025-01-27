@@ -7,9 +7,9 @@ import { useAuth } from "../AuthContext";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
-const Home = (props) => {
+const Home = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, setIsAuthenticated, setIsAdmin } = useAuth();
   const LoginButton = styled(Button)({
     backgroundColor: "blue",
     fontSize: 16,
@@ -26,11 +26,11 @@ const Home = (props) => {
   async function handleClick() {
     try {
       const res = await Axios.post("/login", { username, password });
-      props.setIsLoggedIn(true);
+      setIsAuthenticated(true);
       if (res.status === 200) {
         await login(username);
         if (res.data.isAdmin) {
-          props.setIsAdmin(true);
+          setIsAdmin(true);
         }
         navigate("/tasks");
       }

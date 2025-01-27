@@ -2,20 +2,24 @@ import React from "react";
 import { Box, Button, AppBar, Toolbar, Typography } from "@mui/material";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
-const Header = (props) => {
+const Header = () => {
   const navigate = useNavigate();
 
-  const isLoggedIn = props.isLoggedIn;
-  const isAdmin = props.isAdmin;
+  // const isLoggedIn = props.isLoggedIn;
+  // const isAdmin = props.isAdmin;
+
+  const { isAuthenticated, logout, isAdmin } = useAuth();
 
   async function handleLogout(e) {
     try {
       const res = await Axios.post("/logout", {});
       if (res.status === 200) {
-        props.setIsLoggedIn(false);
-        props.setIsAdmin(false);
-        navigate("/");
+        // props.setIsLoggedIn(false);
+        // props.setIsAdmin(false);
+        // navigate("/");
+        await logout();
       }
     } catch (err) {
       console.log(err.message);
@@ -37,7 +41,7 @@ const Header = (props) => {
           <Typography variant="h6" component="div" style={{ fontWeight: "bold" }}>
             Task Management System
           </Typography>
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div>
               <Button color="inherit" variant="outlined" onClick={handleClickTask}>
                 Task Management
@@ -54,7 +58,7 @@ const Header = (props) => {
             <></>
           )}
         </Box>
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             {/* <Typography variant="body1">Logged in as: &lt;username&gt;</Typography> */}
             {/* <Button variant="outlined">Profile</Button> */}
