@@ -55,7 +55,7 @@ app.post("/login", async (req, res) => {
   const userAgent = req.headers["user-agent"];
 
   // generate jwt token and send it. take note of the order
-  const token = jwt.sign({ username, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15m" });
+  const token = jwt.sign({ username, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15s" });
 
   res.cookie("auth_token", token);
 
@@ -68,6 +68,11 @@ app.post("/login", async (req, res) => {
 app.post("/logout", authenticateToken, (req, res) => {
   res.clearCookie("auth_token");
   res.status(200).send("Logged out successfully");
+});
+
+app.get("/verify", authenticateToken, (req, res) => {
+  // middleware will do the verification of the token for us. Checking the logged in state should be done on frontend?
+  res.status(200).json({ message: "User is valid.", username: req.decoded.username });
 });
 
 app.listen(port, () => {
