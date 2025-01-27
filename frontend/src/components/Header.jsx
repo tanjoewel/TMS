@@ -11,10 +11,7 @@ const Header = () => {
 
   async function handleLogout(e) {
     try {
-      const res = await Axios.post("/logout", {});
-      if (res.status === 200) {
-        await logout();
-      }
+      await logout();
     } catch (err) {
       console.log(err.message);
     }
