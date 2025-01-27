@@ -68,3 +68,25 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - Profile button
 - If super got time
   - Update user
+
+### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
+
+- Use protected routes to protect frontend, then backend is jwt verification
+- Frontend
+  - The main threat here is directly altering the URL to gain access to pages they should not have access to. For example, a user with no admin permissions types `/users` into the URL to access the user management page.
+    - The other threat is calling backend APIs they should not be calling. For example, a user with no admin permissions calling the Create User API. This should be handled by both the backend defense below and restricting access to pages they should not have access to.
+  - So we mainly need to prevent access to pages they should not have access to. To handle this, we use Protected Routes.
+    - Protected routes is a component that acts as a wrapper for other routes. The logic in this component will run before accessing the other routes.
+    - As a result, we use a useEffect to check if the user is authenticated or not.
+      - I am not quite sure what dependencies we should put in the useEffect.
+      - To check if the user is authenticated, we can call an API to the backend. I think this API does not need to actually do anything, as all we need to do is run the middleware.
+      - Then if they are not authenticated, then what?
+        - We can log them out and redirect to login. This should only happen when they try to access pages directly through the URL.
+        - A better approach might be to redirect them to another page, but keep them logged in so they can use the back button. But that can be a stretch goal for now. Or is this easier actually.
+          - To do this we just need to navigate in the protected route logic?
+- Backend
+  - The main threat to the backend is unauthorized access to controller logic through API requests (frontend or Postman).
+  - To mitigate this, we implement a `authenticateToken` middleware to check that the request comes with a valid JWT token.
+    - If the token does not exist at all, error and return 403.
+    - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
+      - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
