@@ -48,14 +48,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
 
 - Task management button route to task manager (super quick) (done)
 - 404 page (done)
-- Logging out user if jwt token is invalid
+- Logging out user if jwt token is invalid (done)
   - First need to set up global login state (use React Context).
   - If we are implementing with a global axios interceptor, we need to make it so that 403 is only thrown in a few specific cases:
     - JWT token is invalid (does not check out (see the point on double checking decoded jwt token))
     - User tries to access something they do not have permission for (see point right below)
-- Access management -> so non-admin user should not be able to access users page by typing '/users'
+- Access management -> so non-admin user should not be able to access users page by typing '/users' (done)
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
-- I don't think I need AuthError, so if don't need can just remove at this stage.
+- I don't think I need AuthError, so if don't need can just remove at this stage. (done)
 - Password field should hide the input
 - Disabled users (what is the behaviour?)
 - If got time
