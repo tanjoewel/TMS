@@ -17,12 +17,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // console.log("logout ran");
     Axios.post("/logout");
     setUsername(null);
     setIsAdmin(false);
     setIsAuthenticated(false);
-    console.log(isAuthenticated);
   };
 
   const checkAdmin = async function (username) {

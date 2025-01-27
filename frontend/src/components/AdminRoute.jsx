@@ -17,7 +17,6 @@ const AdminRoute = ({ children }) => {
           console.log("Admin check ran but failed");
           logout();
         }
-        // do we need to do anything?
       } catch (err) {
         // log the user out
         console.log("Error checking groups in admin route");

@@ -7,18 +7,12 @@ import { useAuth } from "../AuthContext";
 const Header = () => {
   const navigate = useNavigate();
 
-  // const isLoggedIn = props.isLoggedIn;
-  // const isAdmin = props.isAdmin;
-
   const { isAuthenticated, logout, isAdmin } = useAuth();
 
   async function handleLogout(e) {
     try {
       const res = await Axios.post("/logout", {});
       if (res.status === 200) {
-        // props.setIsLoggedIn(false);
-        // props.setIsAdmin(false);
-        // navigate("/");
         await logout();
       }
     } catch (err) {
