@@ -3,12 +3,14 @@ import { NavLink } from "react-router-dom";
 import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
+import { useAuth } from "../AuthContext";
 
 export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [group, setGroups] = useState([]);
   const [groupCounter, setGroupCounter] = useState(0);
+  const { logout } = useAuth();
 
   // when the page first loads, get the users from the database
   useEffect(() => {
@@ -17,6 +19,7 @@ export default function Users() {
         const users = await Axios.get("/users");
         setUsers(users.data);
       } catch (e) {
+        await logout();
         console.log("Error getting users");
       }
     }
@@ -30,6 +33,7 @@ export default function Users() {
         const groups = await Axios.get("/groups");
         setGroups(groups.data);
       } catch (e) {
+        await logout();
         console.log("Error getting groups");
       }
     }

@@ -43,3 +43,51 @@ You can head back to the documentation and continue by browsing the [templates](
 ### Entry point
 
 The entry point to this project is defined in [index.html](./index.html), under the `<script>` tag in the `<body>` section.
+
+### Todos
+
+- Task management button route to task manager (super quick) (done)
+- 404 page (done)
+- Logging out user if jwt token is invalid (done)
+  - First need to set up global login state (use React Context).
+  - If we are implementing with a global axios interceptor, we need to make it so that 403 is only thrown in a few specific cases:
+    - JWT token is invalid (does not check out (see the point on double checking decoded jwt token))
+    - User tries to access something they do not have permission for (see point right below)
+- Access management -> so non-admin user should not be able to access users page by typing '/users' (done)
+- Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
+- I don't think I need AuthError, so if don't need can just remove at this stage. (done)
+- Password field should hide the input
+- Disabled users (what is the behaviour?)
+- If got time
+  - Change text of account status button to be enabled/disabled instead of "STATUS"
+  - Finish up create user
+    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?)
+    - Need the group list to be interactive
+    - Fix the API body on both frontend and backend
+  - Username display on top right in header
+  - Profile button
+- If super got time
+  - Update user
+
+### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
+
+- Use protected routes to protect frontend, then backend is jwt verification
+- Frontend
+  - The main threat here is directly altering the URL to gain access to pages they should not have access to. For example, a user with no admin permissions types `/users` into the URL to access the user management page.
+    - The other threat is calling backend APIs they should not be calling. For example, a user with no admin permissions calling the Create User API. This should be handled by both the backend defense below and restricting access to pages they should not have access to.
+  - So we mainly need to prevent access to pages they should not have access to. To handle this, we use Protected Routes.
+    - Protected routes is a component that acts as a wrapper for other routes. The logic in this component will run before accessing the other routes.
+    - We use a useEffect to check if the user is authenticated or not.
+      - I am not quite sure what dependencies we should put in the useEffect.
+      - To check if the user is authenticated, we can call an API to the backend. I think this API does not need to actually do anything, as all we need to do is run the middleware.
+      - Then if they are not authenticated, then what?
+        - We can log them out and redirect to login. This should only happen when they try to access pages directly through the URL.
+        - A better approach might be to redirect them to another page, but keep them logged in so they can use the back button. But that can be a stretch goal for now. Or is this easier actually.
+          - To do this we just need to navigate in the protected route logic?
+      - And if they are authenticated? We can just return the component. They intend to go to.
+- Backend
+  - The main threat to the backend is unauthorized access to controller logic through API requests (frontend or Postman).
+  - To mitigate this, we implement a `authenticateToken` middleware to check that the request comes with a valid JWT token.
+    - If the token does not exist at all, error and return 403.
+    - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
+      - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
