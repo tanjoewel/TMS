@@ -77,13 +77,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - The other threat is calling backend APIs they should not be calling. For example, a user with no admin permissions calling the Create User API. This should be handled by both the backend defense below and restricting access to pages they should not have access to.
   - So we mainly need to prevent access to pages they should not have access to. To handle this, we use Protected Routes.
     - Protected routes is a component that acts as a wrapper for other routes. The logic in this component will run before accessing the other routes.
-    - As a result, we use a useEffect to check if the user is authenticated or not.
+    - We use a useEffect to check if the user is authenticated or not.
       - I am not quite sure what dependencies we should put in the useEffect.
       - To check if the user is authenticated, we can call an API to the backend. I think this API does not need to actually do anything, as all we need to do is run the middleware.
       - Then if they are not authenticated, then what?
         - We can log them out and redirect to login. This should only happen when they try to access pages directly through the URL.
         - A better approach might be to redirect them to another page, but keep them logged in so they can use the back button. But that can be a stretch goal for now. Or is this easier actually.
           - To do this we just need to navigate in the protected route logic?
+      - And if they are authenticated? We can just return the component. They intend to go to.
 - Backend
   - The main threat to the backend is unauthorized access to controller logic through API requests (frontend or Postman).
   - To mitigate this, we implement a `authenticateToken` middleware to check that the request comes with a valid JWT token.
