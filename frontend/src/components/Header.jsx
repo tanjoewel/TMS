@@ -26,6 +26,10 @@ const Header = (props) => {
     navigate("/users");
   }
 
+  function handleClickTask(e) {
+    navigate("/tasks");
+  }
+
   return (
     <AppBar position="static" color="default" elevation={0}>
       <Toolbar style={{ justifyContent: "space-between" }}>
@@ -35,7 +39,7 @@ const Header = (props) => {
           </Typography>
           {isLoggedIn ? (
             <div>
-              <Button color="inherit" variant="outlined">
+              <Button color="inherit" variant="outlined" onClick={handleClickTask}>
                 Task Management
               </Button>
               {isAdmin ? (
