@@ -5,6 +5,7 @@ import About from "./pages/About";
 import Users from "./pages/Users";
 import Header from "./components/Header";
 import Tasks from "./pages/Tasks";
+import NotFound from "./pages/NotFound";
 
 function App() {
   // this is only here because only one level down. if it gets worse it is time to use contexts.
@@ -19,6 +20,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/users" element={<Users />} />
         <Route path="/tasks" element={<Tasks />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
