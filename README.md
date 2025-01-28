@@ -56,6 +56,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Access management -> so non-admin user should not be able to access users page by typing '/users' (done)
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
 - I don't think I need AuthError, so if don't need can just remove at this stage. (done)
+- Dev user should not be able to access routes meant for admin using Postman. (done)
 - Password field should hide the input
 - Disabled users (what is the behaviour?)
 - If got time
@@ -91,3 +92,5 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - If the token does not exist at all, error and return 403.
     - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
       - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
+
+test git is working on my local
