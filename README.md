@@ -56,6 +56,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Access management -> so non-admin user should not be able to access users page by typing '/users' (done)
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
 - I don't think I need AuthError, so if don't need can just remove at this stage. (done)
+- Dev user should not be able to access routes meant for admin using Postman. (done)
 - Password field should hide the input
 - Disabled users (what is the behaviour?)
 - If got time
