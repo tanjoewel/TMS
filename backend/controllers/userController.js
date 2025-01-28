@@ -39,9 +39,9 @@ exports.createUser = async function (req, res) {
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const result = executeQuery(query, [username, hash, email]);
+    const result = await executeQuery(query, [username, hash, email]);
     res.status(200).send("User successfully created");
   } catch (err) {
-    res.status(500).send("Error creating users");
+    res.status(500).send("Error creating users: " + err.message);
   }
 };
