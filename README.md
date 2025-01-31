@@ -59,7 +59,10 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Dev user should not be able to access routes meant for admin using Postman. (done)
 - Password field should hide the input (done on ST laptop)
 - **Refreshing the page invariably takes me to the login page for some reason.**
-  - This is going to need a lot of debugging, but I suspect we can get some insight console logging in the auth middleware. (i don't think it is the admin middleware because it also happens when i refresh in the task management page.)
+  - This is going to need a lot of debugging, but I suspect we can get some insight console logging in the auth middleware. (i don't think it is the admin middleware because it also happens when i refresh in the task management page.) (it is not)
+  - New theory is that when we refresh the page it is setting isAuthenticated in the frontend to false. (theory verified)
+    - I have no idea how to solve this, so we might need to ask ChatGPT. The solution might be to use local storage, although its not the best it probably works here.
+    - This is also probably why the cookie still persists, because isAuthenticated is set to false before the `logout` function happens.
 - Disabled users (what is the behaviour?)
 - If got time
   - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
@@ -72,6 +75,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Password constraint: frontend and backend
   - Username display on top right in header (done on ST laptop I think)
   - Update user
+  - Snackbars to provide feedback to the user that certain actions have succeeded/failed.
+    - User creation
+      - Success
+      - Duplicate username
+      - Invalid username
+    - Group creation
+      - Success
+      - Duplicate group name
 - If super got time
   - Profile button
   - Change create user to use a transaction instead of two separate database queries.

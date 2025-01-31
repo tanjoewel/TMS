@@ -1,6 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { addGroupRow } = require("../util/commonQueries");
+const { getUser, addGroupRow } = require("../util/commonQueries");
 
 exports.getAllUsers = async function (req, res) {
   const query = "SELECT * FROM user";
@@ -25,8 +25,22 @@ exports.getAllUsers = async function (req, res) {
 
 exports.createUser = async function (req, res) {
   try {
-    // do username validation here? To check that there are no duplicate usernames. Also note that we don't want user to be case sensitive.
     const { username, password, email, groups, accountStatus } = req.body;
+
+    // check if user already exists. Need to make it case insensitive
+    const user = await getUser(username);
+    if (user.length > 0) {
+      res.status(400).json({ message: "User already exists!", type: "DUPLICATE_USERNAME" });
+      return;
+    }
+
+    // check if username contains any special characters (this regex in particular also makes sure it cannot be empty)
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const isMatch = username.match(alphanumericRegex);
+    if (!isMatch) {
+      res.status(400).json({ message: "Invalid username", type: "INVALID_USERNAME" });
+      return;
+    }
     const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
@@ -40,6 +54,7 @@ exports.createUser = async function (req, res) {
     }
     res.status(200).send("User successfully created");
   } catch (err) {
-    res.status(500).send("Error creating users: " + err.message);
+    console.log(err.message);
+    res.status(500).json({ message: "Error creating users: " + err.message, type: "DUPLICATE_USERNAME" });
   }
 };

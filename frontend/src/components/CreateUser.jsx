@@ -1,39 +1,68 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Snackbar, Alert } from "@mui/material";
 import Axios from "axios";
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
   const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
+  const SNACKBAR_SEVERITIES = ["success", "error"];
+  const USER_ERRORS = ["DUPLICATE_USERNAME", "INVALID_USERNAME"];
 
-  // might be possible to get away with using this instead of the whole form object as a state.
   const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
-
   const [groups, setGroups] = useState([]);
 
   const [anchorEl, setAnchorEl] = useState(null);
-
   const [openMenu, setOpenMenu] = useState(null);
-
   const [userForm, setUserForm] = useState({
     username: "",
     password: "",
     email: "",
   });
 
+  // for snackbars
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState(SNACKBAR_SEVERITIES[0]);
+
   async function handleCreateUserClick() {
     // convert the accountStatus into a tinyint before sending to backend.
     const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(accountStatus);
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
-    // reset everything to make it easier to bulk create users
-    setAccountStatus(ACCOUNT_STATUSES[1]);
-    setGroups([]);
-    setUserForm({
-      username: "",
-      password: "",
-      email: "",
-    });
-    await Axios.post("/users/create", userObject);
+    try {
+      const result = await Axios.post("/users/create", userObject);
+      // reset everything to make it easier to bulk create users
+      setAccountStatus(ACCOUNT_STATUSES[1]);
+      setGroups([]);
+      setUserForm({
+        username: "",
+        password: "",
+        email: "",
+      });
+      // snackbar configuration
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
+      setSnackbarMessage("User has been successfully created.");
+      setSnackbarOpen(true);
+    } catch (err) {
+      // set the error message based on response from backend
+      const errorType = err.response.data.type;
+      if (errorType === USER_ERRORS[0]) {
+        // duplicate username error message
+        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+        setSnackbarMessage(`User with username ${userForm.username} already exists.`);
+        setSnackbarOpen(true);
+      } else if (errorType === USER_ERRORS[1]) {
+        // invalid username error message
+        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+        setSnackbarMessage("Invalid username. Please only use alphanumeric characters.");
+        setSnackbarOpen(true);
+      } else {
+        // generic error message
+        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+        setSnackbarMessage("Error creating user.");
+        setSnackbarOpen(true);
+      }
+      console.log("Error while creating user: ", err);
+    }
 
     return;
   }
@@ -72,8 +101,20 @@ const User = (props) => {
     setUserForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function handleCloseAlert(event, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  }
+
   return (
     <>
+      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert onClose={handleCloseAlert} variant="filled" severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }}>
         {/* Username cell */}
         <TableCell>
