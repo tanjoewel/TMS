@@ -63,19 +63,21 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - New theory is that when we refresh the page it is setting isAuthenticated in the frontend to false. (theory verified)
     - I have no idea how to solve this, so we might need to ask ChatGPT. The solution might be to use local storage, although its not the best it probably works here.
     - This is also probably why the cookie still persists, because isAuthenticated is set to false before the `logout` function happens.
-- Disabled users (what is the behaviour?)
 - If got time
   - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
   - Finish up create user
     - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
     - Need the group list to be interactive (done)
     - Fix the API body on both frontend and backend (done)
-    - Username should not be case sensitive: backend
-    - Duplicate username: backend
+    - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
+    - Duplicate username: backend (done)
     - Password constraint: frontend and backend
   - Username display on top right in header (done on ST laptop I think)
   - Update user
-  - Snackbars to provide feedback to the user that certain actions have succeeded/failed.
+    - Backend API (prioritise)
+    - Table rows UI
+    - State management (probably the hardest part, there are multiple rows)
+  - Snackbars to provide feedback to the user that certain actions have succeeded/failed. (DONE)
     - User creation
       - Success
       - Duplicate username
@@ -84,6 +86,9 @@ The entry point to this project is defined in [index.html](./index.html), under 
       - Success
       - Duplicate group name
 - If super got time
+  - Disabled users (what is the behaviour?)
+  - Test and make sure that multiple instances work
+    - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
   - Profile button
   - Change create user to use a transaction instead of two separate database queries.
 

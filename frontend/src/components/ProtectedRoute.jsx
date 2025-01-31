@@ -4,24 +4,25 @@ import { Navigate, Outlet } from "react-router-dom";
 import Axios from "axios";
 
 const ProtectedRoute = () => {
-  const { setUsername, logout, isAuthenticated } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { setUsername, logout, isAuthenticated, loading, setLoading, setIsAuthenticated, setIsAdmin } = useAuth();
 
   useEffect(() => {
     const checkAuth = async () => {
       setLoading(true);
       try {
         const response = await Axios.get("/verify");
+        setIsAuthenticated(true);
+        setIsAdmin(response.data.isAdmin);
         setUsername(response.data.username);
       } catch (err) {
+        await logout();
         console.log("Auth check failed", err);
-        logout();
       } finally {
         setLoading(false);
       }
     };
     checkAuth();
-  }, [isAuthenticated]);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
