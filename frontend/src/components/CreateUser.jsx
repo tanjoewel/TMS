@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox } from "@mui/material";
+import Axios from "axios";
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
@@ -20,21 +21,20 @@ const User = (props) => {
     email: "",
   });
 
-  const dummyCreateUser = {
-    username: "test1",
-    password: "test",
-    email: "test@dummy.com",
-    // the group needs to be a drop down element with rows
-    group: [],
-  };
-
   async function handleCreateUserClick() {
-    // TODO send an axios request to create a user, and also clear all the related states.
-
     // convert the accountStatus into a tinyint before sending to backend.
     const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(accountStatus);
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
-    console.log(userObject, userObject.groups);
+    // reset everything to make it easier to bulk create users
+    setAccountStatus(ACCOUNT_STATUSES[1]);
+    setGroups([]);
+    setUserForm({
+      username: "",
+      password: "",
+      email: "",
+    });
+    await Axios.post("/users/create", userObject);
+
     return;
   }
 
@@ -81,6 +81,7 @@ const User = (props) => {
             label="Enter username"
             fullWidth={true}
             onChange={handleChange}
+            value={userForm.username}
             name="username"
             sx={{
               "& .MuiInputLabel-root": {
@@ -95,6 +96,7 @@ const User = (props) => {
             label="Enter password"
             fullWidth={true}
             onChange={handleChange}
+            value={userForm.password}
             name="password"
             sx={{
               "& .MuiInputLabel-root": {
@@ -109,6 +111,7 @@ const User = (props) => {
             label="Enter email"
             fullWidth={true}
             onChange={handleChange}
+            value={userForm.email}
             name="email"
             sx={{
               "& .MuiInputLabel-root": {

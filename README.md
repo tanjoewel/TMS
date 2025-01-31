@@ -57,21 +57,23 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
 - I don't think I need AuthError, so if don't need can just remove at this stage. (done)
 - Dev user should not be able to access routes meant for admin using Postman. (done)
-- Password field should hide the input
+- Password field should hide the input (done on ST laptop)
+- **Refreshing the page invariably takes me to the login page for some reason.**
+  - This is going to need a lot of debugging, but I suspect we can get some insight console logging in the auth middleware. (i don't think it is the admin middleware because it also happens when i refresh in the task management page.)
 - Disabled users (what is the behaviour?)
 - If got time
   - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
   - Finish up create user
     - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
     - Need the group list to be interactive (done)
-    - Fix the API body on both frontend and backend (doing)
+    - Fix the API body on both frontend and backend (done)
     - Username should not be case sensitive: backend
     - Duplicate username: backend
     - Password constraint: frontend and backend
   - Username display on top right in header (done on ST laptop I think)
   - Update user
-  - Profile button
 - If super got time
+  - Profile button
   - Change create user to use a transaction instead of two separate database queries.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
