@@ -87,7 +87,7 @@ export default function Users() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <CreateUser group={group} />
+              <CreateUser groups={group} />
               {users.map((row) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
