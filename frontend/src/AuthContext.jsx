@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    Axios.post("/logout");
+  const logout = async () => {
+    await Axios.post("/logout");
     setUsername(null);
     setIsAdmin(false);
     setIsAuthenticated(false);

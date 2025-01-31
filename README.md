@@ -48,7 +48,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 
 - Task management button route to task manager (super quick) (done)
 - 404 page (done)
-- Logging out user if jwt token is invalid (done)
+- Logging out user if jwt token is invalid **(done but is bare minimum and still kinda buggy. In particular, there are still scenarios where the cookies are not deleted.)**
   - First need to set up global login state (use React Context).
   - If we are implementing with a global axios interceptor, we need to make it so that 403 is only thrown in a few specific cases:
     - JWT token is invalid (does not check out (see the point on double checking decoded jwt token))
@@ -60,7 +60,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Password field should hide the input
 - Disabled users (what is the behaviour?)
 - If got time
-  - Change text of account status button to be enabled/disabled instead of "STATUS"
+  - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
   - Finish up create user
     - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?)
     - Need the group list to be interactive

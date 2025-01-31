@@ -37,7 +37,7 @@ const DropDown = (props) => {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        endIcon={open ? <img src="public/DropArrowUp.svg" /> : <img src="public/DropDownArrow.svg" />}
+        endIcon={open ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
       >
         {buttonText}
       </Button>
