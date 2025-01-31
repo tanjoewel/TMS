@@ -8,6 +8,7 @@ const groupController = require("./controllers/groupController");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./middleware/authenticateToken");
+const { getUser } = require("./util/commonQueries");
 
 const app = express();
 
@@ -33,7 +34,7 @@ app.get("/", async (req, res) => {
 app.post("/login", async (req, res) => {
   // first check if username exists in the database.
   const { username, password } = req.body;
-  const result = await userController.getUser(username);
+  const result = await getUser(username);
   // query returns nothing, user does not exist, invalid username
   if (result.length === 0) {
     res.status(401).send("Invalid username and password");

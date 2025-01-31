@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
+const { addGroupRow } = require("../util/commonQueries");
 
 exports.getAllUsers = async function (req, res) {
   const query = "SELECT * FROM user";
@@ -22,24 +23,21 @@ exports.getAllUsers = async function (req, res) {
   }
 };
 
-/**
- * Helper function to check if a user exists in the database
- */
-exports.getUser = async function (username) {
-  const query = "SELECT * FROM tms.user WHERE user_username = ?;";
-  const result = await executeQuery(query, [username]);
-  return result;
-};
-
 exports.createUser = async function (req, res) {
   try {
-    // do username validation here?
-    const { username, password, email } = req.body;
-    const query = `INSERT INTO user (user_username, user_password, user_email) VALUES (?, ?, ?)`;
+    // do username validation here? To check that there are no duplicate usernames. Also note that we don't want user to be case sensitive.
+    const { username, password, email, groups, accountStatus } = req.body;
+    const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const result = await executeQuery(query, [username, hash, email]);
+    const result = await executeQuery(query, [username, hash, email, accountStatus]);
+    // only if the above query executes, then we add groups. However, note that with this implementation it is possible that we successfully add the user but fail to assign the user to the groups. In which case, the way to solve it would be using a transaction. Perhaps that can be a later feature?
+    if (groups.length > 0) {
+      for (let i = 0; i < groups.length; i++) {
+        await addGroupRow(username, groups[i]);
+      }
+    }
     res.status(200).send("User successfully created");
   } catch (err) {
     res.status(500).send("Error creating users: " + err.message);

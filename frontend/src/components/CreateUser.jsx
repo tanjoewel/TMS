@@ -3,10 +3,10 @@ import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox } from
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
-  const ACCOUNT_STATUSES = ["Enabled", "Disabled"];
+  const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
 
   // might be possible to get away with using this instead of the whole form object as a state.
-  const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[0]);
+  const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
 
   const [groups, setGroups] = useState([]);
 
@@ -30,7 +30,10 @@ const User = (props) => {
 
   async function handleCreateUserClick() {
     // TODO send an axios request to create a user, and also clear all the related states.
-    const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus };
+
+    // convert the accountStatus into a tinyint before sending to backend.
+    const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(accountStatus);
+    const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     console.log(userObject, userObject.groups);
     return;
   }
@@ -150,8 +153,8 @@ const User = (props) => {
             {accountStatus || "Status"}
           </Button>
           <Menu id="account-status" open={openMenu === "account-status"} anchorEl={anchorEl} onClose={handleCloseOutside}>
-            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[0])}>Enabled</MenuItem>
-            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[1])}>Disabled</MenuItem>
+            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
+            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[0])}>Disabled</MenuItem>
           </Menu>
         </TableCell>
         {/* Create user cell */}

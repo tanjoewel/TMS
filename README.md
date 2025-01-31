@@ -62,13 +62,17 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - If got time
   - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
   - Finish up create user
-    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?)
-    - Need the group list to be interactive
-    - Fix the API body on both frontend and backend
-  - Username display on top right in header
+    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
+    - Need the group list to be interactive (done)
+    - Fix the API body on both frontend and backend (doing)
+    - Username should not be case sensitive: backend
+    - Duplicate username: backend
+    - Password constraint: frontend and backend
+  - Username display on top right in header (done on ST laptop I think)
+  - Update user
   - Profile button
 - If super got time
-  - Update user
+  - Change create user to use a transaction instead of two separate database queries.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
