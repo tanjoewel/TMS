@@ -5,7 +5,7 @@ import Axios from "axios";
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
   const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-  const SNACKBAR_SEVERITIES = ["success", "error"];
+  const SNACKBAR_SEVERITIES = props.SNACKBAR_SEVERITIES;
   const USER_ERRORS = ["DUPLICATE_USERNAME", "INVALID_USERNAME"];
 
   const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
@@ -30,14 +30,7 @@ const User = (props) => {
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     try {
       const result = await Axios.post("/users/create", userObject);
-      // reset everything to make it easier to bulk create users
-      setAccountStatus(ACCOUNT_STATUSES[1]);
-      setGroups([]);
-      setUserForm({
-        username: "",
-        password: "",
-        email: "",
-      });
+
       // snackbar configuration
       setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
       setSnackbarMessage("User has been successfully created.");
@@ -62,6 +55,15 @@ const User = (props) => {
         setSnackbarOpen(true);
       }
       console.log("Error while creating user: ", err);
+    } finally {
+      // reset everything to make it easier to bulk create users
+      setAccountStatus(ACCOUNT_STATUSES[1]);
+      setGroups([]);
+      setUserForm({
+        username: "",
+        password: "",
+        email: "",
+      });
     }
 
     return;
@@ -110,6 +112,7 @@ const User = (props) => {
 
   return (
     <>
+      {/* Snackbar component for feedback */}
       <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
         <Alert onClose={handleCloseAlert} variant="filled" severity={snackbarSeverity}>
           {snackbarMessage}
