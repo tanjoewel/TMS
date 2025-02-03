@@ -86,6 +86,13 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Group creation
       - Success
       - Duplicate group name
+- New constraints
+  - All admins can disable any account including their own, except HC admin accounts.
+  - All admins can remove any account from admin group, including their own, except for HC admin account.
+  - The way to distinguish is to have one username reserved the hardcoded admin account. Then the admin checkbox for that should be disabled.
+  - Not sure about behaviour for hardcoded PL and hardcoded PM.
+- Sometimes backend will crash when JWT expires with the error message saying cannot set headers after they are sent to client. Possibly in middleware logic.
+  - There was one where I forgot to return from an if block.
 - If super got time
   - Disabled users (what is the behaviour?)
   - Test and make sure that multiple instances work

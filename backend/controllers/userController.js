@@ -30,17 +30,29 @@ exports.createUser = async function (req, res) {
     // check if user already exists. Need to make it case insensitive
     const user = await getUser(username);
     if (user.length > 0) {
-      res.status(400).json({ message: "User already exists!", type: "DUPLICATE_USERNAME" });
+      res.status(400).json({ message: `Username is already taken.` });
       return;
     }
 
     // check if username contains any special characters (this regex in particular also makes sure it cannot be empty)
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    const isMatch = username.match(alphanumericRegex);
-    if (!isMatch) {
-      res.status(400).json({ message: "Invalid username", type: "INVALID_USERNAME" });
+    const isUsernameMatch = username.match(alphanumericRegex);
+    if (!isUsernameMatch) {
+      res.status(400).json({ message: "Username cannot contain special characters or be empty." });
       return;
     }
+
+    // password validation. The regex below checks for the following:
+    // Between 8 to 10 characters, must not contain spaces, must have at least one alphabet, number and special character
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])[^\s]{8,10}$/;
+    const isPasswordMatch = password.match(passwordRegex);
+    if (!isPasswordMatch) {
+      res.status(400).json({
+        message: "Password has to be between 8-10 characters and has to be alphanumeric with special characters and is case sensitive",
+      });
+      return;
+    }
+
     const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
@@ -55,6 +67,6 @@ exports.createUser = async function (req, res) {
     res.status(200).send("User successfully created");
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ message: "Error creating users: " + err.message, type: "DUPLICATE_USERNAME" });
+    res.status(500).json({ message: "Error creating users: " + err.message });
   }
 };

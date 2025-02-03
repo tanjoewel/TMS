@@ -6,7 +6,6 @@ import Axios from "axios";
 const User = (props) => {
   const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
   const SNACKBAR_SEVERITIES = props.SNACKBAR_SEVERITIES;
-  const USER_ERRORS = ["DUPLICATE_USERNAME", "INVALID_USERNAME"];
 
   const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
   const [groups, setGroups] = useState([]);
@@ -35,28 +34,8 @@ const User = (props) => {
       setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
       setSnackbarMessage("User has been successfully created.");
       setSnackbarOpen(true);
-    } catch (err) {
-      // set the error message based on response from backend
-      const errorType = err.response.data.type;
-      if (errorType === USER_ERRORS[0]) {
-        // duplicate username error message
-        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-        setSnackbarMessage(`User with username ${userForm.username} already exists.`);
-        setSnackbarOpen(true);
-      } else if (errorType === USER_ERRORS[1]) {
-        // invalid username error message
-        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-        setSnackbarMessage("Invalid username. Please only use alphanumeric characters.");
-        setSnackbarOpen(true);
-      } else {
-        // generic error message
-        setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-        setSnackbarMessage("Error creating user.");
-        setSnackbarOpen(true);
-      }
-      console.log("Error while creating user: ", err);
-    } finally {
-      // reset everything to make it easier to bulk create users
+
+      // reset everything only when user is successfully created
       setAccountStatus(ACCOUNT_STATUSES[1]);
       setGroups([]);
       setUserForm({
@@ -64,6 +43,11 @@ const User = (props) => {
         password: "",
         email: "",
       });
+    } catch (err) {
+      const errorMessage = err.response.data.message;
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+      setSnackbarMessage(errorMessage);
+      setSnackbarOpen(true);
     }
 
     return;
