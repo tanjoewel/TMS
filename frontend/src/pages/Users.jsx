@@ -128,6 +128,14 @@ export default function Users() {
     setAnchorEl(null);
   }
 
+  function handleChange(index, field, value) {
+    const newUsers = users.map((user, i) => {
+      return i === index ? { ...user, [field]: value } : user;
+    });
+    console.log(newUsers);
+    setUsers(newUsers);
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
@@ -177,6 +185,7 @@ export default function Users() {
                       <TextField
                         value={user.user_username}
                         fullWidth={true}
+                        onChange={(e) => handleChange(index, "user_username", e.target.value)}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
@@ -189,6 +198,7 @@ export default function Users() {
                       <TextField
                         label="Enter new password to edit"
                         fullWidth={true}
+                        onChange={(e) => handleChange(index, "user_password", e.target.value)}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
@@ -202,6 +212,7 @@ export default function Users() {
                         label="Enter email to update"
                         value={user.user_email ? user.user_email : ""}
                         fullWidth={true}
+                        onChange={(e) => handleChange(index, "user_email", e.target.value)}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
