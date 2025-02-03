@@ -3,11 +3,14 @@ const bcrypt = require("bcryptjs");
 const { getUser, addGroupRow } = require("../util/commonQueries");
 
 exports.getAllUsers = async function (req, res) {
-  const query = "SELECT * FROM user";
-  // on the frontend, send the cookie as a header and then in the backend access it with req.header[<header name>]
+  // need to get the user groups as well, and remove password from the query
+  const query =
+    "SELECT user_username, user_email, user_enabled, IFNULL(GROUP_CONCAT(user_group_groupname SEPARATOR ', '), '') AS `groups` FROM tms.user LEFT JOIN user_group ON user_username=user_group_username GROUP BY user_username, user_email, user_enabled ORDER BY user_username;";
   try {
     const result = await executeQuery(query);
-    // convert the boolean value in the database to a form that is readable by the user.
+    // format the result
+
+    // first, convert the boolean value in the database to a form that is readable by the user.
     result.map((e) => {
       if (e.user_enabled === 1) {
         e.user_enabled = "enabled";
@@ -16,10 +19,19 @@ exports.getAllUsers = async function (req, res) {
       }
       return e;
     });
+
+    // combine the groups together
+    result.forEach((user) => {
+      let groupsArr = user.groups.split(",");
+      if (groupsArr[0] === "") {
+        groupsArr = [];
+      }
+      user.groups = groupsArr;
+    });
     res.send(result);
     return result;
   } catch (err) {
-    res.status(500).send("Error fetching users");
+    res.status(500).send("Error fetching users: " + err.message);
   }
 };
 
