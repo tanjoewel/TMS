@@ -13,6 +13,7 @@ router.use(checkAdmin);
 
 router.get("/", userController.getAllUsers);
 router.post("/create", userController.createUser);
-// router.post("/login", userController.login);
+// use put because I intend to send in the whole user object - idempotency
+router.put("/update", userController.updateUser);
 
 module.exports = router;

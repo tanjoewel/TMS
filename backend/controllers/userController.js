@@ -70,3 +70,39 @@ exports.createUser = async function (req, res) {
     res.status(500).json({ message: "Error creating users: " + err.message });
   }
 };
+
+exports.updateUser = async function (req, res) {
+  try {
+    const { username, password, email, groups, accountStatus } = req.body;
+
+    // first check if the user exists in the database. By right this should not happen, so this should be a 500.
+    const user = await getUser(username);
+    // console.log("hi", user);
+    if (user.length === 0) {
+      res.status(500).json({ message: `User not found` });
+      return;
+    }
+
+    // hash password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+
+    const query = "UPDATE user SET user_username = ?, user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+    const result = await executeQuery(query, [username, hash, email, accountStatus, username]);
+
+    // update the groups, this one is going to be a bit tricky to maintain idempotency
+    // first, delete every record in user_groups of this user
+    const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
+    const deleteGroupsResult = await executeQuery(deleteGroupsQuery, [username]);
+
+    // then, add groups
+    if (groups.length > 0) {
+      for (let i = 0; i < groups.length; i++) {
+        await addGroupRow(username, groups[i]);
+      }
+    }
+    res.status(200).send("User successfully updated");
+  } catch (err) {
+    res.status(500).json({ message: "Error updating user: " + err.message });
+  }
+};
