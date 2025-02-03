@@ -15,6 +15,7 @@ import {
   Menu,
   MenuItem,
   Checkbox,
+  Typography,
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
@@ -72,15 +73,21 @@ export default function Users() {
     const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(userToUpdate.user_enabled);
     const userObject = {
       username: userToUpdate.user_username,
-      password: userToUpdate.user_password,
+      password: userToUpdate.user_password || "",
       email: userToUpdate.user_email,
       groups: userToUpdate.groups,
       accountStatus: accountStatusTinyint,
     };
     try {
       await Axios.put("/users/update", userObject);
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
+      setSnackbarMessage("User has been successfully updated.");
+      setSnackbarOpen(true);
     } catch (err) {
-      console.log("Error updating user: " + err.response.data.message);
+      const errorMessage = err.response.data.message;
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+      setSnackbarMessage(errorMessage);
+      setSnackbarOpen(true);
     }
   }
 
@@ -215,16 +222,7 @@ export default function Users() {
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.user_username}>
                     {/* Username cell */}
                     <TableCell>
-                      <TextField
-                        value={user.user_username}
-                        fullWidth={true}
-                        onChange={(e) => handleChange(index, "user_username", e.target.value)}
-                        sx={{
-                          "& .MuiInputLabel-root": {
-                            fontSize: "12px",
-                          },
-                        }}
-                      ></TextField>
+                      <Typography>{user.user_username}</Typography>
                     </TableCell>
                     {/* Password cell */}
                     <TableCell>
