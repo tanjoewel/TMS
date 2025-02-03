@@ -7,7 +7,7 @@ import { useAuth } from "../AuthContext";
 const Header = () => {
   const navigate = useNavigate();
 
-  const { isAuthenticated, logout, isAdmin, setIsAuthenticated, setIsAdmin } = useAuth();
+  const { isAuthenticated, logout, isAdmin, setIsAuthenticated, setIsAdmin, username } = useAuth();
 
   async function handleLogout(e) {
     try {
@@ -53,8 +53,8 @@ const Header = () => {
         </Box>
         {isAuthenticated ? (
           <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            {/* <Typography variant="body1">Logged in as: &lt;username&gt;</Typography> */}
-            {/* <Button variant="outlined">Profile</Button> */}
+            <Typography variant="body1">Logged in as: {username}</Typography>
+            <Button variant="outlined">Profile</Button>
             <Button variant="outlined" onClick={handleLogout}>
               Logout
             </Button>
