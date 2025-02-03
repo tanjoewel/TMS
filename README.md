@@ -86,6 +86,11 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Group creation
       - Success
       - Duplicate group name
+- New constraints
+  - Admin cannot remove themselves from the admin group and cannot disable themselves
+  - Admin cannot do the same to the hardcoded admin (the root user).
+- Sometimes backend will crash when JWT expires with the error message saying cannot set headers after they are sent to client. Possibly in middleware logic.
+  - There was one where I forgot to return from an if block.
 - If super got time
   - Disabled users (what is the behaviour?)
   - Test and make sure that multiple instances work
