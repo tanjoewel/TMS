@@ -30,7 +30,7 @@ exports.createUser = async function (req, res) {
     // check if user already exists. Need to make it case insensitive
     const user = await getUser(username);
     if (user.length > 0) {
-      res.status(400).json({ message: `User with username ${username} already exists.` });
+      res.status(400).json({ message: `Username is already taken.` });
       return;
     }
 
@@ -38,7 +38,7 @@ exports.createUser = async function (req, res) {
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
     const isUsernameMatch = username.match(alphanumericRegex);
     if (!isUsernameMatch) {
-      res.status(400).json({ message: "Invalid username. Please only use alphanumeric characters and ensure it is not empty." });
+      res.status(400).json({ message: "Username cannot contain special characters or be empty." });
       return;
     }
 
