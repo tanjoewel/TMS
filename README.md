@@ -72,6 +72,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
     - Duplicate username: backend (done)
     - Password constraint: frontend and backend
+    - After creating a user, should we re-render the component to reflect the new user?
   - Username display on top right in header (done on ST laptop I think)
   - Update user
     - Backend API (prioritise)
