@@ -5,7 +5,7 @@ const { getUser, addGroupRow } = require("../util/commonQueries");
 exports.getAllUsers = async function (req, res) {
   // need to get the user groups as well, and remove password from the query
   const query =
-    "SELECT user_username, user_email, user_enabled, IFNULL(GROUP_CONCAT(user_group_groupname SEPARATOR ', '), '') AS `groups` FROM tms.user LEFT JOIN user_group ON user_username=user_group_username GROUP BY user_username, user_email, user_enabled ORDER BY user_username;";
+    "SELECT user_username, user_email, user_enabled, IFNULL(GROUP_CONCAT(user_group_groupname SEPARATOR ','), '') AS `groups` FROM tms.user LEFT JOIN user_group ON user_username=user_group_username GROUP BY user_username, user_email, user_enabled ORDER BY user_username;";
   try {
     const result = await executeQuery(query);
     // format the result

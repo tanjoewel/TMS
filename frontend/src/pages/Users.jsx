@@ -14,6 +14,7 @@ import {
   Alert,
   Menu,
   MenuItem,
+  Checkbox,
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
@@ -222,26 +223,26 @@ export default function Users() {
                     </TableCell>
                     {/* Groups cell */}
                     <TableCell>
-                      {/* <Button
+                      <Button
                         id="groups"
-                        aria-controls={openMenu === "groups" ? "groups-menu" : undefined}
+                        aria-controls={openMenu.type === "groups" && openMenu.index === index ? "groups-menu" : undefined}
                         aria-haspopup="true"
-                        aria-expanded={openMenu === "groups" ? "true" : undefined}
-                        onClick={(event) => handleDropDownClick(event, "groups")}
-                        endIcon={openMenu === "groups" ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
+                        aria-expanded={openMenu.type === "groups" && openMenu.index === index ? "true" : undefined}
+                        onClick={(event) => handleDropDownClick(event, "groups", index)}
+                        endIcon={openMenu.type === "groups" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
                       >
                         Groups
                       </Button>
-                      <Menu id="groups-menu" open={openMenu === "groups"} anchorEl={anchorEl} onClose={handleCloseOutside}>
-                        {user.user_groups.map((item) => {
+                      <Menu id="groups-menu" open={openMenu.type === "groups" && openMenu.index === index} anchorEl={anchorEl} onClose={handleCloseOutside}>
+                        {groups.map((item) => {
                           return (
                             <MenuItem key={item} onClick={() => handleGroupSelect(item)}>
                               {item}
-                              <Checkbox checked={groups.includes(item)} />
+                              <Checkbox checked={user.groups.includes(item)} />
                             </MenuItem>
                           );
                         })}
-                      </Menu> */}
+                      </Menu>
                     </TableCell>
                     {/* Account status Cell */}
                     <TableCell>
