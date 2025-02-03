@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useContext } from "react";
 import Axios from "axios";
 
 const AuthContext = createContext();
@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const login = async (username) => {
     setUsername(username);
@@ -16,8 +17,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    Axios.post("/logout");
+  const logout = async () => {
+    await Axios.post("/logout");
     setUsername(null);
     setIsAdmin(false);
     setIsAuthenticated(false);
@@ -33,8 +34,21 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const verify = async function () {
+    console.log("verify ran");
+    try {
+      const response = await Axios.get("/verify");
+      setIsAuthenticated(true);
+    } catch (err) {
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, username, isAdmin, checkAdmin, setUsername, setIsAdmin, setIsAuthenticated }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, username, isAdmin, checkAdmin, setUsername, setIsAdmin, setIsAuthenticated, verify, loading, setLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

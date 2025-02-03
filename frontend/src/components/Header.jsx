@@ -7,12 +7,14 @@ import { useAuth } from "../AuthContext";
 const Header = () => {
   const navigate = useNavigate();
 
-  const { isAuthenticated, logout, isAdmin } = useAuth();
+  const { isAuthenticated, logout, isAdmin, setIsAuthenticated, setIsAdmin } = useAuth();
 
   async function handleLogout(e) {
     try {
       await logout();
     } catch (err) {
+      setIsAuthenticated(false);
+      setIsAdmin(false);
       console.log(err.message);
     }
   }

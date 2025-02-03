@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
+const { getUser, addGroupRow } = require("../util/commonQueries");
 
 exports.getAllUsers = async function (req, res) {
   const query = "SELECT * FROM user";
@@ -22,26 +23,38 @@ exports.getAllUsers = async function (req, res) {
   }
 };
 
-/**
- * Helper function to check if a user exists in the database
- */
-exports.getUser = async function (username) {
-  const query = "SELECT * FROM tms.user WHERE user_username = ?;";
-  const result = await executeQuery(query, [username]);
-  return result;
-};
-
 exports.createUser = async function (req, res) {
   try {
-    // do username validation here?
-    const { username, password, email } = req.body;
-    const query = `INSERT INTO user (user_username, user_password, user_email) VALUES (?, ?, ?)`;
+    const { username, password, email, groups, accountStatus } = req.body;
+
+    // check if user already exists. Need to make it case insensitive
+    const user = await getUser(username);
+    if (user.length > 0) {
+      res.status(400).json({ message: "User already exists!", type: "DUPLICATE_USERNAME" });
+      return;
+    }
+
+    // check if username contains any special characters (this regex in particular also makes sure it cannot be empty)
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const isMatch = username.match(alphanumericRegex);
+    if (!isMatch) {
+      res.status(400).json({ message: "Invalid username", type: "INVALID_USERNAME" });
+      return;
+    }
+    const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const result = await executeQuery(query, [username, hash, email]);
+    const result = await executeQuery(query, [username, hash, email, accountStatus]);
+    // only if the above query executes, then we add groups. However, note that with this implementation it is possible that we successfully add the user but fail to assign the user to the groups. In which case, the way to solve it would be using a transaction. Perhaps that can be a later feature?
+    if (groups.length > 0) {
+      for (let i = 0; i < groups.length; i++) {
+        await addGroupRow(username, groups[i]);
+      }
+    }
     res.status(200).send("User successfully created");
   } catch (err) {
-    res.status(500).send("Error creating users: " + err.message);
+    console.log(err.message);
+    res.status(500).json({ message: "Error creating users: " + err.message, type: "DUPLICATE_USERNAME" });
   }
 };

@@ -1,5 +1,5 @@
 const { executeQuery } = require("../util/sql");
-const { getUser } = require("./userController");
+const { getUser, addGroupRow } = require("../util/commonQueries");
 
 // needed to display the groups in drop down
 exports.getDistinctGroups = async function (req, res) {
@@ -78,25 +78,3 @@ exports.getGroups = async function (username) {
     console.error("Error getting groups");
   }
 };
-
-async function addGroupRow(username, groupname) {
-  const query = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
-  const user = await getUser(username);
-  // by right this should never happen from the user side, but I am still going to blame the user because i can
-  if (user.length === 0 && username !== "$NULL") {
-    throw new Error("Cannot assign a group to a user that does not exist.");
-  }
-  // we also should probably check if the group already exists, but I will save that for later
-  // user exists and we can execute the query
-  try {
-    const result = await executeQuery(query, [username, groupname]);
-    return result;
-  } catch (err) {
-    if (err.message.includes("Duplicate entry")) {
-      // again, this should not happen but i am going to blame the user
-      throw new Error("User is already assigned to this group!");
-    } else {
-      throw new Error("Error assigning user to a group");
-    }
-  }
-}

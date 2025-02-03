@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const userController = require("../controllers/userController");
+const { getUser } = require("../util/commonQueries");
 
 async function authenticateToken(req, res, next) {
   const cookies = req.headers.cookie;
@@ -15,7 +15,7 @@ async function authenticateToken(req, res, next) {
 
     // check if user exists in the database
     const { username, ip, userAgent } = decoded;
-    const result = await userController.getUser(username);
+    const result = await getUser(username);
     if (result.length === 0) {
       // res.status(403).send("An error has occured, please login again.");
       res.status(403).send("Invalid JWT token: username does not exist in the database");

@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell } from "@mui/material";
+import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell, Snackbar, Alert } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
 
 export default function Users() {
+  const SNACKBAR_SEVERITIES = ["success", "error"];
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
-  const [group, setGroups] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [groupCounter, setGroupCounter] = useState(0);
   const { logout } = useAuth();
+
+  //for snackbars
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState(SNACKBAR_SEVERITIES[0]);
 
   // when the page first loads, get the users from the database
   useEffect(() => {
@@ -47,19 +53,51 @@ export default function Users() {
 
   // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
-    try {
-      const result = await Axios.post("/groups/create", { groupname });
+    // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (groups.includes(groupname)) {
       setGroupname("");
-      setGroupCounter((a) => a + 1);
-    } catch (err) {
-      console.log("Error creating group");
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+      setSnackbarMessage("Group already exists.");
+      setSnackbarOpen(true);
+    } else if (groupname.length === "") {
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+      setSnackbarMessage("Group name cannot be empty.");
+      setSnackbarOpen(true);
+    } else if (!groupname.match(alphanumericRegex)) {
+      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
+      setSnackbarMessage("Group name must only contain alphanuimeric characters.");
+      setSnackbarOpen(true);
+    } else {
+      try {
+        const result = await Axios.post("/groups/create", { groupname });
+        setGroupname("");
+        setGroupCounter((a) => a + 1);
+        setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
+        setSnackbarMessage("Group has successfully been created");
+        setSnackbarOpen(true);
+      } catch (err) {
+        console.log("Error creating group");
+      }
     }
+  }
+
+  function handleCloseAlert(event, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
         <h2>User Management</h2>
+        <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+          <Alert onClose={handleCloseAlert} variant="filled" severity={snackbarSeverity}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <div>
           <TextField
             id="groupname"
@@ -87,7 +125,7 @@ export default function Users() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <CreateUser group={group} />
+              <CreateUser groups={groups} SNACKBAR_SEVERITIES={SNACKBAR_SEVERITIES} />
               {users.map((row) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>

@@ -48,7 +48,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 
 - Task management button route to task manager (super quick) (done)
 - 404 page (done)
-- Logging out user if jwt token is invalid (done)
+- Logging out user if jwt token is invalid **(done but is bare minimum and still kinda buggy. In particular, there are still scenarios where the cookies are not deleted.)**
   - First need to set up global login state (use React Context).
   - If we are implementing with a global axios interceptor, we need to make it so that 403 is only thrown in a few specific cases:
     - JWT token is invalid (does not check out (see the point on double checking decoded jwt token))
@@ -57,18 +57,40 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
 - I don't think I need AuthError, so if don't need can just remove at this stage. (done)
 - Dev user should not be able to access routes meant for admin using Postman. (done)
-- Password field should hide the input
-- Disabled users (what is the behaviour?)
+- Password field should hide the input (done on ST laptop)
+- **Refreshing the page invariably takes me to the login page for some reason.**
+  - This is going to need a lot of debugging, but I suspect we can get some insight console logging in the auth middleware. (i don't think it is the admin middleware because it also happens when i refresh in the task management page.) (it is not)
+  - New theory is that when we refresh the page it is setting isAuthenticated in the frontend to false. (theory verified)
+    - I have no idea how to solve this, so we might need to ask ChatGPT. The solution might be to use local storage, although its not the best it probably works here.
+    - This is also probably why the cookie still persists, because isAuthenticated is set to false before the `logout` function happens.
 - If got time
-  - Change text of account status button to be enabled/disabled instead of "STATUS"
+  - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
   - Finish up create user
-    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?)
-    - Need the group list to be interactive
-    - Fix the API body on both frontend and backend
-  - Username display on top right in header
-  - Profile button
-- If super got time
+    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
+    - Need the group list to be interactive (done)
+    - Fix the API body on both frontend and backend (done)
+    - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
+    - Duplicate username: backend (done)
+    - Password constraint: frontend and backend
+  - Username display on top right in header (done on ST laptop I think)
   - Update user
+    - Backend API (prioritise)
+    - Table rows UI
+    - State management (probably the hardest part, there are multiple rows)
+  - Snackbars to provide feedback to the user that certain actions have succeeded/failed. (DONE)
+    - User creation
+      - Success
+      - Duplicate username
+      - Invalid username
+    - Group creation
+      - Success
+      - Duplicate group name
+- If super got time
+  - Disabled users (what is the behaviour?)
+  - Test and make sure that multiple instances work
+    - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
+  - Profile button
+  - Change create user to use a transaction instead of two separate database queries.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
