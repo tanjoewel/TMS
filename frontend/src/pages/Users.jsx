@@ -1,16 +1,36 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { TextField, Box, Button, TableBody, TableHead, Table, TableContainer, TableRow, Paper, TableCell, Snackbar, Alert } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Button,
+  TableBody,
+  TableHead,
+  Table,
+  TableContainer,
+  TableRow,
+  Paper,
+  TableCell,
+  Snackbar,
+  Alert,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
 
 export default function Users() {
+  const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
   const SNACKBAR_SEVERITIES = ["success", "error"];
+
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
   const [groupCounter, setGroupCounter] = useState(0);
+
+  // for dropdowns
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openMenu, setOpenMenu] = useState({ type: null, index: null });
   const { logout } = useAuth();
 
   //for snackbars
@@ -89,6 +109,25 @@ export default function Users() {
     setSnackbarOpen(false);
   }
 
+  function handleDropDownClick(e, type, index) {
+    setAnchorEl(e.currentTarget);
+    setOpenMenu({ type, index });
+  }
+
+  function handleCloseOutside() {
+    setAnchorEl(null);
+    setOpenMenu({ type: null, index: null });
+  }
+
+  function handleStatusSelect(index, value) {
+    const newUsers = users.map((user, i) => {
+      return i === index ? { ...user, ["user_enabled"]: value } : user;
+    });
+    setUsers(newUsers);
+    setOpenMenu({ type: null, index: null });
+    setAnchorEl(null);
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
@@ -114,6 +153,7 @@ export default function Users() {
       <Box sx={{ mx: 3, mt: 2 }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650, border: "1px solid black" }} aria-label="simple table" size="small">
+            {/* Table header */}
             <TableHead>
               <TableRow sx={{ "& > th:not(:last-child)": { borderRight: "1px solid black" }, borderBottom: "2px solid black" }}>
                 <TableCell label={"username"}>Username</TableCell>
@@ -124,12 +164,27 @@ export default function Users() {
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
+            {/* Table body */}
             <TableBody>
+              {/* Create user row */}
               <CreateUser groups={groups} SNACKBAR_SEVERITIES={SNACKBAR_SEVERITIES} />
-              {users.map((row) => {
+              {/* Users rows */}
+              {users.map((user, index) => {
                 return (
-                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={row.user_username}>
-                    <TableCell>{row.user_username}</TableCell>
+                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.user_username}>
+                    {/* Username cell */}
+                    <TableCell>
+                      <TextField
+                        value={user.user_username}
+                        fullWidth={true}
+                        sx={{
+                          "& .MuiInputLabel-root": {
+                            fontSize: "12px",
+                          },
+                        }}
+                      ></TextField>
+                    </TableCell>
+                    {/* Password cell */}
                     <TableCell>
                       <TextField
                         label="Enter new password to edit"
@@ -141,10 +196,11 @@ export default function Users() {
                         }}
                       ></TextField>
                     </TableCell>
+                    {/* Email cell */}
                     <TableCell>
                       <TextField
                         label="Enter email to update"
-                        value={row.user_email ? row.user_email : ""}
+                        value={user.user_email ? user.user_email : ""}
                         fullWidth={true}
                         sx={{
                           "& .MuiInputLabel-root": {
@@ -153,8 +209,54 @@ export default function Users() {
                         }}
                       ></TextField>
                     </TableCell>
-                    <TableCell></TableCell>
-                    <TableCell>{row.user_enabled}</TableCell>
+                    {/* Groups cell */}
+                    <TableCell>
+                      {/* <Button
+                        id="groups"
+                        aria-controls={openMenu === "groups" ? "groups-menu" : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={openMenu === "groups" ? "true" : undefined}
+                        onClick={(event) => handleDropDownClick(event, "groups")}
+                        endIcon={openMenu === "groups" ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
+                      >
+                        Groups
+                      </Button>
+                      <Menu id="groups-menu" open={openMenu === "groups"} anchorEl={anchorEl} onClose={handleCloseOutside}>
+                        {user.user_groups.map((item) => {
+                          return (
+                            <MenuItem key={item} onClick={() => handleGroupSelect(item)}>
+                              {item}
+                              <Checkbox checked={groups.includes(item)} />
+                            </MenuItem>
+                          );
+                        })}
+                      </Menu> */}
+                    </TableCell>
+                    {/* Account status Cell */}
+                    <TableCell>
+                      <Button
+                        id="account-status"
+                        aria-controls={openMenu.type === "account-status" && openMenu.index === index ? "account-status-menu" : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={openMenu.type === "account-status" && openMenu.index === index ? "true" : undefined}
+                        onClick={(event) => handleDropDownClick(event, "account-status", index)}
+                        endIcon={
+                          openMenu.type === "account-status" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />
+                        }
+                      >
+                        {user.user_enabled || "Status"}
+                      </Button>
+                      <Menu
+                        id="account-status"
+                        open={openMenu.type === "account-status" && openMenu.index === index}
+                        anchorEl={anchorEl}
+                        onClose={handleCloseOutside}
+                      >
+                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
+                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[0])}>Disabled</MenuItem>
+                      </Menu>
+                    </TableCell>
+                    {/* Action cell */}
                     <TableCell>
                       <Button onClick={handleUpdateClick}>Update</Button>
                     </TableCell>
