@@ -71,13 +71,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Fix the API body on both frontend and backend (done)
     - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
     - Duplicate username: backend (done)
-    - Password constraint: frontend and backend
+    - Password constraint: frontend and backend (Done)
     - After creating a user, should we re-render the component to reflect the new user?
   - Username display on top right in header (done on ST laptop I think)
   - Update user
-    - Backend API (prioritise)
-    - Table rows UI
-    - State management (probably the hardest part, there are multiple rows)
+    - Backend API (prioritise) (done)
+    - Table rows UI (done except for onGroupClick)
+    - State management (probably the hardest part, there are multiple rows) (done)
+    - Frontend API call
   - Snackbars to provide feedback to the user that certain actions have succeeded/failed. (DONE)
     - User creation
       - Success
@@ -86,18 +87,16 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Group creation
       - Success
       - Duplicate group name
+- Profile page
 - New constraints
   - All admins can disable any account including their own, except HC admin accounts.
   - All admins can remove any account from admin group, including their own, except for HC admin account.
   - The way to distinguish is to have one username reserved the hardcoded admin account. Then the admin checkbox for that should be disabled.
   - Not sure about behaviour for hardcoded PL and hardcoded PM.
-- Sometimes backend will crash when JWT expires with the error message saying cannot set headers after they are sent to client. Possibly in middleware logic.
-  - There was one where I forgot to return from an if block.
 - If super got time
   - Disabled users (what is the behaviour?)
   - Test and make sure that multiple instances work
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
-  - Profile button
   - Change create user to use a transaction instead of two separate database queries.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
