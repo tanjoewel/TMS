@@ -34,6 +34,14 @@ exports.createUser = async function (req, res) {
       return;
     }
 
+    // check if username contains any special characters (this regex in particular also makes sure it cannot be empty)
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const isUsernameMatch = username.match(alphanumericRegex);
+    if (!isUsernameMatch) {
+      res.status(400).json({ message: "Invalid username. Please only use alphanumeric characters and ensure it is not empty." });
+      return;
+    }
+
     // password validation. The regex below checks for the following:
     // Between 8 to 10 characters, must not contain spaces, must have at least one alphabet, number and special character
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])[^\s]{8,10}$/;
@@ -45,13 +53,6 @@ exports.createUser = async function (req, res) {
       return;
     }
 
-    // check if username contains any special characters (this regex in particular also makes sure it cannot be empty)
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    const isUsernameMatch = username.match(alphanumericRegex);
-    if (!isUsernameMatch) {
-      res.status(400).json({ message: "Invalid username. Please only use alphanumeric characters and ensure it is not empty." });
-      return;
-    }
     const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
