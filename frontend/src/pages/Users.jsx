@@ -67,9 +67,21 @@ export default function Users() {
     getDistinctGroups();
   }, [groupCounter]);
 
-  async function handleUpdateClick() {
-    // TODO send a request to the backend to update the user
-    console.log("clicked");
+  async function handleUpdateClick(index) {
+    const userToUpdate = users[index];
+    const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(userToUpdate.user_enabled);
+    const userObject = {
+      username: userToUpdate.user_username,
+      password: userToUpdate.user_password,
+      email: userToUpdate.user_email,
+      groups: userToUpdate.groups,
+      accountStatus: accountStatusTinyint,
+    };
+    try {
+      await Axios.put("/users/update", userObject);
+    } catch (err) {
+      console.log("Error updating user: " + err.response.data.message);
+    }
   }
 
   // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
@@ -290,7 +302,7 @@ export default function Users() {
                     </TableCell>
                     {/* Action cell */}
                     <TableCell>
-                      <Button onClick={handleUpdateClick}>Update</Button>
+                      <Button onClick={() => handleUpdateClick(index)}>Update</Button>
                     </TableCell>
                   </TableRow>
                 );

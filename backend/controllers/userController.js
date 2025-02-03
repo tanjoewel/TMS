@@ -13,9 +13,9 @@ exports.getAllUsers = async function (req, res) {
     // first, convert the boolean value in the database to a form that is readable by the user.
     result.map((e) => {
       if (e.user_enabled === 1) {
-        e.user_enabled = "enabled";
+        e.user_enabled = "Enabled";
       } else {
-        e.user_enabled = "disabled";
+        e.user_enabled = "Disabled";
       }
       return e;
     });
@@ -89,6 +89,7 @@ exports.updateUser = async function (req, res) {
 
     // first check if the user exists in the database. By right this should not happen, so this should be a 500.
     const user = await getUser(username);
+    console.log(req.body);
     // console.log("hi", user);
     if (user.length === 0) {
       res.status(500).json({ message: `User not found` });
@@ -115,6 +116,7 @@ exports.updateUser = async function (req, res) {
     }
     res.status(200).send("User successfully updated");
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error updating user: " + err.message });
   }
 };
