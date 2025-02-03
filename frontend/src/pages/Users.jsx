@@ -133,8 +133,28 @@ export default function Users() {
     const newUsers = users.map((user, i) => {
       return i === index ? { ...user, [field]: value } : user;
     });
-    console.log(newUsers);
     setUsers(newUsers);
+  }
+
+  function handleGroupSelect(index, value) {
+    // get the user's groups first
+    const userGroups = users[index].groups;
+    // if the group is already in the array, we want to remove it.
+    const groupIndex = userGroups.indexOf(value);
+    if (groupIndex > -1) {
+      const newGroups = userGroups.toSpliced(groupIndex, 1);
+      // set the new groups
+      const newUsers = users.map((user, i) => {
+        return i === index ? { ...user, ["groups"]: newGroups } : user;
+      });
+      setUsers(newUsers);
+    } else {
+      const newGroups = userGroups.concat([value]);
+      const newUsers = users.map((user, i) => {
+        return i === index ? { ...user, ["groups"]: newGroups } : user;
+      });
+      setUsers(newUsers);
+    }
   }
 
   return (
@@ -236,7 +256,7 @@ export default function Users() {
                       <Menu id="groups-menu" open={openMenu.type === "groups" && openMenu.index === index} anchorEl={anchorEl} onClose={handleCloseOutside}>
                         {groups.map((item) => {
                           return (
-                            <MenuItem key={item} onClick={() => handleGroupSelect(item)}>
+                            <MenuItem key={item} onClick={() => handleGroupSelect(index, item)}>
                               {item}
                               <Checkbox checked={user.groups.includes(item)} />
                             </MenuItem>

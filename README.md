@@ -76,7 +76,8 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - Username display on top right in header (done on ST laptop I think)
   - Update user
     - Backend API (prioritise) (done)
-    - Table rows UI (done except for onGroupClick)
+    - Table rows UI (done)
+      - Change account status to be a toggle after everything else is done
     - State management (probably the hardest part, there are multiple rows) (done)
     - Frontend API call
   - Snackbars to provide feedback to the user that certain actions have succeeded/failed. (DONE)
