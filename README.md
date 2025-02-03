@@ -79,16 +79,11 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Table rows UI (done)
       - Change account status to be a toggle after everything else is done
     - State management (probably the hardest part, there are multiple rows) (done)
-    - Frontend API call
-  - Snackbars to provide feedback to the user that certain actions have succeeded/failed. (DONE)
-    - User creation
-      - Success
-      - Duplicate username
-      - Invalid username
-    - Group creation
-      - Success
-      - Duplicate group name
+    - Frontend API call (done)
+    - Refresh component when API call is successful?
 - Profile page
+- Doing an unauthorized action does not log you out, it just does not let you perform those actions
+- Snackbar for being logged out due to expired jwt token.
 - New constraints
   - All admins can disable any account including their own, except HC admin accounts.
   - All admins can remove any account from admin group, including their own, except for HC admin account.
