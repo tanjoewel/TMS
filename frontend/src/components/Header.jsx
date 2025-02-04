@@ -1,13 +1,12 @@
 import React from "react";
 import { Box, Button, AppBar, Toolbar, Typography } from "@mui/material";
-import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 const Header = () => {
   const navigate = useNavigate();
 
-  const { isAuthenticated, logout, isAdmin, setIsAuthenticated, setIsAdmin } = useAuth();
+  const { isAuthenticated, logout, isAdmin, setIsAuthenticated, setIsAdmin, username } = useAuth();
 
   async function handleLogout(e) {
     try {
@@ -19,12 +18,16 @@ const Header = () => {
     }
   }
 
-  async function handleClickUser(e) {
+  function handleClickUser(e) {
     navigate("/users");
   }
 
   function handleClickTask(e) {
     navigate("/tasks");
+  }
+
+  function handleClickProfile(e) {
+    navigate("/profile");
   }
 
   return (
@@ -53,8 +56,10 @@ const Header = () => {
         </Box>
         {isAuthenticated ? (
           <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            {/* <Typography variant="body1">Logged in as: &lt;username&gt;</Typography> */}
-            {/* <Button variant="outlined">Profile</Button> */}
+            <Typography variant="body1">Logged in as: {username}</Typography>
+            <Button variant="outlined" onClick={handleClickProfile}>
+              Profile
+            </Button>
             <Button variant="outlined" onClick={handleLogout}>
               Logout
             </Button>

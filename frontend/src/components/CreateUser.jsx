@@ -28,7 +28,7 @@ const User = (props) => {
     const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(accountStatus);
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     try {
-      const result = await Axios.post("/users/create", userObject);
+      const result = await Axios.post("/users", userObject);
 
       // snackbar configuration
       setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);

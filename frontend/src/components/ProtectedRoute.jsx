@@ -11,9 +11,13 @@ const ProtectedRoute = () => {
       setLoading(true);
       try {
         const response = await Axios.get("/verify");
-        setIsAuthenticated(true);
-        setIsAdmin(response.data.isAdmin);
-        setUsername(response.data.username);
+        if (response.data.isEnabled === 0) {
+          await logout();
+        } else {
+          setIsAuthenticated(true);
+          setIsAdmin(response.data.isAdmin);
+          setUsername(response.data.username);
+        }
       } catch (err) {
         await logout();
         console.log("Auth check failed", err);
