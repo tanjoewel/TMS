@@ -10,8 +10,6 @@ import {
   TableRow,
   Paper,
   TableCell,
-  Snackbar,
-  Alert,
   Menu,
   MenuItem,
   Checkbox,
@@ -20,10 +18,10 @@ import {
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 export default function Users() {
   const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-  const SNACKBAR_SEVERITIES = ["success", "error"];
 
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
@@ -35,10 +33,7 @@ export default function Users() {
   const [openMenu, setOpenMenu] = useState({ type: null, index: null });
   const { logout } = useAuth();
 
-  //for snackbars
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState(SNACKBAR_SEVERITIES[0]);
+  const { showSnackbar } = useSnackbar();
 
   // when the page first loads, get the users from the database
   useEffect(() => {
@@ -80,14 +75,11 @@ export default function Users() {
     };
     try {
       await Axios.put("/users", userObject);
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
-      setSnackbarMessage("User has been successfully updated.");
-      setSnackbarOpen(true);
+      const snackbarMessage = "User has been successfully updated.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
     } catch (err) {
       const errorMessage = err.response.data.message;
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-      setSnackbarMessage(errorMessage);
-      setSnackbarOpen(true);
+      showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }
   }
 
@@ -96,37 +88,26 @@ export default function Users() {
     // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
     if (groups.includes(groupname)) {
-      setGroupname("");
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-      setSnackbarMessage("Group already exists.");
-      setSnackbarOpen(true);
-    } else if (groupname.length === "") {
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-      setSnackbarMessage("Group name cannot be empty.");
-      setSnackbarOpen(true);
+      const snackbarMessage = "Group already exists.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
+    } else if (groupname.length === 0) {
+      const snackbarMessage = "Group name cannot be empty.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
     } else if (!groupname.match(alphanumericRegex)) {
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-      setSnackbarMessage("Group name must only contain alphanuimeric characters.");
-      setSnackbarOpen(true);
+      const snackbarMessage = "Group name must only contain alphanuimeric characters.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
     } else {
       try {
         const result = await Axios.post("/groups/create", { groupname });
         setGroupname("");
         setGroupCounter((a) => a + 1);
-        setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
-        setSnackbarMessage("Group has successfully been created");
-        setSnackbarOpen(true);
+        const snackbarMessage = "Group has successfully been created";
+        showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
       } catch (err) {
-        console.log("Error creating group");
+        showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+        console.log("Error creating group: ", err.response.data.message);
       }
     }
-  }
-
-  function handleCloseAlert(event, reason) {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
   }
 
   function handleDropDownClick(e, type, index) {
@@ -180,11 +161,6 @@ export default function Users() {
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
         <h2>User Management</h2>
-        <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-          <Alert onClose={handleCloseAlert} variant="filled" severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
         <div>
           <TextField
             id="groupname"

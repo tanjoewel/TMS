@@ -93,7 +93,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - Simply put, disabled users should not be able to log in. We should also add that as a check in /auth/verify
   - Protect backend routes from disabled users.
 - If super got time
-  - Test and make sure that multiple instances work
+  - Test and make sure that multiple instances work (works, kinda)
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
     - This kind of works, but it requires a refresh which I am not sure is good enough.
     - Fixed it, the main issue is that I had an authenticateToken middleware on logout, which would make sense but if the sole purpose is to remove cookies and for when users are no longer authenticated, it does not make much sense. So after removing, it seems to work as intended.
