@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Button, AppBar, Toolbar, Typography } from "@mui/material";
-import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
@@ -19,12 +18,16 @@ const Header = () => {
     }
   }
 
-  async function handleClickUser(e) {
+  function handleClickUser(e) {
     navigate("/users");
   }
 
   function handleClickTask(e) {
     navigate("/tasks");
+  }
+
+  function handleClickProfile(e) {
+    navigate("/profile");
   }
 
   return (
@@ -54,7 +57,9 @@ const Header = () => {
         {isAuthenticated ? (
           <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <Typography variant="body1">Logged in as: {username}</Typography>
-            <Button variant="outlined">Profile</Button>
+            <Button variant="outlined" onClick={handleClickProfile}>
+              Profile
+            </Button>
             <Button variant="outlined" onClick={handleLogout}>
               Logout
             </Button>
