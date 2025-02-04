@@ -9,5 +9,6 @@ const checkAdmin = require("../middleware/checkAdmin");
 router.use(authenticateToken);
 
 router.put("/", profileController.updateProfile);
+router.get("/", profileController.getProfile);
 
 module.exports = router;

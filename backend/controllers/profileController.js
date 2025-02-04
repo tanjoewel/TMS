@@ -1,6 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { validateFields } = require("../util/commonQueries");
+const { getUser, validateFields } = require("../util/commonQueries");
 
 exports.updateProfile = async function (req, res) {
   try {
@@ -25,5 +25,16 @@ exports.updateProfile = async function (req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating profile: " + err.message });
+  }
+};
+
+exports.getProfile = async function (req, res) {
+  const username = req.decoded.username;
+  try {
+    const user = await getUser(username);
+    const resObject = { username: user[0].user_username, email: user[0].user_email };
+    res.status(200).json({ message: "Get profile successful.", body: resObject });
+  } catch (err) {
+    res.status(500).json({ message: "Error getting profile: " + err.message });
   }
 };

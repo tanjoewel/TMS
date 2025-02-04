@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
@@ -12,9 +12,19 @@ const Profile = () => {
   const [updatedPassword, setUpdatedPassword] = useState("");
 
   // readonly fields state
-  const [readOnlyUsername, updateReadOnlyUsername] = useState(username);
+  const [readOnlyUsername, setReadOnlyUsername] = useState(username);
   // i need to pull in the email from somewhere, maybe add in auth context?
-  const [readOnlyEmail, updateReadOnlyEmail] = useState(null);
+  const [readOnlyEmail, setReadOnlyEmail] = useState("Loading...");
+
+  // useEffect to get the profile whenever the profile page loads
+  useEffect(() => {
+    async function getProfile() {
+      const profile = await Axios.get("/profile");
+      const email = profile.data.body.email;
+      setReadOnlyEmail(email);
+    }
+    getProfile();
+  }, []);
 
   async function handleSave() {
     const profileObject = { username, updatedEmail, updatedPassword };
@@ -53,7 +63,7 @@ const Profile = () => {
       <Typography>Email</Typography>
       <TextField
         fullWidth
-        value="(Fetching + storing email is not implemented yet)"
+        value={readOnlyEmail}
         slotProps={{
           input: {
             readOnly: true,
