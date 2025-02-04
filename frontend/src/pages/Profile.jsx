@@ -85,11 +85,8 @@ const Profile = () => {
       <TextField fullWidth type="password" value={updatedPassword} onChange={(e) => setUpdatedPassword(e.target.value)} sx={{ mb: 2 }} />
 
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
-        <Button variant="outlined" onClick={handleSave} sx={{ width: "100px" }}>
+        <Button variant="outlined" onClick={handleSave} sx={{ width: "300px" }}>
           SAVE
-        </Button>
-        <Button variant="contained" sx={{ backgroundColor: "#888", color: "white", width: "100px" }}>
-          CANCEL
         </Button>
       </Box>
     </Box>
