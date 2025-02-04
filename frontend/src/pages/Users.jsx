@@ -79,7 +79,7 @@ export default function Users() {
       accountStatus: accountStatusTinyint,
     };
     try {
-      await Axios.put("/users/update", userObject);
+      await Axios.put("/users", userObject);
       setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
       setSnackbarMessage("User has been successfully updated.");
       setSnackbarOpen(true);
