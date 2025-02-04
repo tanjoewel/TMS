@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
@@ -12,17 +12,32 @@ const Profile = () => {
   const [updatedPassword, setUpdatedPassword] = useState("");
 
   // readonly fields state
-  const [readOnlyUsername, updateReadOnlyUsername] = useState(username);
+  const [readOnlyUsername, setReadOnlyUsername] = useState(username);
   // i need to pull in the email from somewhere, maybe add in auth context?
-  const [readOnlyEmail, updateReadOnlyEmail] = useState(null);
+  const [readOnlyEmail, setReadOnlyEmail] = useState("Loading...");
+
+  // for automatic re-rendering of the component
+  const [profileCounter, setProfileCounter] = useState(0);
+
+  async function getProfile() {
+    const profile = await Axios.get("/profile");
+    const email = profile.data.body.email;
+    setReadOnlyEmail(email);
+  }
+
+  // useEffect to get the profile whenever the profile page loads
+  useEffect(() => {
+    getProfile();
+  }, [profileCounter]);
 
   async function handleSave() {
     const profileObject = { username, updatedEmail, updatedPassword };
     try {
-      const result = await Axios.put("/users/profile", profileObject);
+      const result = await Axios.put("/profile", profileObject);
       // if it succeeded, then we clear the fields and update the readonly fields
       setUpdatedEmail("");
       setUpdatedPassword("");
+      setProfileCounter((prev) => prev + 1);
       const snackbarMessage = "Profile successfully updated!";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
     } catch (err) {
@@ -53,7 +68,7 @@ const Profile = () => {
       <Typography>Email</Typography>
       <TextField
         fullWidth
-        value="(Fetching + storing email is not implemented yet)"
+        value={readOnlyEmail}
         slotProps={{
           input: {
             readOnly: true,
@@ -70,11 +85,8 @@ const Profile = () => {
       <TextField fullWidth type="password" value={updatedPassword} onChange={(e) => setUpdatedPassword(e.target.value)} sx={{ mb: 2 }} />
 
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
-        <Button variant="outlined" onClick={handleSave} sx={{ width: "100px" }}>
+        <Button variant="outlined" onClick={handleSave} sx={{ width: "300px" }}>
           SAVE
-        </Button>
-        <Button variant="contained" sx={{ backgroundColor: "#888", color: "white", width: "100px" }}>
-          CANCEL
         </Button>
       </Box>
     </Box>
