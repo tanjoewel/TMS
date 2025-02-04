@@ -88,8 +88,8 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - All admins can remove any account from admin group, including their own, except for HC admin account.
   - The way to distinguish is to have one username reserved the hardcoded admin account. Then the admin checkbox for that should be disabled.
   - Not sure about behaviour for hardcoded PL and hardcoded PM.
+- Disabled users (what is the behaviour?)
 - If super got time
-  - Disabled users (what is the behaviour?)
   - Test and make sure that multiple instances work
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
   - Change create user to use a transaction instead of two separate database queries.

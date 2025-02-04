@@ -266,7 +266,7 @@ export default function Users() {
                       <Menu id="groups-menu" open={openMenu.type === "groups" && openMenu.index === index} anchorEl={anchorEl} onClose={handleCloseOutside}>
                         {groups.map((item) => {
                           return (
-                            <MenuItem key={item} onClick={() => handleGroupSelect(index, item)}>
+                            <MenuItem key={item} onClick={() => handleGroupSelect(index, item)} disabled={user.user_username === "ADMIN" && item === "admin"}>
                               {item}
                               <Checkbox checked={user.groups.includes(item)} />
                             </MenuItem>
@@ -295,7 +295,9 @@ export default function Users() {
                         onClose={handleCloseOutside}
                       >
                         <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
-                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[0])}>Disabled</MenuItem>
+                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[0])} disabled={user.user_username === "ADMIN"}>
+                          Disabled
+                        </MenuItem>
                       </Menu>
                     </TableCell>
                     {/* Action cell */}
