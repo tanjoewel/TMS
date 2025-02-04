@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 const Profile = () => {
   const { username } = useAuth();
+  const { showSnackbar } = useSnackbar();
   // updated fields state
   const [updatedEmail, setUpdatedEmail] = useState("");
   const [updatedPassword, setUpdatedPassword] = useState("");
@@ -21,7 +23,10 @@ const Profile = () => {
       // if it succeeded, then we clear the fields and update the readonly fields
       setUpdatedEmail("");
       setUpdatedPassword("");
+      const snackbarMessage = "Profile successfully updated!";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
     } catch (err) {
+      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error updating profile: " + err.response.data.message);
     }
   }
