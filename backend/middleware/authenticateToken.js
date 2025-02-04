@@ -18,14 +18,14 @@ async function authenticateToken(req, res, next) {
     const result = await getUser(username);
     if (result.length === 0) {
       // res.status(403).send("An error has occured, please login again.");
-      res.status(403).send("Invalid JWT token: username does not exist in the database");
+      res.status(403).json({ message: "Invalid JWT token: username does not exist in the database" });
       return;
     }
 
     // check if user is disabled
     const isEnabled = result[0].user_enabled;
     if (!isEnabled) {
-      res.status(403).send("User is not enabled. Please contact your administrator.");
+      res.status(403).json({ message: "User is not enabled. Please contact your administrator." });
       return;
     }
 
@@ -35,18 +35,21 @@ async function authenticateToken(req, res, next) {
     const browserFromReq = req.headers["user-agent"];
     if (ip !== ipFromReq) {
       // res.status(403).send("An error has occured, please login again.");
-      res.status(403).send("Invalid JWT token: ip from request does not match ip from token");
+      res.status(403).json({ message: "Invalid JWT token: ip from request does not match ip from token" });
     }
 
     if (browserFromReq !== userAgent) {
       // res.status(403).send("An error has occured, please login again.");
-      res.status(403).send("Invalid JWT token: browser type from request does not match browser type from token");
+      res.status(403).json({ message: "Invalid JWT token: browser type from request does not match browser type from token" });
     }
 
     next();
   } catch (err) {
-    console.error(err.message);
-    res.status(403).send(err.message);
+    if (err.message === "jwt expired") {
+      res.status(403).json({ message: "Session has expired, please login again." });
+    } else {
+      res.status(403).json({ message: err.message });
+    }
   }
 }
 
