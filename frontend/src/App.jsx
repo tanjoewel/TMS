@@ -9,22 +9,25 @@ import { AuthProvider } from "./AuthContext";
 import AdminRoute from "./components/AdminRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import { SnackbarProvider } from "./SnackbarContext";
 
 function App() {
   return (
     <AuthProvider>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AdminRoute />}>
-            <Route path="/users" element={<Users />} />
+      <SnackbarProvider>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AdminRoute />}>
+              <Route path="/users" element={<Users />} />
+            </Route>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/tasks" element={<Tasks />} />
           </Route>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/tasks" element={<Tasks />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </SnackbarProvider>
     </AuthProvider>
   );
 }

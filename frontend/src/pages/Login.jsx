@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Snackbar, Alert } from "@mui/material";
+import { TextField, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavLink, useNavigate } from "react-router-dom";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
@@ -21,7 +22,8 @@ const Home = () => {
   // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorOpen, setErrorOpen] = useState(false);
+
+  const { showSnackbar } = useSnackbar();
 
   async function handleClick() {
     try {
@@ -35,27 +37,16 @@ const Home = () => {
         navigate("/tasks");
       }
     } catch (e) {
-      setErrorOpen(true);
+      const snackbarMessage = "Invalid login. Please try again.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
       console.log(e);
     }
     setUsername("");
     setPassword("");
   }
 
-  function handleCloseAlert(event, reason) {
-    if (reason === "clickaway") {
-      return;
-    }
-    setErrorOpen(false);
-  }
-
   return (
     <div>
-      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert severity="error" onClose={handleCloseAlert} variant="filled">
-          Invalid login credentials
-        </Alert>
-      </Snackbar>
       <Box
         sx={{
           display: "flex",

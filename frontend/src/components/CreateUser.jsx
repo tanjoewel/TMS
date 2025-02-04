@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Snackbar, Alert } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox } from "@mui/material";
 import Axios from "axios";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 // this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
   const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-  const SNACKBAR_SEVERITIES = props.SNACKBAR_SEVERITIES;
 
   const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
   const [groups, setGroups] = useState([]);
@@ -18,10 +18,7 @@ const User = (props) => {
     email: "",
   });
 
-  // for snackbars
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState(SNACKBAR_SEVERITIES[0]);
+  const { showSnackbar } = useSnackbar();
 
   async function handleCreateUserClick() {
     // convert the accountStatus into a tinyint before sending to backend.
@@ -30,10 +27,8 @@ const User = (props) => {
     try {
       const result = await Axios.post("/users", userObject);
 
-      // snackbar configuration
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[0]);
-      setSnackbarMessage("User has been successfully created.");
-      setSnackbarOpen(true);
+      const snackbarMessage = "User has been successfully created.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
 
       // reset everything only when user is successfully created
       setAccountStatus(ACCOUNT_STATUSES[1]);
@@ -45,9 +40,7 @@ const User = (props) => {
       });
     } catch (err) {
       const errorMessage = err.response.data.message;
-      setSnackbarSeverity(SNACKBAR_SEVERITIES[1]);
-      setSnackbarMessage(errorMessage);
-      setSnackbarOpen(true);
+      showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }
 
     return;
@@ -87,21 +80,8 @@ const User = (props) => {
     setUserForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleCloseAlert(event, reason) {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
-  }
-
   return (
     <>
-      {/* Snackbar component for feedback */}
-      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert onClose={handleCloseAlert} variant="filled" severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
       <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }}>
         {/* Username cell */}
         <TableCell>
