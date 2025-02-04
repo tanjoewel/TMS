@@ -203,7 +203,7 @@ export default function Users() {
                     {/* Password cell */}
                     <TableCell>
                       <TextField
-                        label="Enter new password to edit"
+                        placeholder="Enter new password to edit"
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_password", e.target.value)}
                         sx={{
@@ -216,7 +216,7 @@ export default function Users() {
                     {/* Email cell */}
                     <TableCell>
                       <TextField
-                        label="Enter email to update"
+                        placeholder="Enter email to update"
                         value={user.user_email ? user.user_email : ""}
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_email", e.target.value)}

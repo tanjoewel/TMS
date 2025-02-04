@@ -86,7 +86,7 @@ const User = (props) => {
         {/* Username cell */}
         <TableCell>
           <TextField
-            label="Enter username"
+            placeholder="Enter username"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.username}
@@ -101,7 +101,7 @@ const User = (props) => {
         {/* Password cell */}
         <TableCell>
           <TextField
-            label="Enter password"
+            placeholder="Enter password"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.password}
@@ -116,7 +116,7 @@ const User = (props) => {
         {/* Email cell */}
         <TableCell>
           <TextField
-            label="Enter email"
+            placeholder="Enter email"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.email}
