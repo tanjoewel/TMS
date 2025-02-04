@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 const userController = require("./controllers/userController");
 const groupController = require("./controllers/groupController");
 const bcrypt = require("bcryptjs");
@@ -24,6 +25,7 @@ app.use(express.json());
 // routes
 app.use("/users", userRoutes);
 app.use("/groups", groupRoutes);
+app.use("/profile", profileRoutes);
 
 const port = process.env.PORT;
 
