@@ -35,7 +35,7 @@ const Profile = () => {
       <Typography>Username</Typography>
       <TextField
         fullWidth
-        value="User1"
+        value={readOnlyUsername}
         slotProps={{
           input: {
             readOnly: true,
@@ -48,7 +48,7 @@ const Profile = () => {
       <Typography>Email</Typography>
       <TextField
         fullWidth
-        value="user1@gmail.com"
+        value="(Fetching + storing email is not implemented yet)"
         slotProps={{
           input: {
             readOnly: true,
