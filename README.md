@@ -80,15 +80,17 @@ The entry point to this project is defined in [index.html](./index.html), under 
 
 - Profile page
   - Done except for the read only email field, snackbars and re-rendering the component.
+    - For the read only email field, have an API that is "get profile", and have a useEffect that runs when page loads (idk how I did not think of this earlier)
 - Doing an unauthorized action does not log you out, it just does not let you perform those actions (this is fine I think)
 - Snackbar for being logged out due to expired jwt token.
   - **Before that, if time permits we can move the snackbar component to the root component and have a snackbar context**.
-- New constraints
+- New constraints (Done)
   - All admins can disable any account including their own, except HC admin accounts.
   - All admins can remove any account from admin group, including their own, except for HC admin account.
   - The way to distinguish is to have one username reserved the hardcoded admin account. Then the admin checkbox for that should be disabled.
   - Not sure about behaviour for hardcoded PL and hardcoded PM.
-- Disabled users (what is the behaviour?)
+- Disabled users
+  - Simply put, disabled users should not be able to log in. We should also add that as a check in /auth/verify
 - If super got time
   - Test and make sure that multiple instances work
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.

@@ -47,6 +47,11 @@ app.post("/login", async (req, res) => {
     res.status(401).send("Invalid username and password");
     return;
   }
+  // check if user is disabled. should we still put this as the error message?
+  if (result[0].user_enabled === 0) {
+    res.status(401).send("Invalid username and password");
+    return;
+  }
   // if we reach here, this is a valid login
 
   // get the ip
