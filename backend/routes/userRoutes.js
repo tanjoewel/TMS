@@ -8,13 +8,11 @@ const checkAdmin = require("../middleware/checkAdmin");
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
 
-// all user management should only be accessed by an admin, so we have a middleware to check if the logged in user is an admin
-router.use(checkAdmin);
-
-router.get("/", userController.getAllUsers);
-router.post("/", userController.createUser);
+router.get("/", checkAdmin, userController.getAllUsers);
+router.post("/", checkAdmin, userController.createUser);
 // use put because I intend to send in the whole user object - idempotency
-router.put("/", userController.updateUser);
+router.put("/", checkAdmin, userController.updateUser);
+// profile specifically does not need the checkAdmin middleware as anybody should be able to update their own profile, regardless of if they are admin or not.
 router.put("/profile", userController.updateProfile);
 
 module.exports = router;

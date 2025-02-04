@@ -1,14 +1,30 @@
 import React, { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
+import Axios from "axios";
+import { useAuth } from "../AuthContext";
 
 const Profile = () => {
+  const { username } = useAuth();
+  // updated fields state
   const [updatedEmail, setUpdatedEmail] = useState("");
   const [updatedPassword, setUpdatedPassword] = useState("");
 
-  const handleSave = () => {
-    console.log("Updated Email:", updatedEmail);
-    console.log("Updated Password:", updatedPassword);
-  };
+  // readonly fields state
+  const [readOnlyUsername, updateReadOnlyUsername] = useState(username);
+  // i need to pull in the email from somewhere, maybe add in auth context?
+  const [readOnlyEmail, updateReadOnlyEmail] = useState(null);
+
+  async function handleSave() {
+    const profileObject = { username, updatedEmail, updatedPassword };
+    try {
+      const result = await Axios.put("/users/profile", profileObject);
+      // if it succeeded, then we clear the fields and update the readonly fields
+      setUpdatedEmail("");
+      setUpdatedPassword("");
+    } catch (err) {
+      console.log("Error updating profile: " + err.response.data.message);
+    }
+  }
 
   return (
     <Box sx={{ width: "50%", margin: "auto", textAlign: "left", mt: 5 }}>
