@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import Axios from "axios";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 const ProtectedRoute = () => {
   const { setUsername, logout, isAuthenticated, loading, setLoading, setIsAuthenticated, setIsAdmin } = useAuth();
+
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -13,6 +16,8 @@ const ProtectedRoute = () => {
         const response = await Axios.get("/verify");
         if (response.data.isEnabled === 0) {
           await logout();
+          const snackbarMessage = "Your account has been disabled.";
+          showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
         } else {
           setIsAuthenticated(true);
           setIsAdmin(response.data.isAdmin);
@@ -20,6 +25,7 @@ const ProtectedRoute = () => {
         }
       } catch (err) {
         await logout();
+        showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
         console.log("Auth check failed", err);
       } finally {
         setLoading(false);
