@@ -94,6 +94,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - If super got time
   - Test and make sure that multiple instances work
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
+    - This kind of works, but it requires a refresh which I am not sure is good enough.
   - Change create user to use a transaction instead of two separate database queries.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)

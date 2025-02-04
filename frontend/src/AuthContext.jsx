@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import Axios from "axios";
 
 const AuthContext = createContext();
@@ -11,6 +12,8 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   const login = async (username) => {
     setUsername(username);
     await checkAdmin(username);
@@ -22,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     setUsername(null);
     setIsAdmin(false);
     setIsAuthenticated(false);
+    navigate("/");
   };
 
   const checkAdmin = async function (username) {

@@ -47,8 +47,8 @@ export default function Users() {
         const users = await Axios.get("/users");
         setUsers(users.data);
       } catch (e) {
-        await logout();
         console.log("Error getting users");
+        await logout();
       }
     }
     getUsers();

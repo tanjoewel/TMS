@@ -71,15 +71,18 @@ app.post("/login", async (req, res) => {
   res.status(200).json({ message: "Login successful", isAdmin });
 });
 
-app.post("/logout", authenticateToken, (req, res) => {
+app.post("/logout", (req, res) => {
   res.clearCookie("auth_token");
   res.status(200).send("Logged out successfully");
 });
 
 app.get("/verify", authenticateToken, async (req, res) => {
   // middleware will do the verification of the token for us. Checking the logged in state should be done on frontend?
-  const isAdmin = await groupController.checkGroup(req.decoded.username, "admin");
-  res.status(200).json({ message: "User is valid.", username: req.decoded.username, isAdmin });
+  const username = req.decoded.username;
+  const isAdmin = await groupController.checkGroup(username, "admin");
+  const user = await getUser(username);
+  const isEnabled = user[0].user_enabled;
+  res.status(200).json({ message: "User is valid.", username: req.decoded.username, isAdmin, isEnabled });
 });
 
 app.listen(port, () => {

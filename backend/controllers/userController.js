@@ -80,18 +80,23 @@ exports.updateUser = async function (req, res) {
       return;
     }
 
-    const isValid = validateFields(username, password, res);
-    if (!isValid) {
-      return;
+    // if password was left empty, just update everything else
+    if (password === "") {
+      const query = "UPDATE user SET user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+      const result = await executeQuery(query, [email, accountStatus, username]);
+    } else {
+      const isValid = validateFields(username, password, res);
+      if (!isValid) {
+        return;
+      }
+
+      // hash password
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(password, salt);
+
+      const query = "UPDATE user SET user_username = ?, user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+      const result = await executeQuery(query, [username, hash, email, accountStatus, username]);
     }
-
-    // hash password
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
-
-    const query = "UPDATE user SET user_username = ?, user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
-    const result = await executeQuery(query, [username, hash, email, accountStatus, username]);
-
     // update the groups, this one is going to be a bit tricky to maintain idempotency
     // first, delete every record in user_groups of this user
     const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";

@@ -22,6 +22,13 @@ async function authenticateToken(req, res, next) {
       return;
     }
 
+    // check if user is disabled
+    const isEnabled = result[0].user_enabled;
+    if (!isEnabled) {
+      res.status(403).send("User is not enabled. Please contact your administrator.");
+      return;
+    }
+
     // check ip and browser type. this should prevent token spoofing using postman to directly access the backend as the userAgent will change.
 
     const ipFromReq = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
