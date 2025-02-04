@@ -73,7 +73,6 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Duplicate username: backend (done)
     - Password constraint: frontend and backend (Done)
     - After creating a user, should we re-render the component to reflect the new user?
-  - Username display on top right in header (done on ST laptop I think)
   - Update user
     - Backend API (prioritise) (done)
     - Table rows UI (done)
@@ -82,8 +81,10 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Frontend API call (done)
     - Refresh component when API call is successful?
 - Profile page
+  - New API for it
 - Doing an unauthorized action does not log you out, it just does not let you perform those actions
 - Snackbar for being logged out due to expired jwt token.
+  - **Before that, if time permits we can move the snackbar component to the root component and have a snackbar context**.
 - New constraints
   - All admins can disable any account including their own, except HC admin accounts.
   - All admins can remove any account from admin group, including their own, except for HC admin account.
@@ -117,5 +118,3 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - If the token does not exist at all, error and return 403.
     - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
       - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
-
-test git is working on my local
