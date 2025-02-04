@@ -57,32 +57,30 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Double checking the decoded jwt token with the database (username) and the request (ip and browser type) (done)
 - I don't think I need AuthError, so if don't need can just remove at this stage. (done)
 - Dev user should not be able to access routes meant for admin using Postman. (done)
-- Password field should hide the input (done on ST laptop)
-- **Refreshing the page invariably takes me to the login page for some reason.**
-  - This is going to need a lot of debugging, but I suspect we can get some insight console logging in the auth middleware. (i don't think it is the admin middleware because it also happens when i refresh in the task management page.) (it is not)
-  - New theory is that when we refresh the page it is setting isAuthenticated in the frontend to false. (theory verified)
-    - I have no idea how to solve this, so we might need to ask ChatGPT. The solution might be to use local storage, although its not the best it probably works here.
-    - This is also probably why the cookie still persists, because isAuthenticated is set to false before the `logout` function happens.
-- If got time
-  - Change text of account status button to be enabled/disabled instead of "STATUS" (done)
-  - Finish up create user
-    - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
-    - Need the group list to be interactive (done)
-    - Fix the API body on both frontend and backend (done)
-    - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
-    - Duplicate username: backend (done)
-    - Password constraint: frontend and backend (Done)
-    - After creating a user, should we re-render the component to reflect the new user?
-  - Update user
-    - Backend API (prioritise) (done)
-    - Table rows UI (done)
-      - Change account status to be a toggle after everything else is done
-    - State management (probably the hardest part, there are multiple rows) (done)
-    - Frontend API call (done)
-    - Refresh component when API call is successful?
+
+- Change text of account status button to be enabled/disabled instead of "STATUS" (done)
+- Finish up create user
+
+  - Need a way to store the fields that the user entered, the groups list and the account status (use Immer?) (done)
+  - Need the group list to be interactive (done)
+  - Fix the API body on both frontend and backend (done)
+  - Username should not be case sensitive: backend (done, turns out SQL is already case insensitive, so by checking for duplicate username we inadvertently did this as well, or perhaps more accurately this is not a problem to begin with.)
+  - Duplicate username: backend (done)
+  - Password constraint: frontend and backend (Done)
+  - After creating a user, should we re-render the component to reflect the new user?
+
+- Update user
+
+  - Backend API (prioritise) (done)
+  - Table rows UI (done)
+    - Change account status to be a toggle after everything else is done
+  - State management (probably the hardest part, there are multiple rows) (done)
+  - Frontend API call (done)
+  - Refresh component when API call is successful?
+
 - Profile page
-  - New API for it
-- Doing an unauthorized action does not log you out, it just does not let you perform those actions
+  - Done except for the read only email field, snackbars and re-rendering the component.
+- Doing an unauthorized action does not log you out, it just does not let you perform those actions (this is fine I think)
 - Snackbar for being logged out due to expired jwt token.
   - **Before that, if time permits we can move the snackbar component to the root component and have a snackbar context**.
 - New constraints
