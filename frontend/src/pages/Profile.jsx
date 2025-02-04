@@ -16,15 +16,19 @@ const Profile = () => {
   // i need to pull in the email from somewhere, maybe add in auth context?
   const [readOnlyEmail, setReadOnlyEmail] = useState("Loading...");
 
+  // for automatic re-rendering of the component
+  const [profileCounter, setProfileCounter] = useState(0);
+
+  async function getProfile() {
+    const profile = await Axios.get("/profile");
+    const email = profile.data.body.email;
+    setReadOnlyEmail(email);
+  }
+
   // useEffect to get the profile whenever the profile page loads
   useEffect(() => {
-    async function getProfile() {
-      const profile = await Axios.get("/profile");
-      const email = profile.data.body.email;
-      setReadOnlyEmail(email);
-    }
     getProfile();
-  }, []);
+  }, [profileCounter]);
 
   async function handleSave() {
     const profileObject = { username, updatedEmail, updatedPassword };
@@ -33,6 +37,7 @@ const Profile = () => {
       // if it succeeded, then we clear the fields and update the readonly fields
       setUpdatedEmail("");
       setUpdatedPassword("");
+      setProfileCounter((prev) => prev + 1);
       const snackbarMessage = "Profile successfully updated!";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
     } catch (err) {
