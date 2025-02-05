@@ -13,7 +13,7 @@ exports.getDistinctGroups = async function (req, res) {
     res.send(distinctGroups);
     return result;
   } catch (err) {
-    res.status(500).send("Error fetching groups.");
+    res.status(500).json({ message: "Error fetching groups." + err.message });
   }
   return;
 };
@@ -25,9 +25,9 @@ exports.assignGroup = async function (req, res) {
   // also, might need to change this to accept an array of groupnames instead of just one group, in which case I think its fine to just run the query multiple times.
   try {
     const result = await addGroupRow(username, groupname);
-    res.status(200).send("Group successfully assigned");
+    res.status(200).json({ message: "Group successfully assigned" });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -36,11 +36,26 @@ exports.createGroup = async function (req, res) {
   const { groupname } = req.body;
   // it doesnt work to just leave the user as null, so we give it a username that cannot exist because of validation rules
   const username = "$NULL";
+  // group name verification
+  if (groupname.length === 0) {
+    res.status(400).json({ message: "Group name must not be empty" });
+    return;
+  }
+  if (groupname.length > 50) {
+    res.status(400).json({ message: "Please use a group name that is 50 characters or less." });
+    return;
+  }
+  const groupnameRegex = /[a-zA-Z0-9_]+/;
+  const isMatch = groupname.match(groupnameRegex);
+  if (!isMatch) {
+    res.status(400).json({ message: "Group name must only contain alphanumeric characters and underscores." });
+    return;
+  }
   try {
     const result = await addGroupRow(username, groupname);
-    res.status(200).send("Group successfully created");
+    res.status(200).json({ message: "Group successfully created" });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).json({ message: "Error creating group: " + err.message });
   }
 };
 

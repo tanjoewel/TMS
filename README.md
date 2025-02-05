@@ -65,12 +65,15 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Disabled users (done)
   - Simply put, disabled users should not be able to log in. We should also add that as a check in /auth/verify
   - Protect backend routes from disabled users.
+- Protect backend from making changes to hardcoded admin. (done)
 - If super got time
   - Test and make sure that multiple instances work (works, kinda)
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
     - This kind of works, but it requires a refresh which I am not sure is good enough.
     - Fixed it, the main issue is that I had an authenticateToken middleware on logout, which would make sense but if the sole purpose is to remove cookies and for when users are no longer authenticated, it does not make much sense. So after removing, it seems to work as intended.
   - Change create user to use a transaction instead of two separate database queries.
+  - Frontend input sanitization? Basically involves doing .trim().toLowerCase where applicable (password field dont to toLowerCase obv)
+  - Move hardcoded admin to .env file? Not only does it protect from others being able to see the name in the code directly, but it also means we can deploy with different names easily.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
@@ -94,3 +97,34 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - If the token does not exist at all, error and return 403.
     - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
       - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
+
+### End of assignment 1 notes
+
+- I have some snackbars and console.log()s that just directly show the user the error messages from the backend. This could be a security issue as an uncaught exception in the backend could result in certain messages being sent (such as the error message directly from the sql database which would help the hacker do sql injection).
+- Monolithic vs microservices
+  - TL;DR a monolithic service is built as a single unit while microservices is a collection of smaller, independently deployable services.
+  - There is no right or wrong, but in general microservices are easier to scale.
+- Features needed for login
+  - Login API (frontend and backend)
+  - User table set up in database
+  - Password hashing and matching
+  - Creating JWT token and setting of cookie
+- Features needed for IAM
+  - Retrieving cookies and verifying JWT token
+  - User table set up in database
+  - User groups table set up in database
+  - Users page
+  - Get all users API (frontend and backend)
+  - Get all distinct API groups (frontend and backend)
+  - Create user API (frontend and backend)
+  - Create group API (frontend and backend)
+    - Password hashing
+  - Update user API (frontend and backend)
+  - Admin authentication (frontend and backend)
+  - Username and password validation (frontend and backend)
+- Features needed for user profile
+  - Retrieving cookies and verifying JWT token
+  - Profile page
+  - User table set up in database
+  - Get profile API (frontend and backend)
+  - Update profile API (frontend and backend)

@@ -38,6 +38,9 @@ const User = (props) => {
         password: "",
         email: "",
       });
+
+      // re-render
+      props.getUsers();
     } catch (err) {
       const errorMessage = err.response.data.message;
       showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
@@ -82,11 +85,11 @@ const User = (props) => {
 
   return (
     <>
-      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }}>
+      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" }, "& > td": { backgroundColor: "lightgray" } }}>
         {/* Username cell */}
         <TableCell>
           <TextField
-            label="Enter username"
+            placeholder="Enter username"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.username}
@@ -101,7 +104,7 @@ const User = (props) => {
         {/* Password cell */}
         <TableCell>
           <TextField
-            label="Enter password"
+            placeholder="Enter password"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.password}
@@ -116,7 +119,7 @@ const User = (props) => {
         {/* Email cell */}
         <TableCell>
           <TextField
-            label="Enter email"
+            placeholder="Enter email"
             fullWidth={true}
             onChange={handleChange}
             value={userForm.email}

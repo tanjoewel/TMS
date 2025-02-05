@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
 const { getUser, addGroupRow, validateFields } = require("../util/commonQueries");
@@ -51,6 +52,15 @@ exports.createUser = async function (req, res) {
       return;
     }
 
+    if (username.length > 50) {
+      res.status(400).json({ message: "Username must be 50 characters or less." });
+      return;
+    }
+
+    if (email.length > 100) {
+      res.status(400).json({ message: "Email must be 100 characters or less." });
+    }
+
     const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
@@ -73,10 +83,21 @@ exports.updateUser = async function (req, res) {
   try {
     const { username, password, email, groups, accountStatus } = req.body;
 
-    // first check if the user exists in the database. By right this should not happen, so this should be a 500.
+    // first check if the user exists in the database. By right this should not happen for requests from frontend, but it could happen for requests from Postman
     const user = await getUser(username);
     if (user.length === 0) {
-      res.status(500).json({ message: `User not found` });
+      res.status(400).json({ message: `User not found` });
+      return;
+    }
+
+    // i don't like putting this here, but it is so specific that it makes the most sense i think to put it here
+    if (username === process.env.HARDCODED_ADMIN && !groups.includes(HARDCODED_ADMIN_GROUP)) {
+      res.status(400).json({ message: "You cannot remove the hardcoded admin from the admin group" });
+      return;
+    }
+
+    if (username === process.env.HARDCODED_ADMIN && accountStatus === 0) {
+      res.status(400).json({ message: "You cannot disable the hardcoded admin" });
       return;
     }
 
@@ -120,7 +141,12 @@ exports.updateProfile = async function (req, res) {
     // we only want the request body to contain 3 things: the updated email, updated password and the username of the user trying to update it
     const { username, updatedEmail, updatedPassword } = req.body;
 
-    // do I want to check user exists?
+    // do I want to check user exists? yes for postman APIs
+    const user = getUser(username);
+    if (user.length === 0) {
+      res.status(400).json({ message: "User not found." });
+      return;
+    }
 
     // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
     const isValid = validateFields("admin", updatedPassword, res);

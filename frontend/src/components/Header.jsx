@@ -33,12 +33,12 @@ const Header = () => {
   return (
     <AppBar position="static" color="default" elevation={0}>
       <Toolbar style={{ justifyContent: "space-between" }}>
-        <Box style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+        <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Typography variant="h6" component="div" style={{ fontWeight: "bold" }}>
             Task Management System
           </Typography>
           {isAuthenticated ? (
-            <div>
+            <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <Button color="inherit" variant="outlined" onClick={handleClickTask}>
                 Task Management
               </Button>
@@ -49,7 +49,7 @@ const Header = () => {
               ) : (
                 <></>
               )}
-            </div>
+            </Box>
           ) : (
             <></>
           )}

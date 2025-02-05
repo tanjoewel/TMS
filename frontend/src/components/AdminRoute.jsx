@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
+import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 const AdminRoute = ({ children }) => {
   const { isAdmin, username, logout } = useAuth();
+  const { showSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   // runs when the component first mounts, which is when the child pages are loaded.
   useEffect(() => {
@@ -14,7 +16,8 @@ const AdminRoute = ({ children }) => {
       try {
         const response = await Axios.post("/groups/checkgroup", { username, groupname: "admin" });
         if (!response.data) {
-          console.log("Admin check ran but failed");
+          const snackbarMessage = "An error has occured. Please log in again.";
+          showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
           logout();
         }
       } catch (err) {

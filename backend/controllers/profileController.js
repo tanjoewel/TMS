@@ -15,6 +15,11 @@ exports.updateProfile = async function (req, res) {
       return;
     }
 
+    if (updatedEmail.length > 100) {
+      res.status(400).json({ message: "Email must be 100 characters or less." });
+      return;
+    }
+
     // salt and hash the password
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(updatedPassword, salt);

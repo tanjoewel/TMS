@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
-import { useAuth } from "../AuthContext";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 export default function Users() {
@@ -26,42 +25,36 @@ export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [groupCounter, setGroupCounter] = useState(0);
 
   // for dropdowns
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState({ type: null, index: null });
-  const { logout } = useAuth();
 
   const { showSnackbar } = useSnackbar();
 
+  async function getUsers() {
+    try {
+      const users = await Axios.get("/users");
+      setUsers(users.data);
+    } catch (e) {
+      showSnackbar("Error getting users", SNACKBAR_SEVERITIES[1]);
+    }
+  }
+
+  async function getDistinctGroups() {
+    try {
+      const groups = await Axios.get("/groups");
+      setGroups(groups.data);
+    } catch (e) {
+      showSnackbar("Error getting groups", SNACKBAR_SEVERITIES[1]);
+    }
+  }
+
   // when the page first loads, get the users from the database
   useEffect(() => {
-    async function getUsers() {
-      try {
-        const users = await Axios.get("/users");
-        setUsers(users.data);
-      } catch (e) {
-        console.log("Error getting users");
-        await logout();
-      }
-    }
     getUsers();
-  }, []);
-
-  // whenever we create a group, update the groups immediately
-  useEffect(() => {
-    async function getDistinctGroups() {
-      try {
-        const groups = await Axios.get("/groups");
-        setGroups(groups.data);
-      } catch (e) {
-        await logout();
-        console.log("Error getting groups");
-      }
-    }
     getDistinctGroups();
-  }, [groupCounter]);
+  }, []);
 
   async function handleUpdateClick(index) {
     const userToUpdate = users[index];
@@ -77,7 +70,9 @@ export default function Users() {
       await Axios.put("/users", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      await getUsers();
     } catch (err) {
+      console.log(err);
       const errorMessage = err.response.data.message;
       showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }
@@ -86,27 +81,15 @@ export default function Users() {
   // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
     // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    if (groups.includes(groupname)) {
-      const snackbarMessage = "Group already exists.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else if (groupname.length === 0) {
-      const snackbarMessage = "Group name cannot be empty.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else if (!groupname.match(alphanumericRegex)) {
-      const snackbarMessage = "Group name must only contain alphanuimeric characters.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else {
-      try {
-        const result = await Axios.post("/groups/create", { groupname });
-        setGroupname("");
-        setGroupCounter((a) => a + 1);
-        const snackbarMessage = "Group has successfully been created";
-        showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
-      } catch (err) {
-        showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
-        console.log("Error creating group: ", err.response.data.message);
-      }
+    try {
+      const result = await Axios.post("/groups/create", { groupname });
+      setGroupname("");
+      const snackbarMessage = "Group has successfully been created";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      await getDistinctGroups();
+    } catch (err) {
+      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+      console.log("Error creating group: ", err.response.data.message);
     }
   }
 
@@ -191,19 +174,19 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} SNACKBAR_SEVERITIES={SNACKBAR_SEVERITIES} />
+              <CreateUser groups={groups} getUsers={getUsers} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.user_username}>
                     {/* Username cell */}
                     <TableCell>
-                      <Typography>{user.user_username}</Typography>
+                      <Typography paddingLeft="14px">{user.user_username}</Typography>
                     </TableCell>
                     {/* Password cell */}
                     <TableCell>
                       <TextField
-                        label="Enter new password to edit"
+                        placeholder="Enter new password to edit"
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_password", e.target.value)}
                         sx={{
@@ -216,7 +199,7 @@ export default function Users() {
                     {/* Email cell */}
                     <TableCell>
                       <TextField
-                        label="Enter email to update"
+                        placeholder="Enter email to update"
                         value={user.user_email ? user.user_email : ""}
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_email", e.target.value)}

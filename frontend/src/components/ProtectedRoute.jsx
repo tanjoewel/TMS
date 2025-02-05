@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
@@ -8,6 +8,7 @@ const ProtectedRoute = () => {
   const { setUsername, logout, isAuthenticated, loading, setLoading, setIsAuthenticated, setIsAdmin } = useAuth();
 
   const { showSnackbar } = useSnackbar();
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -32,7 +33,7 @@ const ProtectedRoute = () => {
       }
     };
     checkAuth();
-  }, []);
+  }, [location.pathname]);
 
   if (loading) {
     return <div>Loading...</div>;
