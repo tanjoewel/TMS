@@ -132,7 +132,12 @@ exports.updateProfile = async function (req, res) {
     // we only want the request body to contain 3 things: the updated email, updated password and the username of the user trying to update it
     const { username, updatedEmail, updatedPassword } = req.body;
 
-    // do I want to check user exists?
+    // do I want to check user exists? yes for postman APIs
+    const user = getUser(username);
+    if (user.length === 0) {
+      res.status(400).json({ message: "User not found." });
+      return;
+    }
 
     // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
     const isValid = validateFields("admin", updatedPassword, res);
