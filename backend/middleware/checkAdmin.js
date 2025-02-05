@@ -12,14 +12,14 @@ async function checkAdmin(req, res, next) {
     const isAdmin = await groupController.checkGroup(username, "admin");
     if (!isAdmin) {
       // user is not an admin, return 403. This is probably not a good idea security wise to send this message but I will leave it here for debug purposes.
-      res.status(403).send("User is not an admin");
+      res.status(403).json({ message: "User is not an admin" });
       return;
     }
 
     // otherwise, this user is an admin and we go to the next middleware.
     next();
   } catch (err) {
-    res.status(500).send("Error checking if user is an admin");
+    res.status(500).json({ message: "Error checking if user is an admin" });
     return;
   }
 }

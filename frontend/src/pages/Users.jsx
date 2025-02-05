@@ -78,6 +78,7 @@ export default function Users() {
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
     } catch (err) {
+      console.log(err);
       const errorMessage = err.response.data.message;
       showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }

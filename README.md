@@ -65,12 +65,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Disabled users (done)
   - Simply put, disabled users should not be able to log in. We should also add that as a check in /auth/verify
   - Protect backend routes from disabled users.
+- Protect backend from making changes to hardcoded admin.
 - If super got time
   - Test and make sure that multiple instances work (works, kinda)
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
     - This kind of works, but it requires a refresh which I am not sure is good enough.
     - Fixed it, the main issue is that I had an authenticateToken middleware on logout, which would make sense but if the sole purpose is to remove cookies and for when users are no longer authenticated, it does not make much sense. So after removing, it seems to work as intended.
   - Change create user to use a transaction instead of two separate database queries.
+  - Frontend input sanitization? Basically involves doing .trim().toLowerCase where applicable (password field dont to toLowerCase obv)
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
