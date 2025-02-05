@@ -82,7 +82,7 @@ const User = (props) => {
 
   return (
     <>
-      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }}>
+      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" }, "& > td": { backgroundColor: "lightgray" } }}>
         {/* Username cell */}
         <TableCell>
           <TextField
