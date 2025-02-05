@@ -193,7 +193,7 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} SNACKBAR_SEVERITIES={SNACKBAR_SEVERITIES} />
+              <CreateUser groups={groups} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
