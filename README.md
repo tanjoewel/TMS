@@ -104,3 +104,27 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Monolithic vs microservices
   - TL;DR a monolithic service is built as a single unit while microservices is a collection of smaller, independently deployable services.
   - There is no right or wrong, but in general microservices are easier to scale.
+- Features needed for login
+  - Login API (frontend and backend)
+  - User table set up in database
+  - Password hashing and matching
+  - Creating JWT token and setting of cookie
+- Features needed for IAM
+  - Retrieving cookies and verifying JWT token
+  - User table set up in database
+  - User groups table set up in database
+  - Users page
+  - Get all users API (frontend and backend)
+  - Get all distinct API groups (frontend and backend)
+  - Create user API (frontend and backend)
+  - Create group API (frontend and backend)
+    - Password hashing
+  - Update user API (frontend and backend)
+  - Admin authentication (frontend and backend)
+  - Username and password validation (frontend and backend)
+- Features needed for user profile
+  - Retrieving cookies and verifying JWT token
+  - Profile page
+  - User table set up in database
+  - Get profile API (frontend and backend)
+  - Update profile API (frontend and backend)

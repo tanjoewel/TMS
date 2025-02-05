@@ -29,7 +29,6 @@ exports.addGroupRow = async function (username, groupname) {
     return result;
   } catch (err) {
     if (err.message.includes("Duplicate entry")) {
-      // again, this should not happen but i am going to blame the user
       throw new Error("User is already assigned to this group!");
     } else {
       throw new Error("Error assigning user to a group");
