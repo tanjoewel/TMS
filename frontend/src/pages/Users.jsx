@@ -200,7 +200,7 @@ export default function Users() {
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.user_username}>
                     {/* Username cell */}
                     <TableCell>
-                      <Typography>{user.user_username}</Typography>
+                      <Typography paddingLeft="14px">{user.user_username}</Typography>
                     </TableCell>
                     {/* Password cell */}
                     <TableCell>

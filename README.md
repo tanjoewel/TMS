@@ -65,7 +65,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
 - Disabled users (done)
   - Simply put, disabled users should not be able to log in. We should also add that as a check in /auth/verify
   - Protect backend routes from disabled users.
-- Protect backend from making changes to hardcoded admin.
+- Protect backend from making changes to hardcoded admin. (done)
 - If super got time
   - Test and make sure that multiple instances work (works, kinda)
     - In particular, removing one person's admin rights by updating should make it so that on another tab they cannot access the user management tab anymore.
