@@ -36,6 +36,21 @@ exports.createGroup = async function (req, res) {
   const { groupname } = req.body;
   // it doesnt work to just leave the user as null, so we give it a username that cannot exist because of validation rules
   const username = "$NULL";
+  // group name verification
+  if (groupname.length === 0) {
+    res.status(400).json({ message: "Group name must not be empty" });
+    return;
+  }
+  if (groupname.length > 50) {
+    res.status(400).json({ message: "Please use a group name that is 50 characters or less." });
+    return;
+  }
+  const groupnameRegex = /[a-zA-Z0-9_]+/;
+  const isMatch = groupname.match(groupnameRegex);
+  if (!isMatch) {
+    res.status(400).json({ message: "Group name must only contain alphanumeric characters and underscores." });
+    return;
+  }
   try {
     const result = await addGroupRow(username, groupname);
     res.status(200).json({ message: "Group successfully created" });

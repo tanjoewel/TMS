@@ -81,27 +81,15 @@ export default function Users() {
   // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
     // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    if (groups.includes(groupname)) {
-      const snackbarMessage = "Group already exists.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else if (groupname.length === 0) {
-      const snackbarMessage = "Group name cannot be empty.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else if (!groupname.match(alphanumericRegex)) {
-      const snackbarMessage = "Group name must only contain alphanuimeric characters.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
-    } else {
-      try {
-        const result = await Axios.post("/groups/create", { groupname });
-        setGroupname("");
-        const snackbarMessage = "Group has successfully been created";
-        showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
-        await getDistinctGroups();
-      } catch (err) {
-        showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
-        console.log("Error creating group: ", err.response.data.message);
-      }
+    try {
+      const result = await Axios.post("/groups/create", { groupname });
+      setGroupname("");
+      const snackbarMessage = "Group has successfully been created";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      await getDistinctGroups();
+    } catch (err) {
+      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+      console.log("Error creating group: ", err.response.data.message);
     }
   }
 
