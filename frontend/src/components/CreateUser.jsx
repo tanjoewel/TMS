@@ -38,6 +38,9 @@ const User = (props) => {
         password: "",
         email: "",
       });
+
+      // re-render
+      props.getUsers();
     } catch (err) {
       const errorMessage = err.response.data.message;
       showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);

@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
-import { useAuth } from "../AuthContext";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 export default function Users() {
@@ -26,43 +25,36 @@ export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [groupCounter, setGroupCounter] = useState(0);
 
   // for dropdowns
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState({ type: null, index: null });
-  const { logout } = useAuth();
 
   const { showSnackbar } = useSnackbar();
 
+  async function getUsers() {
+    try {
+      const users = await Axios.get("/users");
+      setUsers(users.data);
+    } catch (e) {
+      showSnackbar("Error getting users", SNACKBAR_SEVERITIES[1]);
+    }
+  }
+
+  async function getDistinctGroups() {
+    try {
+      const groups = await Axios.get("/groups");
+      setGroups(groups.data);
+    } catch (e) {
+      showSnackbar("Error getting groups", SNACKBAR_SEVERITIES[1]);
+    }
+  }
+
   // when the page first loads, get the users from the database
   useEffect(() => {
-    async function getUsers() {
-      try {
-        const users = await Axios.get("/users");
-        setUsers(users.data);
-      } catch (e) {
-        // this is probably not the right way to do this. please take note of this
-        console.log("Error getting users");
-        await logout();
-      }
-    }
     getUsers();
-  }, []);
-
-  // whenever we create a group, update the groups immediately
-  useEffect(() => {
-    async function getDistinctGroups() {
-      try {
-        const groups = await Axios.get("/groups");
-        setGroups(groups.data);
-      } catch (e) {
-        await logout();
-        console.log("Error getting groups");
-      }
-    }
     getDistinctGroups();
-  }, [groupCounter]);
+  }, []);
 
   async function handleUpdateClick(index) {
     const userToUpdate = users[index];
@@ -78,6 +70,7 @@ export default function Users() {
       await Axios.put("/users", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      await getUsers();
     } catch (err) {
       console.log(err);
       const errorMessage = err.response.data.message;
@@ -102,9 +95,9 @@ export default function Users() {
       try {
         const result = await Axios.post("/groups/create", { groupname });
         setGroupname("");
-        setGroupCounter((a) => a + 1);
         const snackbarMessage = "Group has successfully been created";
         showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+        await getDistinctGroups();
       } catch (err) {
         showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
         console.log("Error creating group: ", err.response.data.message);
@@ -193,7 +186,7 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} />
+              <CreateUser groups={groups} getUsers={getUsers} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
