@@ -73,10 +73,21 @@ exports.updateUser = async function (req, res) {
   try {
     const { username, password, email, groups, accountStatus } = req.body;
 
-    // first check if the user exists in the database. By right this should not happen, so this should be a 500.
+    // first check if the user exists in the database. By right this should not happen for requests from frontend, but it could happen for requests from Postman
     const user = await getUser(username);
     if (user.length === 0) {
-      res.status(500).json({ message: `User not found` });
+      res.status(400).json({ message: `User not found` });
+      return;
+    }
+
+    // i don't like putting this here, but it is so specific that it makes the most sense i think to put it here
+    if (username === "ADMIN" && !groups.includes("admin")) {
+      res.status(400).json({ message: "You cannot remove the hardcoded admin from the admin group" });
+      return;
+    }
+
+    if (username === "ADMIN" && accountStatus === 0) {
+      res.status(400).json({ message: "You cannot disable the hardcoded admin" });
       return;
     }
 

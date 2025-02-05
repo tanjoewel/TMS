@@ -42,6 +42,7 @@ export default function Users() {
         const users = await Axios.get("/users");
         setUsers(users.data);
       } catch (e) {
+        // this is probably not the right way to do this. please take note of this
         console.log("Error getting users");
         await logout();
       }

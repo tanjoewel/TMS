@@ -73,6 +73,8 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Fixed it, the main issue is that I had an authenticateToken middleware on logout, which would make sense but if the sole purpose is to remove cookies and for when users are no longer authenticated, it does not make much sense. So after removing, it seems to work as intended.
   - Change create user to use a transaction instead of two separate database queries.
   - Frontend input sanitization? Basically involves doing .trim().toLowerCase where applicable (password field dont to toLowerCase obv)
+  - ask chatgpt at 2pm how to properly implement protectedRoutes so that the useEffect triggers everytime the user loads a protected route.
+    - Ideally what i would want is for every attempt to access a protected route, we call '/verify', and if it returns a 403 we log them out. No other place should we be logging them out.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
