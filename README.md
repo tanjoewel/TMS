@@ -73,8 +73,7 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - Fixed it, the main issue is that I had an authenticateToken middleware on logout, which would make sense but if the sole purpose is to remove cookies and for when users are no longer authenticated, it does not make much sense. So after removing, it seems to work as intended.
   - Change create user to use a transaction instead of two separate database queries.
   - Frontend input sanitization? Basically involves doing .trim().toLowerCase where applicable (password field dont to toLowerCase obv)
-  - ask chatgpt at 2pm how to properly implement protectedRoutes so that the useEffect triggers everytime the user loads a protected route.
-    - Ideally what i would want is for every attempt to access a protected route, we call '/verify', and if it returns a 403 we log them out. No other place should we be logging them out.
+  - Move hardcoded admin to .env file? Not only does it protect from others being able to see the name in the code directly, but it also means we can deploy with different names easily.
 
 ### Implementation plan for authentication (some stuff might be wrong, but this is what I think is correct)
 
@@ -98,3 +97,10 @@ The entry point to this project is defined in [index.html](./index.html), under 
     - If the token does not exist at all, error and return 403.
     - Additionally, to prevent token spoofing, we decode the JWT token to get the username, ip address and browser type that was used to log in. Then, we cross-check the ip address and browser type of the request, and check if the username exists in the database. If the token was spoofed, the ip address and/or browser type will be different.
       - This also prevents users from logging in on the frontend as a user with less permissions, copying the token and using Postman to directly access the backend will cause the browser type to be different (although I think the IP will still be the same).
+
+### End of assignment 1 notes
+
+- I have some snackbars and console.log()s that just directly show the user the error messages from the backend. This could be a security issue as an uncaught exception in the backend could result in certain messages being sent (such as the error message directly from the sql database which would help the hacker do sql injection).
+- Monolithic vs microservices
+  - TL;DR a monolithic service is built as a single unit while microservices is a collection of smaller, independently deployable services.
+  - There is no right or wrong, but in general microservices are easier to scale.
