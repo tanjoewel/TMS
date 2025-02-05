@@ -52,6 +52,15 @@ exports.createUser = async function (req, res) {
       return;
     }
 
+    if (username.length > 50) {
+      res.status(400).json({ message: "Username must be 50 characters or less." });
+      return;
+    }
+
+    if (email.length > 100) {
+      res.status(400).json({ message: "Email must be 100 characters or less." });
+    }
+
     const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
