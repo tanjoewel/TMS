@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Switch } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Switch, FormControl, Select, Chip } from "@mui/material";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
@@ -63,17 +63,15 @@ const User = (props) => {
     setChecked(event.target.checked);
   }
 
-  function handleGroupSelect(value) {
+  function handleGroupSelect(event) {
+    const value = event.target.value;
     // if the group is already in the array, we want to remove it. Remember we need to pass in a totally new object for useState and in-place mutations are not allowed.
-    const index = groups.indexOf(value);
-    if (index > -1) {
-      const newGroups = groups.toSpliced(index, 1);
-      setGroups(newGroups);
-    } else {
-      const newGroups = groups.concat([value]);
-      setGroups(newGroups);
-    }
+    setGroups(value);
     return;
+  }
+
+  function onDeleteHandler(groupToDelete) {
+    setGroups((prevGroups) => prevGroups.filter((group) => group !== groupToDelete));
   }
 
   function handleChange(event) {
@@ -131,26 +129,26 @@ const User = (props) => {
         </TableCell>
         {/* Group cell */}
         <TableCell>
-          <Button
-            id="groups"
-            aria-controls={openMenu === "groups" ? "groups-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={openMenu === "groups" ? "true" : undefined}
-            onClick={(event) => handleDropDownClick(event, "groups")}
-            endIcon={openMenu === "groups" ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
-          >
-            Groups
-          </Button>
-          <Menu id="groups-menu" open={openMenu === "groups"} anchorEl={anchorEl} onClose={handleCloseOutside}>
-            {props.groups.map((item) => {
-              return (
-                <MenuItem key={item} onClick={() => handleGroupSelect(item)}>
-                  {item}
-                  <Checkbox checked={groups.includes(item)} />
+          <FormControl fullWidth>
+            <Select
+              multiple
+              value={groups}
+              onChange={handleGroupSelect}
+              renderValue={(selected) => (
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  {selected.map((group) => (
+                    <Chip key={group} label={group} onDelete={() => onDeleteHandler(group)} />
+                  ))}
+                </div>
+              )}
+            >
+              {props.groups.map((group) => (
+                <MenuItem key={group} value={group}>
+                  {group}
                 </MenuItem>
-              );
-            })}
-          </Menu>
+              ))}
+            </Select>
+          </FormControl>
         </TableCell>
         {/* Account status cell */}
         <TableCell>
