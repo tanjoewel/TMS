@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Switch } from "@mui/material";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
-// this component is not really needed anymore, but it was good to test. It might get refactored into the CreateUser row, but other than that the logic for getting the users is in `Users`.
 const User = (props) => {
-  const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-
-  const [accountStatus, setAccountStatus] = useState(ACCOUNT_STATUSES[1]);
+  const [checked, setChecked] = useState(true);
   const [groups, setGroups] = useState([]);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -22,7 +19,7 @@ const User = (props) => {
 
   async function handleCreateUserClick() {
     // convert the accountStatus into a tinyint before sending to backend.
-    const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(accountStatus);
+    const accountStatusTinyint = checked ? 1 : 0;
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     try {
       const result = await Axios.post("/users", userObject);
@@ -31,7 +28,7 @@ const User = (props) => {
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
 
       // reset everything only when user is successfully created
-      setAccountStatus(ACCOUNT_STATUSES[1]);
+      setChecked(true);
       setGroups([]);
       setUserForm({
         username: "",
@@ -59,10 +56,8 @@ const User = (props) => {
     setOpenMenu(null);
   }
 
-  function handleStatusSelect(value) {
-    setAccountStatus(value);
-    setOpenMenu(null);
-    setAnchorEl(null);
+  function handleSwitchChange(event) {
+    setChecked(event.target.checked);
   }
 
   function handleGroupSelect(value) {
@@ -156,20 +151,7 @@ const User = (props) => {
         </TableCell>
         {/* Account status cell */}
         <TableCell>
-          <Button
-            id="account-status"
-            aria-controls={openMenu === "account-status" ? "account-status-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={openMenu === "account-status" ? "true" : undefined}
-            onClick={(event) => handleDropDownClick(event, "account-status")}
-            endIcon={openMenu === "account-status" ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
-          >
-            {accountStatus || "Status"}
-          </Button>
-          <Menu id="account-status" open={openMenu === "account-status"} anchorEl={anchorEl} onClose={handleCloseOutside}>
-            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
-            <MenuItem onClick={() => handleStatusSelect(ACCOUNT_STATUSES[0])}>Disabled</MenuItem>
-          </Menu>
+          <Switch checked={checked} onChange={handleSwitchChange}></Switch>
         </TableCell>
         {/* Create user cell */}
         <TableCell>
