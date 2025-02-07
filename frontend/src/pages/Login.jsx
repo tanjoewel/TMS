@@ -23,8 +23,6 @@ const Home = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [showError, setShowError] = useState(false);
-
   const { showSnackbar } = useSnackbar();
 
   async function handleClick() {
@@ -42,12 +40,11 @@ const Home = () => {
       // const snackbarMessage = "Invalid login. Please try again.";
       // showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
       setErrorMessage("Invalid login. Please try again.");
-      setShowError(true);
       console.log(e);
+      // not sure if i want to do this
+      setUsername("");
+      setPassword("");
     }
-    // not sure if i want to do this
-    setUsername("");
-    setPassword("");
   }
 
   return (
@@ -64,7 +61,7 @@ const Home = () => {
           minHeight: "300px",
         }}
       >
-        <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" textAlign="center" pt="10px">
+        <Typography color="red" textAlign="center" pt="10px">
           {errorMessage}
         </Typography>
         <TextField

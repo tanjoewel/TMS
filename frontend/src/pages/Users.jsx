@@ -29,6 +29,8 @@ export default function Users() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState({ type: null, index: null });
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   const { showSnackbar } = useSnackbar();
 
   async function getUsers() {
@@ -68,15 +70,16 @@ export default function Users() {
       await Axios.put("/users", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      setErrorMessage("");
       await getUsers();
     } catch (err) {
       console.log(err);
-      const errorMessage = err.response.data.message;
-      showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      // const errorMessage = err.response.data.message;
+      // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage(err.response.data.message);
     }
   }
 
-  // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
     // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
     try {
@@ -85,8 +88,10 @@ export default function Users() {
       const snackbarMessage = "Group has successfully been created";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
       await getDistinctGroups();
+      setErrorMessage("");
     } catch (err) {
-      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage(err.response.data.message);
+      // showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error creating group: ", err.response.data.message);
     }
   }
@@ -154,6 +159,9 @@ export default function Users() {
           <Button onClick={handleCreateClick}>Create</Button>
         </div>
       </Box>
+      <Typography color="red" paddingLeft="26px" fontSize="20px">
+        {errorMessage}
+      </Typography>
       <Box sx={{ mx: 3, mt: 2 }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650, border: "1px solid black" }} aria-label="simple table" size="small">
@@ -171,7 +179,7 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} getUsers={getUsers} />
+              <CreateUser groups={groups} getUsers={getUsers} setErrorMessage={setErrorMessage} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
