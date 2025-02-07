@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, MenuItem, Switch, FormControl, Select, Chip } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, MenuItem, Switch, FormControl, Select } from "@mui/material";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
@@ -58,10 +58,6 @@ const User = (props) => {
     return;
   }
 
-  function onDeleteHandler(groupToDelete) {
-    setGroups((prevGroups) => prevGroups.filter((group) => group !== groupToDelete));
-  }
-
   function handleChange(event) {
     const { name, value } = event.target;
     setUserForm((prev) => ({ ...prev, [name]: value }));
@@ -118,18 +114,7 @@ const User = (props) => {
         {/* Group cell */}
         <TableCell>
           <FormControl fullWidth>
-            <Select
-              multiple
-              value={groups}
-              onChange={handleGroupSelect}
-              renderValue={(selected) => (
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                  {selected.map((group) => (
-                    <Chip key={group} label={group} onDelete={() => onDeleteHandler(group)} />
-                  ))}
-                </div>
-              )}
-            >
+            <Select multiple value={groups} onChange={handleGroupSelect} renderValue={(selected) => "Selected " + selected.length}>
               {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
