@@ -29,7 +29,8 @@ export default function Users() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState({ type: null, index: null });
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("lmao");
+  const [showError, setShowError] = useState(false);
 
   const { showSnackbar } = useSnackbar();
 
@@ -70,13 +71,15 @@ export default function Users() {
       await Axios.put("/users", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
-      setErrorMessage("");
+      setErrorMessage("lmao");
+      setShowError(false);
       await getUsers();
     } catch (err) {
       console.log(err);
       // const errorMessage = err.response.data.message;
       // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
       setErrorMessage(err.response.data.message);
+      setShowError(true);
     }
   }
 
@@ -88,9 +91,11 @@ export default function Users() {
       const snackbarMessage = "Group has successfully been created";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
       await getDistinctGroups();
-      setErrorMessage("");
+      setErrorMessage("lmao");
+      setShowError(false);
     } catch (err) {
       setErrorMessage(err.response.data.message);
+      setShowError(true);
       // showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error creating group: ", err.response.data.message);
     }
@@ -159,7 +164,7 @@ export default function Users() {
           <Button onClick={handleCreateClick}>Create</Button>
         </div>
       </Box>
-      <Typography color="red" paddingLeft="26px" fontSize="20px">
+      <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" paddingLeft="26px" fontSize="20px">
         {errorMessage}
       </Typography>
       <Box sx={{ mx: 3, mt: 2 }}>
@@ -179,7 +184,7 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} getUsers={getUsers} setErrorMessage={setErrorMessage} />
+              <CreateUser groups={groups} getUsers={getUsers} setErrorMessage={setErrorMessage} setShowError={setShowError} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
@@ -194,6 +199,7 @@ export default function Users() {
                         placeholder="Enter new password to edit"
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_password", e.target.value)}
+                        value={user.user_password ? user.user_password : ""}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",

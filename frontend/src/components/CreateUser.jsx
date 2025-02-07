@@ -26,6 +26,7 @@ const User = (props) => {
 
       const snackbarMessage = "User has been successfully created.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      props.setErrorMessage("");
 
       // reset everything only when user is successfully created
       setChecked(true);
@@ -39,8 +40,10 @@ const User = (props) => {
       // re-render
       props.getUsers();
     } catch (err) {
-      const errorMessage = err.response.data.message;
-      showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      props.setErrorMessage(err.response.data.message);
+      props.setShowError(true);
+      // const errorMessage = err.response.data.message;
+      // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }
 
     return;
