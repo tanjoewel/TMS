@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const { getUser, addGroupRow } = require("../util/commonQueries");
+require("dotenv").config();
 
 // needed to display the groups in drop down
 exports.getDistinctGroups = async function (req, res) {
@@ -35,7 +36,7 @@ exports.assignGroup = async function (req, res) {
 exports.createGroup = async function (req, res) {
   const { groupname } = req.body;
   // it doesnt work to just leave the user as null, so we give it a username that cannot exist because of validation rules
-  const username = "$NULL";
+  const username = process.env.DUMMY_USER;
   // group name verification
   if (groupname.length === 0) {
     res.status(400).json({ message: "Group name must not be empty" });
