@@ -46,7 +46,6 @@ exports.createGroup = async function (req, res) {
     return;
   }
   const distinctGroups = await getDistinctGroups();
-  // console.log("Distinct groups: " + distinctGroups);
   if (distinctGroups.includes(groupname)) {
     res.status(400).json({ message: "Group already exists." });
     return;
