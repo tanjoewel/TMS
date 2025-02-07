@@ -10,11 +10,11 @@ import {
   TableRow,
   Paper,
   TableCell,
-  Menu,
   MenuItem,
-  Checkbox,
   Typography,
   Switch,
+  FormControl,
+  Select,
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
@@ -24,10 +24,6 @@ export default function Users() {
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
-
-  // for dropdowns
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [openMenu, setOpenMenu] = useState({ type: null, index: null });
 
   const [errorMessage, setErrorMessage] = useState("lmao");
   const [showError, setShowError] = useState(false);
@@ -101,16 +97,6 @@ export default function Users() {
     }
   }
 
-  function handleDropDownClick(e, type, index) {
-    setAnchorEl(e.currentTarget);
-    setOpenMenu({ type, index });
-  }
-
-  function handleCloseOutside() {
-    setAnchorEl(null);
-    setOpenMenu({ type: null, index: null });
-  }
-
   function handleSwitchChange(event, index) {
     const tinyint = event.target.checked ? 1 : 0;
     const newUsers = users.map((user, i) => {
@@ -126,25 +112,12 @@ export default function Users() {
     setUsers(newUsers);
   }
 
-  function handleGroupSelect(index, value) {
-    // get the user's groups first
-    const userGroups = users[index].groups;
-    // if the group is already in the array, we want to remove it.
-    const groupIndex = userGroups.indexOf(value);
-    if (groupIndex > -1) {
-      const newGroups = userGroups.toSpliced(groupIndex, 1);
-      // set the new groups
-      const newUsers = users.map((user, i) => {
-        return i === index ? { ...user, ["groups"]: newGroups } : user;
-      });
-      setUsers(newUsers);
-    } else {
-      const newGroups = userGroups.concat([value]);
-      const newUsers = users.map((user, i) => {
-        return i === index ? { ...user, ["groups"]: newGroups } : user;
-      });
-      setUsers(newUsers);
-    }
+  function handleGroupSelect(index, event) {
+    const value = event.target.value;
+    const newUsers = users.map((user, i) => {
+      return i === index ? { ...user, ["groups"]: value } : user;
+    });
+    setUsers(newUsers);
   }
 
   return (
@@ -223,26 +196,20 @@ export default function Users() {
                     </TableCell>
                     {/* Groups cell */}
                     <TableCell>
-                      <Button
-                        id="groups"
-                        aria-controls={openMenu.type === "groups" && openMenu.index === index ? "groups-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={openMenu.type === "groups" && openMenu.index === index ? "true" : undefined}
-                        onClick={(event) => handleDropDownClick(event, "groups", index)}
-                        endIcon={openMenu.type === "groups" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
-                      >
-                        Groups
-                      </Button>
-                      <Menu id="groups-menu" open={openMenu.type === "groups" && openMenu.index === index} anchorEl={anchorEl} onClose={handleCloseOutside}>
-                        {groups.map((item) => {
-                          return (
-                            <MenuItem key={item} onClick={() => handleGroupSelect(index, item)} disabled={user.user_username === "ADMIN" && item === "admin"}>
-                              {item}
-                              <Checkbox checked={user.groups.includes(item)} />
+                      <FormControl fullWidth>
+                        <Select
+                          multiple
+                          value={user.groups}
+                          onChange={(event) => handleGroupSelect(index, event)}
+                          renderValue={(selected) => "Selected " + selected.length}
+                        >
+                          {groups.map((group) => (
+                            <MenuItem key={group} value={group}>
+                              {group}
                             </MenuItem>
-                          );
-                        })}
-                      </Menu>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </TableCell>
                     {/* Account status Cell */}
                     <TableCell>
