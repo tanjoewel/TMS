@@ -1,6 +1,7 @@
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { getUser, validateFields } = require("../util/commonQueries");
+const { getUser } = require("../util/commonQueries");
+const { validateFields } = require("../util/validation");
 
 exports.updateProfile = async function (req, res) {
   try {
