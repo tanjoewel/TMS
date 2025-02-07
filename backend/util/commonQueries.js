@@ -23,7 +23,6 @@ exports.addGroupRow = async function (username, groupname) {
   if (user.length === 0 && username !== process.env.DUMMY_USER) {
     throw new Error("Cannot assign a group to a user that does not exist.");
   }
-  // we also should probably check if the group already exists, but I will save that for later
   // user exists and we can execute the query
   try {
     const result = await executeQuery(query, [username, groupname]);
@@ -57,4 +56,17 @@ exports.validateFields = (username, password, res) => {
     return false;
   }
   return true;
+};
+
+exports.getDistinctGroups = async function () {
+  const query = "SELECT DISTINCT user_group_groupName FROM user_group;";
+  try {
+    const result = await executeQuery(query);
+    const distinctGroups = result.map((row) => {
+      return row["user_group_groupName"];
+    });
+    return distinctGroups;
+  } catch (err) {
+    throw new Error("Error fetching groups: " + err.message);
+  }
 };
