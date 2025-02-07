@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, TableRow, TableCell, TextField, Menu, MenuItem, Checkbox, Switch, FormControl, Select, Chip } from "@mui/material";
+import { Button, TableRow, TableCell, TextField, MenuItem, Switch, FormControl, Select, Chip } from "@mui/material";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
@@ -7,8 +7,6 @@ const User = (props) => {
   const [checked, setChecked] = useState(true);
   const [groups, setGroups] = useState([]);
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [openMenu, setOpenMenu] = useState(null);
   const [userForm, setUserForm] = useState({
     username: "",
     password: "",
@@ -47,16 +45,6 @@ const User = (props) => {
     }
 
     return;
-  }
-
-  function handleDropDownClick(e, menuType) {
-    setAnchorEl(e.currentTarget);
-    setOpenMenu(openMenu === menuType ? null : menuType);
-  }
-
-  function handleCloseOutside() {
-    setAnchorEl(null);
-    setOpenMenu(null);
   }
 
   function handleSwitchChange(event) {
