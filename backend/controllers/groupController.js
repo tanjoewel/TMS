@@ -6,6 +6,7 @@ require("dotenv").config();
 exports.getDistinctGroups = async function (req, res) {
   try {
     const distinctGroups = await getDistinctGroups();
+    res.send(distinctGroups);
   } catch (err) {
     res.status(500).json({ message: "Error fetching groups." + err.message });
   }
