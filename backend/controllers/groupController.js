@@ -10,19 +10,6 @@ exports.getDistinctGroups = async function (req, res) {
   } catch (err) {
     res.status(500).json({ message: "Error fetching groups." + err.message });
   }
-  // const query = "SELECT DISTINCT user_group_groupName FROM user_group;";
-  // try {
-  //   const result = await executeQuery(query);
-  //   const distinctGroups = [];
-  //   result.map((row) => {
-  //     distinctGroups.push(row["user_group_groupName"]);
-  //   });
-  //   res.send(distinctGroups);
-  //   return result;
-  // } catch (err) {
-  //   res.status(500).json({ message: "Error fetching groups." + err.message });
-  // }
-  // return;
 };
 
 // i probably want two functions, one to create group by itself and one to assign a user to a group (which is basically creating a row in the user_group table)
