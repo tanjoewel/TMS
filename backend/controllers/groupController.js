@@ -1,22 +1,15 @@
 const { executeQuery } = require("../util/sql");
-const { getUser, addGroupRow } = require("../util/commonQueries");
+const { getUser, addGroupRow, getDistinctGroups } = require("../util/commonQueries");
 require("dotenv").config();
 
 // needed to display the groups in drop down
 exports.getDistinctGroups = async function (req, res) {
-  const query = "SELECT DISTINCT user_group_groupName FROM user_group;";
   try {
-    const result = await executeQuery(query);
-    const distinctGroups = [];
-    result.map((row) => {
-      distinctGroups.push(row["user_group_groupName"]);
-    });
+    const distinctGroups = await getDistinctGroups();
     res.send(distinctGroups);
-    return result;
   } catch (err) {
     res.status(500).json({ message: "Error fetching groups." + err.message });
   }
-  return;
 };
 
 // i probably want two functions, one to create group by itself and one to assign a user to a group (which is basically creating a row in the user_group table)
@@ -50,6 +43,11 @@ exports.createGroup = async function (req, res) {
   const isMatch = groupname.match(groupnameRegex);
   if (!isMatch) {
     res.status(400).json({ message: "Group name must only contain alphanumeric characters and underscores." });
+    return;
+  }
+  const distinctGroups = await getDistinctGroups();
+  if (distinctGroups.includes(groupname)) {
+    res.status(400).json({ message: "Group already exists." });
     return;
   }
   try {

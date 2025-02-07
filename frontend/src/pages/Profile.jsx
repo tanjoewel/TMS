@@ -11,6 +11,8 @@ const Profile = () => {
   const [updatedEmail, setUpdatedEmail] = useState("");
   const [updatedPassword, setUpdatedPassword] = useState("");
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   // readonly fields state
   const [readOnlyUsername, setReadOnlyUsername] = useState(username);
   // i need to pull in the email from somewhere, maybe add in auth context?
@@ -40,8 +42,10 @@ const Profile = () => {
       setProfileCounter((prev) => prev + 1);
       const snackbarMessage = "Profile successfully updated!";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      setErrorMessage("");
     } catch (err) {
-      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage(err.response.data.message);
+      // showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error updating profile: " + err.response.data.message);
     }
   }
@@ -83,6 +87,10 @@ const Profile = () => {
 
       <Typography>Update Password</Typography>
       <TextField fullWidth type="password" value={updatedPassword} onChange={(e) => setUpdatedPassword(e.target.value)} sx={{ mb: 2 }} />
+
+      <Typography color="red" textAlign="center">
+        {errorMessage}
+      </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
         <Button variant="outlined" onClick={handleSave} sx={{ width: "300px" }}>

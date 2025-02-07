@@ -10,25 +10,23 @@ import {
   TableRow,
   Paper,
   TableCell,
-  Menu,
   MenuItem,
-  Checkbox,
   Typography,
+  Switch,
+  FormControl,
+  Select,
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 export default function Users() {
-  const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
 
-  // for dropdowns
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [openMenu, setOpenMenu] = useState({ type: null, index: null });
+  const [errorMessage, setErrorMessage] = useState("lmao");
+  const [showError, setShowError] = useState(false);
 
   const { showSnackbar } = useSnackbar();
 
@@ -58,27 +56,29 @@ export default function Users() {
 
   async function handleUpdateClick(index) {
     const userToUpdate = users[index];
-    const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(userToUpdate.user_enabled);
     const userObject = {
       username: userToUpdate.user_username,
       password: userToUpdate.user_password || "",
       email: userToUpdate.user_email,
       groups: userToUpdate.groups,
-      accountStatus: accountStatusTinyint,
+      accountStatus: userToUpdate.user_enabled,
     };
     try {
       await Axios.put("/users", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      setErrorMessage("lmao");
+      setShowError(false);
       await getUsers();
     } catch (err) {
       console.log(err);
-      const errorMessage = err.response.data.message;
-      showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      // const errorMessage = err.response.data.message;
+      // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
     }
   }
 
-  // if got time need to improve user experience, such as providing feedback if it worked/did not work and clear the field once it is created
   async function handleCreateClick() {
     // handling this on frontend because we don't need a call to the database! getDistinctGroups is updated consistently
     try {
@@ -87,29 +87,22 @@ export default function Users() {
       const snackbarMessage = "Group has successfully been created";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
       await getDistinctGroups();
+      setErrorMessage("lmao");
+      setShowError(false);
     } catch (err) {
-      showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
+      // showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error creating group: ", err.response.data.message);
     }
   }
 
-  function handleDropDownClick(e, type, index) {
-    setAnchorEl(e.currentTarget);
-    setOpenMenu({ type, index });
-  }
-
-  function handleCloseOutside() {
-    setAnchorEl(null);
-    setOpenMenu({ type: null, index: null });
-  }
-
-  function handleStatusSelect(index, value) {
+  function handleSwitchChange(event, index) {
+    const tinyint = event.target.checked ? 1 : 0;
     const newUsers = users.map((user, i) => {
-      return i === index ? { ...user, ["user_enabled"]: value } : user;
+      return i === index ? { ...user, ["user_enabled"]: tinyint } : user;
     });
     setUsers(newUsers);
-    setOpenMenu({ type: null, index: null });
-    setAnchorEl(null);
   }
 
   function handleChange(index, field, value) {
@@ -119,25 +112,12 @@ export default function Users() {
     setUsers(newUsers);
   }
 
-  function handleGroupSelect(index, value) {
-    // get the user's groups first
-    const userGroups = users[index].groups;
-    // if the group is already in the array, we want to remove it.
-    const groupIndex = userGroups.indexOf(value);
-    if (groupIndex > -1) {
-      const newGroups = userGroups.toSpliced(groupIndex, 1);
-      // set the new groups
-      const newUsers = users.map((user, i) => {
-        return i === index ? { ...user, ["groups"]: newGroups } : user;
-      });
-      setUsers(newUsers);
-    } else {
-      const newGroups = userGroups.concat([value]);
-      const newUsers = users.map((user, i) => {
-        return i === index ? { ...user, ["groups"]: newGroups } : user;
-      });
-      setUsers(newUsers);
-    }
+  function handleGroupSelect(index, event) {
+    const value = event.target.value;
+    const newUsers = users.map((user, i) => {
+      return i === index ? { ...user, ["groups"]: value } : user;
+    });
+    setUsers(newUsers);
   }
 
   return (
@@ -157,6 +137,9 @@ export default function Users() {
           <Button onClick={handleCreateClick}>Create</Button>
         </div>
       </Box>
+      <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" paddingLeft="26px" fontSize="20px">
+        {errorMessage}
+      </Typography>
       <Box sx={{ mx: 3, mt: 2 }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650, border: "1px solid black" }} aria-label="simple table" size="small">
@@ -174,7 +157,7 @@ export default function Users() {
             {/* Table body */}
             <TableBody>
               {/* Create user row */}
-              <CreateUser groups={groups} getUsers={getUsers} />
+              <CreateUser groups={groups} getUsers={getUsers} setErrorMessage={setErrorMessage} setShowError={setShowError} />
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
@@ -189,6 +172,7 @@ export default function Users() {
                         placeholder="Enter new password to edit"
                         fullWidth={true}
                         onChange={(e) => handleChange(index, "user_password", e.target.value)}
+                        value={user.user_password ? user.user_password : ""}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
@@ -212,52 +196,28 @@ export default function Users() {
                     </TableCell>
                     {/* Groups cell */}
                     <TableCell>
-                      <Button
-                        id="groups"
-                        aria-controls={openMenu.type === "groups" && openMenu.index === index ? "groups-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={openMenu.type === "groups" && openMenu.index === index ? "true" : undefined}
-                        onClick={(event) => handleDropDownClick(event, "groups", index)}
-                        endIcon={openMenu.type === "groups" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />}
-                      >
-                        Groups
-                      </Button>
-                      <Menu id="groups-menu" open={openMenu.type === "groups" && openMenu.index === index} anchorEl={anchorEl} onClose={handleCloseOutside}>
-                        {groups.map((item) => {
-                          return (
-                            <MenuItem key={item} onClick={() => handleGroupSelect(index, item)} disabled={user.user_username === "ADMIN" && item === "admin"}>
-                              {item}
-                              <Checkbox checked={user.groups.includes(item)} />
+                      <FormControl fullWidth>
+                        <Select
+                          multiple
+                          value={user.groups}
+                          onChange={(event) => handleGroupSelect(index, event)}
+                          renderValue={(selected) => "Selected " + selected.length}
+                        >
+                          {groups.map((group) => (
+                            <MenuItem key={group} value={group}>
+                              {group}
                             </MenuItem>
-                          );
-                        })}
-                      </Menu>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </TableCell>
                     {/* Account status Cell */}
                     <TableCell>
-                      <Button
-                        id="account-status"
-                        aria-controls={openMenu.type === "account-status" && openMenu.index === index ? "account-status-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={openMenu.type === "account-status" && openMenu.index === index ? "true" : undefined}
-                        onClick={(event) => handleDropDownClick(event, "account-status", index)}
-                        endIcon={
-                          openMenu.type === "account-status" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />
-                        }
-                      >
-                        {user.user_enabled || "Status"}
-                      </Button>
-                      <Menu
-                        id="account-status"
-                        open={openMenu.type === "account-status" && openMenu.index === index}
-                        anchorEl={anchorEl}
-                        onClose={handleCloseOutside}
-                      >
-                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
-                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[0])} disabled={user.user_username === "ADMIN"}>
-                          Disabled
-                        </MenuItem>
-                      </Menu>
+                      <Switch
+                        checked={user.user_enabled}
+                        onChange={(event) => handleSwitchChange(event, index)}
+                        disabled={user.user_username === "ADMIN"}
+                      ></Switch>
                     </TableCell>
                     {/* Action cell */}
                     <TableCell>

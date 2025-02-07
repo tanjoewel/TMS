@@ -1,7 +1,8 @@
 require("dotenv").config();
 const { executeQuery } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { getUser, addGroupRow, validateFields } = require("../util/commonQueries");
+const { getUser, addGroupRow } = require("../util/commonQueries");
+const { validateFields } = require("../util/validation");
 
 exports.getAllUsers = async function (req, res) {
   // this query concatenates the groups together so that it is easier to process
@@ -10,16 +11,6 @@ exports.getAllUsers = async function (req, res) {
   try {
     const result = await executeQuery(query);
     // format the result
-
-    // first, convert the boolean value in the database to a form that is readable by the user.
-    result.map((e) => {
-      if (e.user_enabled === 1) {
-        e.user_enabled = "Enabled";
-      } else {
-        e.user_enabled = "Disabled";
-      }
-      return e;
-    });
 
     // combine the groups together
     result.forEach((user) => {
