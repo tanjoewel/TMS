@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavLink, useNavigate } from "react-router-dom";
 import Axios from "axios";
@@ -22,6 +22,8 @@ const Home = () => {
   // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showError, setShowError] = useState(false);
 
   const { showSnackbar } = useSnackbar();
 
@@ -37,10 +39,13 @@ const Home = () => {
         navigate("/tasks");
       }
     } catch (e) {
-      const snackbarMessage = "Invalid login. Please try again.";
-      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
+      // const snackbarMessage = "Invalid login. Please try again.";
+      // showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[1]);
+      setErrorMessage("Invalid login. Please try again.");
+      setShowError(true);
       console.log(e);
     }
+    // not sure if i want to do this
     setUsername("");
     setPassword("");
   }
@@ -59,6 +64,9 @@ const Home = () => {
           minHeight: "300px",
         }}
       >
+        <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" textAlign="center" pt="10px">
+          {errorMessage}
+        </Typography>
         <TextField
           id="username"
           label="Username"
@@ -75,6 +83,7 @@ const Home = () => {
             setPassword(e.target.value);
           }}
         />
+
         <LoginButton onClick={handleClick} sx={{ width: "100px" }}>
           Login
         </LoginButton>
