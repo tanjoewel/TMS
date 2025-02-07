@@ -11,16 +11,6 @@ exports.getAllUsers = async function (req, res) {
     const result = await executeQuery(query);
     // format the result
 
-    // first, convert the boolean value in the database to a form that is readable by the user.
-    result.map((e) => {
-      if (e.user_enabled === 1) {
-        e.user_enabled = "Enabled";
-      } else {
-        e.user_enabled = "Disabled";
-      }
-      return e;
-    });
-
     // combine the groups together
     result.forEach((user) => {
       let groupsArr = user.groups.split(",");

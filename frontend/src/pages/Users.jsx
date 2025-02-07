@@ -14,14 +14,13 @@ import {
   MenuItem,
   Checkbox,
   Typography,
+  Switch,
 } from "@mui/material";
 import CreateUser from "../components/CreateUser";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
 export default function Users() {
-  const ACCOUNT_STATUSES = ["Disabled", "Enabled"];
-
   const [groupname, setGroupname] = useState("");
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -58,13 +57,12 @@ export default function Users() {
 
   async function handleUpdateClick(index) {
     const userToUpdate = users[index];
-    const accountStatusTinyint = ACCOUNT_STATUSES.indexOf(userToUpdate.user_enabled);
     const userObject = {
       username: userToUpdate.user_username,
       password: userToUpdate.user_password || "",
       email: userToUpdate.user_email,
       groups: userToUpdate.groups,
-      accountStatus: accountStatusTinyint,
+      accountStatus: userToUpdate.user_enabled,
     };
     try {
       await Axios.put("/users", userObject);
@@ -103,13 +101,12 @@ export default function Users() {
     setOpenMenu({ type: null, index: null });
   }
 
-  function handleStatusSelect(index, value) {
+  function handleSwitchChange(event, index) {
+    const tinyint = event.target.checked ? 1 : 0;
     const newUsers = users.map((user, i) => {
-      return i === index ? { ...user, ["user_enabled"]: value } : user;
+      return i === index ? { ...user, ["user_enabled"]: tinyint } : user;
     });
     setUsers(newUsers);
-    setOpenMenu({ type: null, index: null });
-    setAnchorEl(null);
   }
 
   function handleChange(index, field, value) {
@@ -235,29 +232,11 @@ export default function Users() {
                     </TableCell>
                     {/* Account status Cell */}
                     <TableCell>
-                      <Button
-                        id="account-status"
-                        aria-controls={openMenu.type === "account-status" && openMenu.index === index ? "account-status-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={openMenu.type === "account-status" && openMenu.index === index ? "true" : undefined}
-                        onClick={(event) => handleDropDownClick(event, "account-status", index)}
-                        endIcon={
-                          openMenu.type === "account-status" && openMenu.index === index ? <img src="DropArrowUp.svg" /> : <img src="DropDownArrow.svg" />
-                        }
-                      >
-                        {user.user_enabled || "Status"}
-                      </Button>
-                      <Menu
-                        id="account-status"
-                        open={openMenu.type === "account-status" && openMenu.index === index}
-                        anchorEl={anchorEl}
-                        onClose={handleCloseOutside}
-                      >
-                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[1])}>Enabled</MenuItem>
-                        <MenuItem onClick={() => handleStatusSelect(index, ACCOUNT_STATUSES[0])} disabled={user.user_username === "ADMIN"}>
-                          Disabled
-                        </MenuItem>
-                      </Menu>
+                      <Switch
+                        checked={user.user_enabled}
+                        onChange={(event) => handleSwitchChange(event, index)}
+                        disabled={user.user_username === "ADMIN"}
+                      ></Switch>
                     </TableCell>
                     {/* Action cell */}
                     <TableCell>
