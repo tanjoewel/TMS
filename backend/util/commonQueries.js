@@ -1,4 +1,5 @@
 const { executeQuery } = require("../util/sql");
+require("dotenv").config();
 
 /**
  * Helper function to check if a user exists in the database
@@ -19,7 +20,7 @@ exports.addGroupRow = async function (username, groupname) {
   const query = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
   const user = await exports.getUser(username);
   // by right this should never happen from the user side, but I am still going to blame the user because i can
-  if (user.length === 0 && username !== "$NULL") {
+  if (user.length === 0 && username !== process.env.DUMMY_USER) {
     throw new Error("Cannot assign a group to a user that does not exist.");
   }
   // we also should probably check if the group already exists, but I will save that for later

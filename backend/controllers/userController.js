@@ -91,7 +91,7 @@ exports.updateUser = async function (req, res) {
     }
 
     // i don't like putting this here, but it is so specific that it makes the most sense i think to put it here
-    if (username === process.env.HARDCODED_ADMIN && !groups.includes(HARDCODED_ADMIN_GROUP)) {
+    if (username === process.env.HARDCODED_ADMIN && !groups.includes(process.env.HARDCODED_ADMIN_GROUP)) {
       res.status(400).json({ message: "You cannot remove the hardcoded admin from the admin group" });
       return;
     }
