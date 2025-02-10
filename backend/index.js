@@ -43,6 +43,7 @@ app.post("/login", async (req, res) => {
     return;
   }
   // check if password hash matches
+  const dbUsername = result[0].user_username;
   const userPassword = result[0].user_password;
   const isPasswordMatch = bcrypt.compareSync(password, userPassword);
   if (!isPasswordMatch) {
@@ -63,14 +64,14 @@ app.post("/login", async (req, res) => {
   const userAgent = req.headers["user-agent"];
 
   // generate jwt token and send it. take note of the order
-  const token = jwt.sign({ username, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15m" });
+  const token = jwt.sign({ username: dbUsername, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
   res.cookie("auth_token", token);
 
   // check if the user is an admin
   const isAdmin = await groupController.checkGroup(username, "admin");
 
-  res.status(200).json({ message: "Login successful", isAdmin });
+  res.status(200).json({ message: "Login successful", isAdmin, username: dbUsername });
 });
 
 app.post("/logout", (req, res) => {

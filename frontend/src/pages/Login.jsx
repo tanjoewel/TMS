@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
@@ -19,7 +19,6 @@ const Home = () => {
     textTransform: "none",
   });
 
-  // TODO: client-side error validation. Do once backend is set up. Maybe refactor to use Immer and useReducer?
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("testdefaultlol");
@@ -31,7 +30,7 @@ const Home = () => {
       const res = await Axios.post("/login", { username, password });
       setIsAuthenticated(true);
       if (res.status === 200) {
-        await login(username);
+        await login(res.data.username);
         if (res.data.isAdmin) {
           setIsAdmin(true);
         }
