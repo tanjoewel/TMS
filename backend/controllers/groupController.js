@@ -46,7 +46,10 @@ exports.createGroup = async function (req, res) {
     return;
   }
   const distinctGroups = await getDistinctGroups();
-  if (distinctGroups.includes(groupname)) {
+  const lowercaseGroups = distinctGroups.map((group) => {
+    return group.toLowerCase();
+  });
+  if (lowercaseGroups.includes(groupname.toLowerCase())) {
     res.status(400).json({ message: "Group already exists." });
     return;
   }
