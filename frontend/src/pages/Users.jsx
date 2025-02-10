@@ -201,7 +201,10 @@ export default function Users() {
                           multiple
                           value={user.groups}
                           onChange={(event) => handleGroupSelect(index, event)}
-                          renderValue={(selected) => "Selected " + selected.length}
+                          renderValue={(selected) => {
+                            return "Selected " + selected.length;
+                          }}
+                          displayEmpty
                         >
                           {groups.map((group) => (
                             <MenuItem key={group} value={group} disabled={user.user_username === "ADMIN" && group === "admin"}>
