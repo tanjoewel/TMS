@@ -59,7 +59,7 @@ export default function Users() {
     const userObject = {
       username: userToUpdate.username,
       password: userToUpdate.password || "",
-      email: userToUpdate.email,
+      email: userToUpdate.email || "",
       groups: userToUpdate.groups,
       accountStatus: userToUpdate.enabled,
     };
