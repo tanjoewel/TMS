@@ -33,7 +33,6 @@ export default function Users() {
   async function getUsers() {
     try {
       const users = await Axios.get("/users");
-      console.log("users: ", users.data);
       setUsers(users.data);
     } catch (e) {
       showSnackbar("Error getting users", SNACKBAR_SEVERITIES[1]);
