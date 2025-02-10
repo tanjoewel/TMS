@@ -157,3 +157,10 @@ exports.updateProfile = async function (req, res) {
     res.status(500).json({ message: "Error updating profile: " + err.message });
   }
 };
+
+exports.deleteUser = async function (req, res) {
+  // delete user here, the req should just be the username
+  const { username } = req.body;
+
+  // delete the user from the database
+};
