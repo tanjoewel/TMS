@@ -201,9 +201,7 @@ export default function Users() {
                           multiple
                           value={user.groups}
                           onChange={(event) => handleGroupSelect(index, event)}
-                          renderValue={(selected) => {
-                            return "Selected " + selected.length;
-                          }}
+                          renderValue={(selected) => "Selected " + selected.length}
                           displayEmpty
                         >
                           {groups.map((group) => (
