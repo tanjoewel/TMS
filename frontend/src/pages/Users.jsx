@@ -204,7 +204,7 @@ export default function Users() {
                           renderValue={(selected) => "Selected " + selected.length}
                         >
                           {groups.map((group) => (
-                            <MenuItem key={group} value={group}>
+                            <MenuItem key={group} value={group} disabled={user.user_username === "ADMIN" && group === "admin"}>
                               {group}
                             </MenuItem>
                           ))}
