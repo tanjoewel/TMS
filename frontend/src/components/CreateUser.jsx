@@ -114,13 +114,7 @@ const User = (props) => {
         {/* Group cell */}
         <TableCell>
           <FormControl fullWidth>
-            <Select
-              multiple
-              value={groups}
-              onChange={handleGroupSelect}
-              renderValue={(selected) => (selected.length ? "Selected " + selected.length : "<click to select>")}
-              displayEmpty
-            >
+            <Select multiple value={groups} onChange={handleGroupSelect} renderValue={(selected) => "Selected " + selected.length} displayEmpty>
               {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
