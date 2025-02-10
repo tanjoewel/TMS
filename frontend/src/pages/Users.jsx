@@ -33,6 +33,7 @@ export default function Users() {
   async function getUsers() {
     try {
       const users = await Axios.get("/users");
+      console.log("users: ", users.data);
       setUsers(users.data);
     } catch (e) {
       showSnackbar("Error getting users", SNACKBAR_SEVERITIES[1]);
@@ -57,11 +58,11 @@ export default function Users() {
   async function handleUpdateClick(index) {
     const userToUpdate = users[index];
     const userObject = {
-      username: userToUpdate.user_username,
-      password: userToUpdate.user_password || "",
-      email: userToUpdate.user_email,
+      username: userToUpdate.username,
+      password: userToUpdate.password || "",
+      email: userToUpdate.email,
       groups: userToUpdate.groups,
-      accountStatus: userToUpdate.user_enabled,
+      accountStatus: userToUpdate.enabled,
     };
     try {
       await Axios.put("/users", userObject);
@@ -100,7 +101,7 @@ export default function Users() {
   function handleSwitchChange(event, index) {
     const tinyint = event.target.checked ? 1 : 0;
     const newUsers = users.map((user, i) => {
-      return i === index ? { ...user, ["user_enabled"]: tinyint } : user;
+      return i === index ? { ...user, ["enabled"]: tinyint } : user;
     });
     setUsers(newUsers);
   }
@@ -161,18 +162,18 @@ export default function Users() {
               {/* Users rows */}
               {users.map((user, index) => {
                 return (
-                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.user_username}>
+                  <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={user.username}>
                     {/* Username cell */}
                     <TableCell>
-                      <Typography paddingLeft="14px">{user.user_username}</Typography>
+                      <Typography paddingLeft="14px">{user.username}</Typography>
                     </TableCell>
                     {/* Password cell */}
                     <TableCell>
                       <TextField
                         placeholder="Enter new password to edit"
                         fullWidth={true}
-                        onChange={(e) => handleChange(index, "user_password", e.target.value)}
-                        value={user.user_password ? user.user_password : ""}
+                        onChange={(e) => handleChange(index, "password", e.target.value)}
+                        value={user.password ? user.password : ""}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
@@ -184,9 +185,9 @@ export default function Users() {
                     <TableCell>
                       <TextField
                         placeholder="Enter email to update"
-                        value={user.user_email ? user.user_email : ""}
+                        value={user.email ? user.email : ""}
                         fullWidth={true}
-                        onChange={(e) => handleChange(index, "user_email", e.target.value)}
+                        onChange={(e) => handleChange(index, "email", e.target.value)}
                         sx={{
                           "& .MuiInputLabel-root": {
                             fontSize: "12px",
@@ -205,7 +206,7 @@ export default function Users() {
                           displayEmpty
                         >
                           {groups.map((group) => (
-                            <MenuItem key={group} value={group} disabled={user.user_username === "ADMIN" && group === "admin"}>
+                            <MenuItem key={group} value={group} disabled={user.username === "ADMIN" && group === "admin"}>
                               {group}
                             </MenuItem>
                           ))}
@@ -214,11 +215,7 @@ export default function Users() {
                     </TableCell>
                     {/* Account status Cell */}
                     <TableCell>
-                      <Switch
-                        checked={user.user_enabled}
-                        onChange={(event) => handleSwitchChange(event, index)}
-                        disabled={user.user_username === "ADMIN"}
-                      ></Switch>
+                      <Switch checked={user.enabled} onChange={(event) => handleSwitchChange(event, index)} disabled={user.username === "ADMIN"}></Switch>
                     </TableCell>
                     {/* Action cell */}
                     <TableCell>

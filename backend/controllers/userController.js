@@ -4,27 +4,50 @@ const bcrypt = require("bcryptjs");
 const { getUser, addGroupRow } = require("../util/commonQueries");
 const { validateFields } = require("../util/validation");
 
-exports.getAllUsers = async function (req, res) {
-  // this query concatenates the groups together so that it is easier to process
-  const query =
-    "SELECT user_username, user_email, user_enabled, IFNULL(GROUP_CONCAT(user_group_groupname SEPARATOR ','), '') AS `groups` FROM tms.user LEFT JOIN user_group ON user_username=user_group_username GROUP BY user_username, user_email, user_enabled ORDER BY user_username;";
-  try {
-    const result = await executeQuery(query);
-    // format the result
+// exports.getAllUsers1 = async function (req, res) {
+//   // this query concatenates the groups together so that it is easier to process
+//   const query =
+//     "SELECT user_username, user_email, user_enabled, IFNULL(GROUP_CONCAT(user_group_groupname SEPARATOR ','), '') AS `groups` FROM tms.user LEFT JOIN user_group ON user_username=user_group_username GROUP BY user_username, user_email, user_enabled ORDER BY user_username;";
+//   try {
+//     const result = await executeQuery(query);
+//     // format the result
 
-    // combine the groups together
-    result.forEach((user) => {
-      let groupsArr = user.groups.split(",");
-      if (groupsArr[0] === "") {
-        groupsArr = [];
-      }
-      user.groups = groupsArr;
-    });
-    res.send(result);
-    return result;
-  } catch (err) {
-    res.status(500).send("Error fetching users: " + err.message);
-  }
+//     // combine the groups together
+//     result.forEach((user) => {
+//       let groupsArr = user.groups.split(",");
+//       if (groupsArr[0] === "") {
+//         groupsArr = [];
+//       }
+//       user.groups = groupsArr;
+//     });
+//     res.send(result);
+//     return result;
+//   } catch (err) {
+//     res.status(500).send("Error fetching users: " + err.message);
+//   }
+// };
+
+exports.getAllUsers = async function (req, res) {
+  const groupsQuery = "SELECT user_group_username AS username, user_group_groupName AS groupname FROM tms.user_group;";
+  const userGroups = await executeQuery(groupsQuery);
+  const usersQuery = "SELECT user_username AS username, user_email AS email, user_enabled AS enabled FROM user";
+  const users = await executeQuery(usersQuery);
+  const groupMap = new Map();
+  userGroups.forEach((row) => {
+    if (row.username === process.env.DUMMY_USER) {
+      return;
+    }
+    if (groupMap.has(row.username)) {
+      groupMap.get(row.username).push(row.groupname);
+    } else {
+      groupMap.set(row.username, [row.groupname]);
+    }
+  });
+  const result = users.map((user) => ({
+    ...user,
+    groups: groupMap.get(user.username) || [],
+  }));
+  res.send(result);
 };
 
 exports.createUser = async function (req, res) {

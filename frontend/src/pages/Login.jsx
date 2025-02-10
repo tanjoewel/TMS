@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Typography } from "@mui/material";
+import { TextField, Button, Box, Typography, IconButton, InputAdornment } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import Axios from "axios";
@@ -23,6 +23,7 @@ const Home = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("testdefaultlol");
   const [showError, setShowError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { showSnackbar } = useSnackbar();
 
   async function handleClick() {
@@ -46,6 +47,10 @@ const Home = () => {
       setUsername("");
       setPassword("");
     }
+  }
+
+  function handleTogglePassword() {
+    setShowPassword((prev) => !prev);
   }
 
   return (
@@ -77,6 +82,7 @@ const Home = () => {
           onChange={(e) => {
             setPassword(e.target.value);
           }}
+          type="password"
         />
         <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" textAlign="center" pt="10px">
           {errorMessage}
