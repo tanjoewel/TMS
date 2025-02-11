@@ -69,11 +69,6 @@ exports.checkGroupRoute = async function (req, res) {
 };
 
 exports.checkGroup = async function (username, groupname) {
-  // first check if the user actually exists
-  const user = await getUser(username);
-  if (user.length === 0) {
-    throw new Error("Attempted to check group of user that does not exist");
-  }
   try {
     const groupArr = await exports.getGroups(username);
     return groupArr.includes(groupname);
