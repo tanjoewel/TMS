@@ -1,14 +1,20 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
+
+// routes
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
-const userController = require("./controllers/userController");
+
+// controllers
 const groupController = require("./controllers/groupController");
+
+// security
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const authenticateToken = require("./middleware/authenticateToken");
 const { getUser } = require("./util/commonQueries");
 
