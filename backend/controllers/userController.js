@@ -197,4 +197,17 @@ exports.deleteUser = async function (req, res) {
   const { username } = req.body;
 
   // delete the user from the database
+  try {
+    const deleteUserQuery = "DELETE FROM user WHERE (user_username = ?);";
+    const deleteUserResult = await executeQuery(deleteUserQuery, [username]);
+
+    // delete the groups from the database
+    const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?);";
+    const deleteGroupsResult = await executeQuery(deleteGroupsQuery, [username]);
+
+    res.send("User successfully deleted");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting user " + err.message });
+  }
 };

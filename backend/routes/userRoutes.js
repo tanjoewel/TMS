@@ -14,5 +14,6 @@ router.get("/", userController.getAllUsers);
 router.post("/create", userController.createUser);
 // use put because I intend to send in the whole user object - idempotency
 router.put("/update", userController.updateUser);
+router.delete("/", userController.deleteUser);
 
 module.exports = router;
