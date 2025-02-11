@@ -7,7 +7,7 @@ const checkAdmin = require("../middleware/checkAdmin");
 
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
-
+// middleware to check admin.
 router.use(checkAdmin);
 
 router.get("/", userController.getAllUsers);
