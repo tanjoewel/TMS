@@ -40,6 +40,9 @@ const User = (props) => {
     } catch (err) {
       props.setErrorMessage(err.response.data.message);
       props.setShowError(true);
+      if (err.status === 403) {
+        window.location.reload();
+      }
       // const errorMessage = err.response.data.message;
       // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }

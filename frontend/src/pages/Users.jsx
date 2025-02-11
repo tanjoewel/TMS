@@ -74,6 +74,9 @@ export default function Users() {
       console.log(err);
       // const errorMessage = err.response.data.message;
       // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
+      if (err.status === 403) {
+        window.location.reload();
+      }
       setErrorMessage(err.response.data.message);
       setShowError(true);
     }
@@ -92,6 +95,9 @@ export default function Users() {
     } catch (err) {
       setErrorMessage(err.response.data.message);
       setShowError(true);
+      if (err.status === 403) {
+        window.location.reload();
+      }
       // showSnackbar(err.response.data.message, SNACKBAR_SEVERITIES[1]);
       console.log("Error creating group: ", err.response.data.message);
     }
