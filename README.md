@@ -139,3 +139,13 @@ Add feature so that unauthorized redirect to login
 - Be aware of oversplitting of routes. For this project it seemed natural to split the routes into users, groups, and profile. This is not wrong, but it over splitting of routes can lead to a few issues
   - Ownership
   - Git merge conflicts
+
+### Assignment 2
+
+- Start using transactions here. Almost every query should be in a transaction.
+- Rnumber can be above 9999. Need to change the table.
+- The acronym and Rnumber for an application is readonly after creation. The rest can be editable.
+- Use our own service for the sending of email.
+  - Use Ethereal for email testing.
+- Description box must be big enough so that we don't need to scroll up and down
+  - At least 5 lines must fit.
