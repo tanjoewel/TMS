@@ -1,14 +1,20 @@
-import React, { useState } from "react";
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Routes } from "react-router-dom";
-import Login from "./pages/Login";
-import Users from "./pages/Users";
+// React imports
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+// pages and components
+// this will be rendered on every page
 import Header from "./components/Header";
+// these will be rendered when specific paths
+import Users from "./pages/Users";
+import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Tasks from "./pages/Tasks";
 import NotFound from "./pages/NotFound";
-import { AuthProvider } from "./AuthContext";
+// authentication and authorization
 import AdminRoute from "./components/AdminRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Profile from "./pages/Profile";
+// contexts
+import { AuthProvider } from "./AuthContext";
 import { SnackbarProvider } from "./SnackbarContext";
 
 function App() {
