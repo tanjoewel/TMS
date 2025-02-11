@@ -20,7 +20,7 @@ const User = (props) => {
     const accountStatusTinyint = checked ? 1 : 0;
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     try {
-      const result = await Axios.post("/users", userObject);
+      const result = await Axios.post("/users/create", userObject);
 
       const snackbarMessage = "User has been successfully created.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);

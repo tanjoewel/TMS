@@ -64,7 +64,7 @@ export default function Users() {
       accountStatus: userToUpdate.enabled,
     };
     try {
-      await Axios.put("/users", userObject);
+      await Axios.put("/users/update", userObject);
       const snackbarMessage = "User has been successfully updated.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
       setErrorMessage("lmao");
