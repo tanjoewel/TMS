@@ -35,7 +35,7 @@ const Profile = () => {
   async function handleSave() {
     const profileObject = { username, updatedEmail, updatedPassword };
     try {
-      const result = await Axios.put("/profile", profileObject);
+      const result = await Axios.put("/profile/update", profileObject);
       // if it succeeded, then we clear the fields and update the readonly fields
       setUpdatedEmail("");
       setUpdatedPassword("");
