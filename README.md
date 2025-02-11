@@ -128,3 +128,14 @@ The entry point to this project is defined in [index.html](./index.html), under 
   - User table set up in database
   - Get profile API (frontend and backend)
   - Update profile API (frontend and backend)
+
+Add feature so that unauthorized redirect to login
+
+- Detect no rights -> refresh screen
+
+### Code review notes
+
+- No need to check that the user exists in the database first before checking groups
+- Be aware of oversplitting of routes. For this project it seemed natural to split the routes into users, groups, and profile. This is not wrong, but it over splitting of routes can lead to a few issues
+  - Ownership
+  - Git merge conflicts

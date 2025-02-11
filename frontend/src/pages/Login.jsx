@@ -29,7 +29,6 @@ const Home = () => {
   async function handleClick() {
     try {
       const res = await Axios.post("/login", { username, password });
-      setIsAuthenticated(true);
       if (res.status === 200) {
         await login(res.data.username);
         if (res.data.isAdmin) {
@@ -71,6 +70,9 @@ const Home = () => {
           id="username"
           label="Username"
           value={username}
+          sx={{
+            width: "250px",
+          }}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -79,10 +81,23 @@ const Home = () => {
           id="password"
           label="Password"
           value={password}
+          fullWidth
           onChange={(e) => {
             setPassword(e.target.value);
           }}
-          type="password"
+          sx={{
+            width: "250px",
+          }}
+          type={showPassword ? "text" : "password"}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={handleTogglePassword} edge="end">
+                  {showPassword ? <img src="Visibility.svg" /> : <img src="VisibilityOff.svg" />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" textAlign="center" pt="10px">
           {errorMessage}
