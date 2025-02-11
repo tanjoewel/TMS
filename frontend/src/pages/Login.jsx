@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Typography } from "@mui/material";
+import { TextField, Button, Box, Typography, IconButton, InputAdornment } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import Axios from "axios";
@@ -23,12 +23,12 @@ const Home = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("testdefaultlol");
   const [showError, setShowError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { showSnackbar } = useSnackbar();
 
   async function handleClick() {
     try {
       const res = await Axios.post("/login", { username, password });
-      setIsAuthenticated(true);
       if (res.status === 200) {
         await login(res.data.username);
         if (res.data.isAdmin) {
@@ -46,6 +46,10 @@ const Home = () => {
       setUsername("");
       setPassword("");
     }
+  }
+
+  function handleTogglePassword() {
+    setShowPassword((prev) => !prev);
   }
 
   return (
@@ -66,6 +70,9 @@ const Home = () => {
           id="username"
           label="Username"
           value={username}
+          sx={{
+            width: "250px",
+          }}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -74,8 +81,22 @@ const Home = () => {
           id="password"
           label="Password"
           value={password}
+          fullWidth
           onChange={(e) => {
             setPassword(e.target.value);
+          }}
+          sx={{
+            width: "250px",
+          }}
+          type={showPassword ? "text" : "password"}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={handleTogglePassword} edge="end">
+                  {showPassword ? <img src="Visibility.svg" /> : <img src="VisibilityOff.svg" />}
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
         />
         <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" textAlign="center" pt="10px">

@@ -20,7 +20,7 @@ const User = (props) => {
     const accountStatusTinyint = checked ? 1 : 0;
     const userObject = { username: userForm.username, password: userForm.password, email: userForm.email, groups, accountStatus: accountStatusTinyint };
     try {
-      const result = await Axios.post("/users", userObject);
+      const result = await Axios.post("/users/create", userObject);
 
       const snackbarMessage = "User has been successfully created.";
       showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
@@ -40,6 +40,9 @@ const User = (props) => {
     } catch (err) {
       props.setErrorMessage(err.response.data.message);
       props.setShowError(true);
+      if (err.status === 403) {
+        window.location.reload();
+      }
       // const errorMessage = err.response.data.message;
       // showSnackbar(errorMessage, SNACKBAR_SEVERITIES[1]);
     }
@@ -65,7 +68,7 @@ const User = (props) => {
 
   return (
     <>
-      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" }, "& > td": { backgroundColor: "lightgray" } }}>
+      <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" }, "& > td": { backgroundColor: "#e0e0e0" } }}>
         {/* Username cell */}
         <TableCell>
           <TextField
@@ -114,13 +117,7 @@ const User = (props) => {
         {/* Group cell */}
         <TableCell>
           <FormControl fullWidth>
-            <Select
-              multiple
-              value={groups}
-              onChange={handleGroupSelect}
-              renderValue={(selected) => (selected.length ? "Selected " + selected.length : "<click to select>")}
-              displayEmpty
-            >
+            <Select multiple value={groups} onChange={handleGroupSelect} renderValue={(selected) => "Selected " + selected.length} displayEmpty>
               {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}

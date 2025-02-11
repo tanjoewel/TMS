@@ -36,11 +36,13 @@ async function authenticateToken(req, res, next) {
     if (ip !== ipFromReq) {
       // res.status(403).send("An error has occured, please login again.");
       res.status(403).json({ message: "Invalid JWT token: ip from request does not match ip from token" });
+      return;
     }
 
     if (browserFromReq !== userAgent) {
       // res.status(403).send("An error has occured, please login again.");
       res.status(403).json({ message: "Invalid JWT token: browser type from request does not match browser type from token" });
+      return;
     }
 
     next();

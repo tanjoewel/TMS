@@ -11,22 +11,35 @@ exports.updateProfile = async function (req, res) {
     // do I want to check user exists?
 
     // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
-    const isValid = validateFields("admin", updatedPassword, res);
-    if (!isValid) {
-      return;
-    }
 
     if (updatedEmail.length > 100) {
       res.status(400).json({ message: "Email must be 100 characters or less." });
       return;
     }
 
-    // salt and hash the password
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(updatedPassword, salt);
+    if (updatedPassword.length === 0 && updatedEmail.length > 0) {
+      const query = "UPDATE user SET user_email = ? WHERE (user_username = ?);";
+      const result = executeQuery(query, [updatedEmail, username]);
+    } else if (updatedEmail.length === 0 && updatedPassword.length === 0) {
+      // nothing needs to happen here lol
+    } else if (updatedEmail.length === 0 && updatedPassword.length > 0) {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(updatedPassword, salt);
 
-    const query = "UPDATE user SET user_password = ?, user_email = ? WHERE (user_username = ?);";
-    const result = executeQuery(query, [hash, updatedEmail, username]);
+      const query = "UPDATE user SET user_password = ? WHERE (user_username = ?);";
+      const result = executeQuery(query, [hash, username]);
+    } else {
+      const isValid = validateFields("admin", updatedPassword, res);
+      if (!isValid) {
+        return;
+      }
+      // salt and hash the password
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(updatedPassword, salt);
+
+      const query = "UPDATE user SET user_password = ?, user_email = ? WHERE (user_username = ?);";
+      const result = executeQuery(query, [hash, updatedEmail, username]);
+    }
     res.status(200).send("Profile successfully updated");
   } catch (err) {
     console.error(err);

@@ -7,12 +7,13 @@ const checkAdmin = require("../middleware/checkAdmin");
 
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
-
+// middleware to check admin.
 router.use(checkAdmin);
 
 router.get("/", userController.getAllUsers);
-router.post("/", userController.createUser);
+router.post("/create", userController.createUser);
 // use put because I intend to send in the whole user object - idempotency
-router.put("/", userController.updateUser);
+router.put("/update", userController.updateUser);
+router.delete("/", userController.deleteUser);
 
 module.exports = router;

@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username) => {
     setUsername(username);
-    console.log(username);
     setIsAuthenticated(true);
   };
 
