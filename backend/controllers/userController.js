@@ -121,8 +121,18 @@ exports.updateUser = async function (req, res) {
 
     // if password was left empty, just update everything else
     if (password === "") {
-      const query = "UPDATE user SET user_email = ?, user_enabled = ? WHERE (user_username = ?);";
-      const result = await executeQuery(query, [email, accountStatus, username]);
+      await withTransaction(async (connection) => {
+        const updateUserQuery = "UPDATE user SET user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+        await connection.execute(updateUserQuery, [email, accountStatus, username]);
+        const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
+        await connection.execute(deleteGroupsQuery, [username]);
+        const addGroupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+        if (groups.length > 0) {
+          for (let i = 0; i < groups.length; i++) {
+            await connection.execute(addGroupsQuery, [username, groups[i]]);
+          }
+        }
+      });
     } else {
       const isValid = validateFields(username, password, res);
       if (!isValid) {
@@ -143,19 +153,18 @@ exports.updateUser = async function (req, res) {
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
 
-      const query = "UPDATE user SET user_username = ?, user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
-      const result = await executeQuery(query, [username, hash, email, accountStatus, username]);
-    }
-    // update the groups, this one is going to be a bit tricky to maintain idempotency
-    // first, delete every record in user_groups of this user
-    const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
-    const deleteGroupsResult = await executeQuery(deleteGroupsQuery, [username]);
-
-    // then, add groups
-    if (groups.length > 0) {
-      for (let i = 0; i < groups.length; i++) {
-        await addGroupRow(username, groups[i]);
-      }
+      await withTransaction(async (connection) => {
+        const updateUserQuery = "UPDATE user SET user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+        await connection.execute(updateUserQuery, [hash, email, accountStatus, username]);
+        const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
+        await connection.execute(deleteGroupsQuery, [username]);
+        const addGroupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+        if (groups.length > 0) {
+          for (let i = 0; i < groups.length; i++) {
+            await connection.execute(addGroupsQuery, [username, groups[i]]);
+          }
+        }
+      });
     }
     res.status(200).send("User successfully updated");
   } catch (err) {
