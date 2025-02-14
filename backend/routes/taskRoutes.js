@@ -7,7 +7,7 @@ const taskController = require("../controllers/taskController");
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
 
-router.post("/create", taskController.createTask);
+router.post("/create/:acronym", taskController.createTask);
 router.get("/:acronym", taskController.getTasksForApp);
 
 module.exports = router;
