@@ -40,12 +40,14 @@ exports.createTask = async function (req, res) {
   }
 };
 
-exports.getAllTasks = async function (req, res) {
-  const query = "SELECT * FROM task";
+exports.getTasksForApp = async function (req, res) {
+  // the app will be in the params
+  const { acronym } = req.params;
+  const query = "SELECT * FROM task WHERE (task_app_acronym = ?)";
   try {
     const result = await executeQuery(query);
     res.send(result);
   } catch (err) {
-    res.status(500).json({ message: "Error getting all tasks" + err.message });
+    res.status(500).json({ message: "Error getting tasks" + err.message });
   }
 };
