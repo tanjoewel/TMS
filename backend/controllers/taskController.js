@@ -2,6 +2,7 @@ const { executeQuery, createQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 
 exports.createTask = async function (req, res) {
+  // subject to many, many changes down the line
   const { task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_creator, task_owner, task_createDate } = req.body;
   const task_state = "OPEN";
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate];
@@ -36,5 +37,15 @@ exports.createTask = async function (req, res) {
     res.send("Task successfully created");
   } catch (err) {
     res.status(500).json({ message: "Error creating task: " + err.message });
+  }
+};
+
+exports.getAllTasks = async function (req, res) {
+  const query = "SELECT * FROM task";
+  try {
+    const result = await executeQuery(query);
+    res.send(result);
+  } catch (err) {
+    res.status(500).json({ message: "Error getting all tasks" + err.message });
   }
 };

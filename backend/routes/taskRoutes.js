@@ -8,5 +8,6 @@ const taskController = require("../controllers/taskController");
 router.use(authenticateToken);
 
 router.post("/create", taskController.createTask);
+router.get("/all", taskController.getAllTasks);
 
 module.exports = router;
