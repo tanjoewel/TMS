@@ -40,9 +40,6 @@ exports.createApplication = async function (req, res) {
     "app_permit_done",
   ]);
 
-  // const query =
-  //   "INSERT INTO application (app_acronym, app_description, app_rNumber, app_startDate, app_endDate, app_permit_create, app_permit_open, app_permit_toDoList, app_permit_doing, app_permit_done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
   try {
     const result = await executeQuery(query, [
       app_acronym,
@@ -71,5 +68,24 @@ exports.getAllApplications = async function (req, res) {
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting all the applications: " } + err.message);
+  }
+};
+
+exports.getApplication = async function (req, res) {
+  const appAcronym = req.params.acronym;
+  const query = "SELECT * FROM application WHERE (app_acronym = ?)";
+  if (appAcronym.trim().length === 0) {
+    res.status(400).json({ message: "App acronym cannot be empty" });
+    return;
+  }
+  try {
+    const result = await executeQuery(query, [appAcronym]);
+    if (result.length === 0) {
+      res.status(400).json({ message: "There is no app with such an acronym" });
+      return;
+    }
+    res.send(result);
+  } catch (err) {
+    res.status(500).json({ message: "Error getting application: " + err.message });
   }
 };
