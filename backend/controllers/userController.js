@@ -1,7 +1,7 @@
 require("dotenv").config();
-const { executeQuery } = require("../util/sql");
+const { executeQuery, withTransaction } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { getUser, addGroupRow } = require("../util/commonQueries");
+const { getUser } = require("../util/commonQueries");
 const { validateFields } = require("../util/validation");
 
 // exports.getAllUsers1 = async function (req, res) {
@@ -76,17 +76,20 @@ exports.createUser = async function (req, res) {
       return;
     }
 
-    const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const result = await executeQuery(query, [username, hash, email, accountStatus]);
-    // only if the above query executes, then we add groups. However, note that with this implementation it is possible that we successfully add the user but fail to assign the user to the groups. In which case, the way to solve it would be using a transaction. Perhaps that can be a later feature?
-    if (groups.length > 0) {
-      for (let i = 0; i < groups.length; i++) {
-        await addGroupRow(username, groups[i]);
+    // transaction
+    await withTransaction(async (connection) => {
+      const userQuery = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
+      await connection.execute(userQuery, [username, hash, email, accountStatus]);
+      const groupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+      if (groups.length > 0) {
+        for (let i = 0; i < groups.length; i++) {
+          await connection.execute(groupsQuery, [username, groups[i]]);
+        }
       }
-    }
+    });
     res.status(200).send("User successfully created");
   } catch (err) {
     console.log(err.message);
@@ -118,8 +121,18 @@ exports.updateUser = async function (req, res) {
 
     // if password was left empty, just update everything else
     if (password === "") {
-      const query = "UPDATE user SET user_email = ?, user_enabled = ? WHERE (user_username = ?);";
-      const result = await executeQuery(query, [email, accountStatus, username]);
+      await withTransaction(async (connection) => {
+        const updateUserQuery = "UPDATE user SET user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+        await connection.execute(updateUserQuery, [email, accountStatus, username]);
+        const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
+        await connection.execute(deleteGroupsQuery, [username]);
+        const addGroupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+        if (groups.length > 0) {
+          for (let i = 0; i < groups.length; i++) {
+            await connection.execute(addGroupsQuery, [username, groups[i]]);
+          }
+        }
+      });
     } else {
       const isValid = validateFields(username, password, res);
       if (!isValid) {
@@ -140,19 +153,18 @@ exports.updateUser = async function (req, res) {
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
 
-      const query = "UPDATE user SET user_username = ?, user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
-      const result = await executeQuery(query, [username, hash, email, accountStatus, username]);
-    }
-    // update the groups, this one is going to be a bit tricky to maintain idempotency
-    // first, delete every record in user_groups of this user
-    const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
-    const deleteGroupsResult = await executeQuery(deleteGroupsQuery, [username]);
-
-    // then, add groups
-    if (groups.length > 0) {
-      for (let i = 0; i < groups.length; i++) {
-        await addGroupRow(username, groups[i]);
-      }
+      await withTransaction(async (connection) => {
+        const updateUserQuery = "UPDATE user SET user_password = ?, user_email = ?, user_enabled = ? WHERE (user_username = ?);";
+        await connection.execute(updateUserQuery, [hash, email, accountStatus, username]);
+        const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?)";
+        await connection.execute(deleteGroupsQuery, [username]);
+        const addGroupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+        if (groups.length > 0) {
+          for (let i = 0; i < groups.length; i++) {
+            await connection.execute(addGroupsQuery, [username, groups[i]]);
+          }
+        }
+      });
     }
     res.status(200).send("User successfully updated");
   } catch (err) {
@@ -161,49 +173,19 @@ exports.updateUser = async function (req, res) {
   }
 };
 
-exports.updateProfile = async function (req, res) {
-  try {
-    // we only want the request body to contain 3 things: the updated email, updated password and the username of the user trying to update it
-    const { username, updatedEmail, updatedPassword } = req.body;
-
-    // do I want to check user exists? yes for postman APIs
-    const user = getUser(username);
-    if (user.length === 0) {
-      res.status(400).json({ message: "User not found." });
-      return;
-    }
-
-    // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
-    const isValid = validateFields("admin", updatedPassword, res);
-    if (!isValid) {
-      return;
-    }
-
-    // salt and hash the password
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(updatedPassword, salt);
-
-    const query = "UPDATE user SET user_password = ?, user_email = ? WHERE (user_username = ?);";
-    const result = executeQuery(query, [hash, updatedEmail, username]);
-    res.status(200).send("Profile successfully updated");
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error updating profile: " + err.message });
-  }
-};
-
 exports.deleteUser = async function (req, res) {
   // delete user here, the req should just be the username
   const { username } = req.body;
-
-  // delete the user from the database
   try {
-    const deleteUserQuery = "DELETE FROM user WHERE (user_username = ?);";
-    const deleteUserResult = await executeQuery(deleteUserQuery, [username]);
+    await withTransaction(async (connection) => {
+      // delete the user from the database
+      const deleteUserQuery = "DELETE FROM user WHERE (user_username = ?);";
+      await connection.execute(deleteUserQuery, [username]);
 
-    // delete the groups from the database
-    const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?);";
-    const deleteGroupsResult = await executeQuery(deleteGroupsQuery, [username]);
+      // delete the groups from the database
+      const deleteGroupsQuery = "DELETE FROM user_group WHERE (user_group_username = ?);";
+      await connection.execute(deleteGroupsQuery, [username]);
+    });
 
     res.send("User successfully deleted");
   } catch (err) {

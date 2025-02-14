@@ -1,5 +1,5 @@
 const { executeQuery } = require("../util/sql");
-const { getUser, addGroupRow, getDistinctGroups } = require("../util/commonQueries");
+const { addGroupRow, getDistinctGroups } = require("../util/commonQueries");
 require("dotenv").config();
 
 // needed to display the groups in drop down

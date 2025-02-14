@@ -8,9 +8,7 @@ exports.updateProfile = async function (req, res) {
     // we only want the request body to contain 3 things: the updated email, updated password and the username of the user trying to update it
     const { username, updatedEmail, updatedPassword } = req.body;
 
-    // do I want to check user exists?
-
-    // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
+    // this is all single call so not going to use transaction
 
     if (updatedEmail.length > 100) {
       res.status(400).json({ message: "Email must be 100 characters or less." });
@@ -23,6 +21,10 @@ exports.updateProfile = async function (req, res) {
     } else if (updatedEmail.length === 0 && updatedPassword.length === 0) {
       // nothing needs to happen here lol
     } else if (updatedEmail.length === 0 && updatedPassword.length > 0) {
+      const isValid = validateFields("admin", updatedPassword, res);
+      if (!isValid) {
+        return;
+      }
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(updatedPassword, salt);
 

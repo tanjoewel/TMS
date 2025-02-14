@@ -1,6 +1,6 @@
-const { executeQuery, createQueryBuilder } = require("../util/sql");
+const { executeQuery, createQueryBuilder, withTransaction } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
-const { getApplication, incrementRunningNumber } = require("./applicationController");
+const { getApplication } = require("./applicationController");
 const { STATE_OPEN } = require("../util/enums");
 
 exports.createTask = async function (req, res) {
@@ -9,9 +9,8 @@ exports.createTask = async function (req, res) {
   const { acronym } = req.params;
   // get the app and the running number
   const app = await getApplication(acronym);
-  const task_id = `${acronym}_${app[0].App_Rnumber}`;
-  // increment the running number. by incrementing after the task_id is generated, we ensure that the first task created will be the number specified by the user
-  await incrementRunningNumber(acronym);
+  const oldRNumber = app[0].App_Rnumber;
+  const task_id = `${acronym}_${oldRNumber}`;
   const task_app_acronym = acronym;
 
   const task_state = STATE_OPEN;
@@ -45,8 +44,14 @@ exports.createTask = async function (req, res) {
   }
 
   const query = createQueryBuilder("task", columnsArray);
+  const newRNumber = oldRNumber + 1;
   try {
-    const result = await executeQuery(query, argsArray);
+    await withTransaction(async (connection) => {
+      // increment the running number. by incrementing after the task_id is generated, we ensure that the first task created will be the number specified by the user
+      const incrementQuery = "UPDATE application SET App_Rnumber = ? WHERE (App_Acronym = ?);";
+      await connection.execute(incrementQuery, [newRNumber, acronym]);
+      await connection.execute(query, argsArray);
+    });
     res.send("Task successfully created");
   } catch (err) {
     res.status(err.code || 500).json({ message: "Error creating task: " + err.message });

@@ -32,8 +32,9 @@ async function withTransaction(callback) {
     await callback(connection); // Call the function that executes queries
     await connection.commit();
   } catch (error) {
-    await connection.rollback();
     console.error("Transaction error:", error);
+    await connection.rollback();
+    throw error;
   } finally {
     connection.release();
   }
