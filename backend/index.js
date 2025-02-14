@@ -1,13 +1,22 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
+
+// routes
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const profileRoutes = require("./routes/profileRoutes");
-const userController = require("./controllers/userController");
+const applicationRoutes = require("./routes/applicationRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const planRoutes = require("./routes/planRoutes");
+
+// controllers
 const groupController = require("./controllers/groupController");
+
+// security
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const authenticateToken = require("./middleware/authenticateToken");
 const { getUser } = require("./util/commonQueries");
 
@@ -26,6 +35,9 @@ app.use(express.json());
 app.use("/users", userRoutes);
 app.use("/groups", groupRoutes);
 app.use("/profile", profileRoutes);
+app.use("/application", applicationRoutes);
+app.use("/task", taskRoutes);
+app.use("/plan", planRoutes);
 
 const port = process.env.PORT;
 

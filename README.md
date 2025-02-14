@@ -139,3 +139,24 @@ Add feature so that unauthorized redirect to login
 - Be aware of oversplitting of routes. For this project it seemed natural to split the routes into users, groups, and profile. This is not wrong, but it over splitting of routes can lead to a few issues
   - Ownership
   - Git merge conflicts
+
+### Assignment 2
+
+- Start using transactions here. Almost every query should be in a transaction.
+- Rnumber can be above 9999. Need to change the table.
+- The acronym and Rnumber for an application is readonly after creation. The rest can be editable.
+- Use our own service for the sending of email.
+  - Use Ethereal for email testing.
+- Description box must be big enough so that we don't need to scroll up and down
+  - At least 5 lines must fit.
+- For RBAC, we can create a general middleware (re-use the checkAdmin middleware, but make it more general) and pass in an array of roles. To do this we need to have a set of roles defined somewhere.
+- For any dates - just store it as text and then use JS's datetime object for ease of conversion between readability and storage.
+- How do we link the task, plan and applications? The flow is like
+
+  1. Click on an application in the base task management page ("/tasks") (might need to change this URL because I want to use /task for task APIs). This brings you to the kanban board. The plan that the task is under is based on the color coding, so we don't need a list of plans.
+  1. Click on a task, which brings up the view task page. So the final URL is something like ("/app/:appAcronym/task/:taskID")?
+  1. Basically, to render that page we
+
+     1. Get all tasks related to the app
+     1. Get all plans related to the app
+     1. Get the association between the tasks and the plans.

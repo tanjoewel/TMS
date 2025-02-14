@@ -11,3 +11,6 @@ dist-ssr
 
 #dotenv
 .env
+
+#util
+backend/util/values.json

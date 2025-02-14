@@ -13,7 +13,7 @@ const pool = mysql.createPool({
 
 async function executeQuery(query, args) {
   try {
-    const [result] = await pool.query(query, args);
+    const [result] = await pool.execute(query, args);
     return result;
   } catch (err) {
     // console.error("Error when querying: ", err.message);
@@ -25,7 +25,43 @@ async function executeQuery(query, args) {
   // as a result, we simply leave the connection open until the app stops running (which we do by ctrl+c in the terminal).
 }
 
+async function withTransaction(callback) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    await callback(connection); // Call the function that executes queries
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    console.error("Transaction error:", error);
+  } finally {
+    connection.release();
+  }
+}
+
+const createQueryBuilder = function (tablename, args) {
+  const startQuery = `INSERT INTO ${tablename} `;
+  const middleQuery = ` VALUES `;
+  let columnNames = "(";
+  let values = "(";
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (i === args.length - 1) {
+      columnNames = columnNames + ` ${arg}`;
+      values = values + " ?";
+    } else {
+      columnNames = columnNames + ` ${arg},`;
+      values = values + " ?,";
+    }
+  }
+  columnNames = columnNames + ")";
+  values = values + ")";
+  return startQuery + columnNames + middleQuery + values + ";";
+};
+
 module.exports = {
   pool,
   executeQuery,
+  createQueryBuilder,
+  withTransaction,
 };

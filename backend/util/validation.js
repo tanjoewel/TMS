@@ -19,3 +19,17 @@ exports.validateFields = (username, password, res) => {
   }
   return true;
 };
+
+// thanks chatgpt
+exports.isValueEmpty = function (value) {
+  if (value === null || value === undefined) return true;
+  if (typeof value === "string" && value.trim() === "") return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
+  return false;
+};
+
+// i wish it was more extensible than this but i dont think its possible
+exports.checkLength = function (value, length) {
+  return value.length < length;
+};
