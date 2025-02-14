@@ -1,11 +1,14 @@
 const { executeQuery, createQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
+const { getApplication } = require("./applicationController");
 
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line
-  const { task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_creator, task_owner, task_createDate } = req.body;
+  const { task_id, task_name, task_description, task_plan, task_app_acronym, task_creator, task_owner, task_createDate } = req.body;
+  const { acronym } = req.params;
+  // get the app and the running number
+  const app = await getApplication(acronym);
   const task_state = "OPEN";
-  const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate];
   const columnsArray = [
     "task_id",
     "task_name",
@@ -19,7 +22,9 @@ exports.createTask = async function (req, res) {
     "task_createDate",
   ];
   let anyEmptyFields = false;
-  const mandatoryFields = ["task_name", "task_description", "task_notes", "task_app_acronym", "task_creator", "task_createDate"];
+  const task_notes = "CREATE >> OPEN";
+  const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate];
+  const mandatoryFields = ["task_name", "task_description", "task_app_acronym", "task_creator", "task_createDate"];
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
     if (isValueEmpty(req.body[field])) {

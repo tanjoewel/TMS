@@ -9,6 +9,6 @@ router.use(authenticateToken);
 
 router.post("/create", applicationController.createApplication);
 router.get("/all", applicationController.getAllApplications);
-router.get("/oneApp/:acronym", applicationController.getApplication);
+router.get("/oneApp/:acronym", applicationController.getApplicationRoute);
 
 module.exports = router;

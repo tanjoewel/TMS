@@ -71,21 +71,34 @@ exports.getAllApplications = async function (req, res) {
   }
 };
 
-exports.getApplication = async function (req, res) {
+exports.getApplicationRoute = async function (req, res) {
   const appAcronym = req.params.acronym;
-  const query = "SELECT * FROM application WHERE (app_acronym = ?)";
-  if (appAcronym.trim().length === 0) {
-    res.status(400).json({ message: "App acronym cannot be empty" });
-    return;
-  }
   try {
-    const result = await executeQuery(query, [appAcronym]);
-    if (result.length === 0) {
-      res.status(400).json({ message: "There is no app with such an acronym" });
-      return;
-    }
+    const result = await exports.getApplication(appAcronym);
     res.send(result);
   } catch (err) {
-    res.status(500).json({ message: "Error getting application: " + err.message });
+    res.status(err.code).json({ message: err.message });
+  }
+};
+
+exports.getApplication = async function (acronym) {
+  const query = "SELECT * FROM application WHERE (app_acronym = ?)";
+  if (acronym.trim().length === 0) {
+    const error = new Error("App acronym cannot be empty");
+    error.code = 400;
+    throw error;
+  }
+  try {
+    const result = await executeQuery(query, [acronym]);
+    if (result.length === 0) {
+      const error = new Error("There is no app with such an acronym");
+      error.code = 400;
+      throw error;
+    }
+    return result;
+  } catch (err) {
+    const error = new Error("Error getting application: " + err.message);
+    error.code = err.code || 500;
+    throw error;
   }
 };
