@@ -8,6 +8,6 @@ const taskController = require("../controllers/taskController");
 router.use(authenticateToken);
 
 router.post("/create", taskController.createTask);
-router.get("/all", taskController.getTasksForApp);
+router.get("/:acronym", taskController.getTasksForApp);
 
 module.exports = router;

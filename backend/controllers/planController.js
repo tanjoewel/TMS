@@ -29,7 +29,7 @@ exports.getPlansForApp = async function (req, res) {
   const { acronym } = req.params;
   const query = "SELECT * FROM plan WHERE (plan_app_acronym=?)";
   try {
-    const result = await executeQuery(query);
+    const result = await executeQuery(query, [acronym]);
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting plans: " } + err.message);

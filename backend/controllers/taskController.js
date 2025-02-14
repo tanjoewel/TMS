@@ -43,9 +43,9 @@ exports.createTask = async function (req, res) {
 exports.getTasksForApp = async function (req, res) {
   // the app will be in the params
   const { acronym } = req.params;
-  const query = "SELECT * FROM task WHERE (task_app_acronym = ?)";
+  const query = "SELECT * FROM task WHERE (task_app_acronym=?)";
   try {
-    const result = await executeQuery(query);
+    const result = await executeQuery(query, [acronym]);
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });
