@@ -8,5 +8,6 @@ const planController = require("../controllers/planController");
 router.use(authenticateToken);
 
 router.post("/create", planController.createPlan);
+router.get("/all", planController.getAllPlans);
 
 module.exports = router;
