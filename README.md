@@ -149,3 +149,4 @@ Add feature so that unauthorized redirect to login
   - Use Ethereal for email testing.
 - Description box must be big enough so that we don't need to scroll up and down
   - At least 5 lines must fit.
+- For RBAC, we can create a general middleware (re-use the checkAdmin middleware, but make it more general) and pass in an array of roles. To do this we need to have a set of roles defined somewhere.

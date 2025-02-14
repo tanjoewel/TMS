@@ -8,5 +8,6 @@ const applicationController = require("../controllers/applicationController");
 router.use(authenticateToken);
 
 router.post("/create", applicationController.createApplication);
+router.get("/all", applicationController.getAllApplications);
 
 module.exports = router;

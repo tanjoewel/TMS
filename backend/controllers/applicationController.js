@@ -48,3 +48,15 @@ exports.createApplication = async function (req, res) {
     res.status(500).json({ message: "Error creating application: " } + err.message);
   }
 };
+
+exports.getAllApplications = async function (req, res) {
+  // might want to modify this query to rename the fields later on.
+  const query = "SELECT * FROM application;";
+
+  try {
+    const result = await executeQuery(query);
+    res.send(result);
+  } catch (err) {
+    res.status(500).json({ message: "Error getting all the applications: " } + err.message);
+  }
+};
