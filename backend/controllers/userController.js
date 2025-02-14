@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { executeQuery } = require("../util/sql");
+const { executeQuery, withTransaction } = require("../util/sql");
 const bcrypt = require("bcryptjs");
 const { getUser, addGroupRow } = require("../util/commonQueries");
 const { validateFields } = require("../util/validation");
@@ -76,17 +76,20 @@ exports.createUser = async function (req, res) {
       return;
     }
 
-    const query = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
     // hash the password before storing it into database
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const result = await executeQuery(query, [username, hash, email, accountStatus]);
-    // only if the above query executes, then we add groups. However, note that with this implementation it is possible that we successfully add the user but fail to assign the user to the groups. In which case, the way to solve it would be using a transaction. Perhaps that can be a later feature?
-    if (groups.length > 0) {
-      for (let i = 0; i < groups.length; i++) {
-        await addGroupRow(username, groups[i]);
+    // transaction
+    await withTransaction(async (connection) => {
+      const userQuery = `INSERT INTO user (user_username, user_password, user_email, user_enabled) VALUES (?, ?, ?, ?)`;
+      await connection.execute(userQuery, [username, hash, email, accountStatus]);
+      const groupsQuery = "INSERT INTO user_group (user_group_username, user_group_groupName) VALUES (?, ?);";
+      if (groups.length > 0) {
+        for (let i = 0; i < groups.length; i++) {
+          await connection.execute(groupsQuery, [username, groups[i]]);
+        }
       }
-    }
+    });
     res.status(200).send("User successfully created");
   } catch (err) {
     console.log(err.message);

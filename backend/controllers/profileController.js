@@ -8,9 +8,7 @@ exports.updateProfile = async function (req, res) {
     // we only want the request body to contain 3 things: the updated email, updated password and the username of the user trying to update it
     const { username, updatedEmail, updatedPassword } = req.body;
 
-    // do I want to check user exists?
-
-    // I do want to validate the password, so I am just going to re-use validateFields but pass in a hardcoded proper username so it always passes that check
+    // this is all single call so not going to use transaction
 
     if (updatedEmail.length > 100) {
       res.status(400).json({ message: "Email must be 100 characters or less." });
