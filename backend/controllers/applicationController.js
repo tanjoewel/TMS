@@ -140,20 +140,3 @@ exports.getApplication = async function (acronym) {
     throw error;
   }
 };
-
-// note that this violates idempotency, but that is also kind of the point of a running number
-exports.incrementRunningNumber = async function (acronym) {
-  // get the app from the database to get its running number
-  try {
-    const app = await exports.getApplication(acronym);
-    const rNumber = app[0].App_Rnumber;
-    const newRNumber = rNumber + 1;
-    const query = "UPDATE application SET App_Rnumber = ? WHERE (App_Acronym = ?);";
-    const result = await executeQuery(query, [newRNumber, acronym]);
-    return newRNumber;
-  } catch (err) {
-    const error = new Error(err.message);
-    error.code = err.code || 500;
-    throw error;
-  }
-};
