@@ -25,6 +25,7 @@ exports.createTask = async function (req, res) {
   // type is 0 for system generated, 1 for user generated
   const task_notes = [{ text: "CREATE >> OPEN", date_posted: localeTime, creator: task_creator, type: 0 }];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
+  // validation
   const mandatoryFields = ["task_name", "task_creator"];
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -37,6 +38,12 @@ exports.createTask = async function (req, res) {
   if (anyEmptyFields) {
     return;
   }
+
+  if (task_name.length === 0 || task_name.length > 50) {
+    res.status(400).json({ message: "Task name must be between 1 and 50 characters inclusive" });
+    return;
+  }
+
   const query = createQueryBuilder("task", columnsArray);
   try {
     const result = await executeQuery(query, argsArray);
