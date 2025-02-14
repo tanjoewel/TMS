@@ -25,7 +25,28 @@ async function executeQuery(query, args) {
   // as a result, we simply leave the connection open until the app stops running (which we do by ctrl+c in the terminal).
 }
 
+const createQueryBuilder = function (tablename, args) {
+  const startQuery = `INSERT INTO ${tablename} `;
+  const middleQuery = ` VALUES `;
+  let columnNames = "(";
+  let values = "(";
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (i === args.length - 1) {
+      columnNames = columnNames + ` ${arg}`;
+      values = values + " ?";
+    } else {
+      columnNames = columnNames + ` ${arg},`;
+      values = values + " ?,";
+    }
+  }
+  columnNames = columnNames + ")";
+  values = values + ")";
+  return startQuery + columnNames + middleQuery + values + ";";
+};
+
 module.exports = {
   pool,
   executeQuery,
+  createQueryBuilder,
 };

@@ -1,4 +1,4 @@
-const { executeQuery } = require("../util/sql");
+const { executeQuery, createQueryBuilder } = require("../util/sql");
 
 exports.createApplication = async function (req, res) {
   // extract the request body. This will need some effort to sync with the frontend
@@ -27,8 +27,21 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  const query =
-    "INSERT INTO application (app_acronym, app_description, app_rNumber, app_startDate, app_endDate, app_permit_create, app_permit_open, app_permit_toDoList, app_permit_doing, app_permit_done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const query = createQueryBuilder("application", [
+    "app_acronym",
+    "app_description",
+    "app_rNumber",
+    "app_startDate",
+    "app_endDate",
+    "app_permit_create",
+    "app_permit_open",
+    "app_permit_toDoList",
+    "app_permit_doing",
+    "app_permit_done",
+  ]);
+
+  // const query =
+  //   "INSERT INTO application (app_acronym, app_description, app_rNumber, app_startDate, app_endDate, app_permit_create, app_permit_open, app_permit_toDoList, app_permit_doing, app_permit_done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   try {
     const result = await executeQuery(query, [
@@ -45,7 +58,7 @@ exports.createApplication = async function (req, res) {
     ]);
     res.send("Application successfully created");
   } catch (err) {
-    res.status(500).json({ message: "Error creating application: " } + err.message);
+    res.status(500).json({ message: "Error creating application: " + err.message });
   }
 };
 
