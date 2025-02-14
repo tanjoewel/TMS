@@ -1,6 +1,6 @@
 const { executeQuery, createQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
-const { getApplication } = require("./applicationController");
+const { getApplication, incrementRunningNumber } = require("./applicationController");
 
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
@@ -10,7 +10,7 @@ exports.createTask = async function (req, res) {
   const app = await getApplication(acronym);
   const task_id = `${acronym}_${app[0].App_Rnumber}`;
   // TODO increment the running number here (once the API is up)
-
+  await incrementRunningNumber(acronym);
   const task_app_acronym = acronym;
 
   const task_state = "OPEN";
