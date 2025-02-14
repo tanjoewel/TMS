@@ -21,6 +21,10 @@ exports.updateProfile = async function (req, res) {
     } else if (updatedEmail.length === 0 && updatedPassword.length === 0) {
       // nothing needs to happen here lol
     } else if (updatedEmail.length === 0 && updatedPassword.length > 0) {
+      const isValid = validateFields("admin", updatedPassword, res);
+      if (!isValid) {
+        return;
+      }
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(updatedPassword, salt);
 
