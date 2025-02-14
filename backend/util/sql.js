@@ -13,7 +13,7 @@ const pool = mysql.createPool({
 
 async function executeQuery(query, args) {
   try {
-    const [result] = await pool.query(query, args);
+    const [result] = await pool.execute(query, args);
     return result;
   } catch (err) {
     // console.error("Error when querying: ", err.message);

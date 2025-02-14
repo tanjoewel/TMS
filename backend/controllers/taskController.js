@@ -64,3 +64,42 @@ exports.getTasksForApp = async function (req, res) {
     res.status(500).json({ message: "Error getting tasks" + err.message });
   }
 };
+
+// this should only be called when user wants to add a note. Other notes being added should be part of their respective APIs
+exports.addNotesRoute = async function (req, res) {
+  const { body, task_creator } = req.body;
+  const { taskId } = req.params;
+  // get the note from this particular task
+  const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
+  const mandatoryFields = ["body", "task_creator"];
+  let anyEmptyFields = false;
+  for (let i = 0; i < mandatoryFields.length; i++) {
+    const field = mandatoryFields[i];
+    if (isValueEmpty(req.body[field])) {
+      res.status(400).json({ message: `${field} must not be empty` });
+      anyEmptyFields = true;
+      break;
+    }
+  }
+  if (anyEmptyFields) {
+    return;
+  }
+  try {
+    const getResult = await executeQuery(getQuery, [taskId]);
+    if (getResult.length === 0) {
+      res.status(400).json({ message: "Task with specified task ID does not exist" });
+      return;
+    }
+    const oldNotes = JSON.parse(getResult[0].task_notes);
+    console.log("GETRESULT: ", oldNotes);
+    const newNote = { text: body, date_posted: new Date().toLocaleTimeString(), creator: task_creator, type: 1 };
+    oldNotes.push(newNote);
+    const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
+    const updateResult = await executeQuery(updateQuery, [oldNotes, taskId]);
+    res.send("Notes updated successfully");
+  } catch (err) {
+    const error = new Error(err.message);
+    error.code = err.code || 500;
+    throw error;
+  }
+};

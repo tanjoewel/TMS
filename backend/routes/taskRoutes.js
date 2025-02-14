@@ -9,5 +9,6 @@ router.use(authenticateToken);
 
 router.post("/create/:acronym", taskController.createTask);
 router.get("/:acronym", taskController.getTasksForApp);
+router.patch("/addNote/:taskId", taskController.addNotesRoute);
 
 module.exports = router;
