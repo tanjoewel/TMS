@@ -1,6 +1,7 @@
 const { executeQuery, createQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 const { getApplication, incrementRunningNumber } = require("./applicationController");
+const { STATE_OPEN } = require("../util/enums");
 
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
@@ -9,11 +10,11 @@ exports.createTask = async function (req, res) {
   // get the app and the running number
   const app = await getApplication(acronym);
   const task_id = `${acronym}_${app[0].App_Rnumber}`;
-  // TODO increment the running number here (once the API is up)
+  // increment the running number. by incrementing after the task_id is generated, we ensure that the first task created will be the number specified by the user
   await incrementRunningNumber(acronym);
   const task_app_acronym = acronym;
 
-  const task_state = "OPEN";
+  const task_state = STATE_OPEN;
   const columnsArray = ["task_id", "task_name", "task_description", "task_notes", "task_plan", "task_app_acronym", "task_state", "task_creator", "task_owner"];
   const date = new Date();
 
