@@ -91,7 +91,6 @@ exports.addNotesRoute = async function (req, res) {
       return;
     }
     const oldNotes = JSON.parse(getResult[0].task_notes);
-    console.log("GETRESULT: ", oldNotes);
     const newNote = { text: body, date_posted: new Date().toLocaleTimeString(), creator: task_creator, type: 1 };
     oldNotes.push(newNote);
     const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
