@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { executeQuery, withTransaction } = require("../util/sql");
 const bcrypt = require("bcryptjs");
-const { getUser, addGroupRow } = require("../util/commonQueries");
+const { getUser } = require("../util/commonQueries");
 const { validateFields } = require("../util/validation");
 
 // exports.getAllUsers1 = async function (req, res) {
