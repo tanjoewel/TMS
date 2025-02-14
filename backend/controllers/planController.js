@@ -4,6 +4,8 @@ const { isValueEmpty } = require("../util/validation");
 exports.createPlan = async function (req, res) {
   const { plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym, plan_color } = req.body;
   const query = createQueryBuilder("plan", ["plan_mvp_name", "plan_startDate", "plan_endDate", "plan_app_acronym", "plan_color"]);
+
+  // validation
   const mandatoryFields = ["plan_mvp_name", "plan_app_acronym"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
@@ -17,6 +19,35 @@ exports.createPlan = async function (req, res) {
   if (anyEmptyFields) {
     return;
   }
+
+  if (plan_mvp_name.length > 50 || plan_mvp_name.length === 0) {
+    res.status(400).json({ message: "Plan MVP name must be between 1 and 50 characters inclusive" });
+    return;
+  }
+
+  const alphanumericWithSpaceRegex = /^[0-9a-zA-Z\h]+$/;
+  if (!plan_mvp_name.match(alphanumericWithSpaceRegex)) {
+    res.status(400).json({ message: "Plan MVP name only contain alphanumeric characters and whitespaces" });
+    return;
+  }
+
+  const dateRegex = /^(18|19|20|21)\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])$/;
+  if (!plan_startDate.match(dateRegex)) {
+    res.status(400).json({ message: "Start date must be of the form 'YYYY-MM-DD'" });
+    return;
+  }
+
+  if (!plan_endDate.match(dateRegex)) {
+    res.status(400).json({ message: "End date must be of the form 'YYYY-MM-DD'" });
+    return;
+  }
+
+  const colorRegex = /^#[0-9ABCDEF]{6}$/;
+  if (!plan_color.match(colorRegex)) {
+    res.status(400).json({ message: "Color must be of the format '#XXXXXX' where X is a hexadecimal character" });
+    return;
+  }
+
   try {
     const result = await executeQuery(query, [plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym, plan_color]);
     res.send("Plan successfully created");
