@@ -7,6 +7,7 @@ const groupRoutes = require("./routes/groupRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const taskRoutes = require("./routes/taskRoutes");
+const planRoutes = require("./routes/planRoutes");
 
 // controllers
 const groupController = require("./controllers/groupController");
@@ -36,6 +37,7 @@ app.use("/groups", groupRoutes);
 app.use("/profile", profileRoutes);
 app.use("/application", applicationRoutes);
 app.use("/task", taskRoutes);
+app.use("/plan", planRoutes);
 
 const port = process.env.PORT;
 
