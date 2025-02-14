@@ -25,12 +25,13 @@ exports.createPlan = async function (req, res) {
   }
 };
 
-exports.getAllPlans = async function (req, res) {
-  const query = "SELECT * FROM plan";
+exports.getPlansForApp = async function (req, res) {
+  const { acronym } = req.params;
+  const query = "SELECT * FROM plan WHERE (plan_app_acronym=?)";
   try {
     const result = await executeQuery(query);
     res.send(result);
   } catch (err) {
-    res.status(500).json({ message: "Error getting all plans: " } + err.message);
+    res.status(500).json({ message: "Error getting plans: " } + err.message);
   }
 };
