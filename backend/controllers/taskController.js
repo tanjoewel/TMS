@@ -157,7 +157,7 @@ exports.addNotes = async function (notesBody, type, taskID, noteCreator = proces
 exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
   try {
-    const updateResult = exports.stateTransition(taskID, STATE_TODO);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -165,10 +165,21 @@ exports.releaseTask = async function (req, res) {
   }
 };
 
+exports.demoteTask = async function (req, res) {
+  const { taskID } = req.params;
+  try {
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO);
+    res.send("Task successfully released");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error demoting task: " + err.message });
+  }
+};
+
 exports.stateTransition = async function (taskID, newState) {
   // maybe TODO validate the state changes
 
   const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
-  const updateResult = await executeQuery(updateQuery, [taskID, newState]);
+  const updateResult = await executeQuery(updateQuery, [newState, taskID]);
   return updateResult;
 };
