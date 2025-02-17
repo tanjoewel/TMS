@@ -113,9 +113,10 @@ exports.addNotesRoute = async function (req, res) {
     return;
   }
   try {
-    const addNotesResult = await withTransaction(async (connection) => {
-      const updateResult = await exports.addNotes(connection, body, 1, taskID, noteCreator);
-    });
+    // const addNotesResult = await withTransaction(async (connection) => {
+    //   const updateResult = await exports.addNotes(connection, body, 1, taskID, noteCreator);
+    // });
+    const addNotesResult = await exports.addNotes(null, body, 1, taskID, noteCreator);
     res.send("Notes updated successfully");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -124,7 +125,7 @@ exports.addNotesRoute = async function (req, res) {
 };
 
 /**
- * This function should always be part of a transaction.
+ * This function should always be part of a transaction. If for some reason it is not, pass in null as the first argument.
  */
 exports.addNotes = async function (connection, notesBody, type, taskID, noteCreator = process.env.SYSTEM_USER) {
   try {
@@ -139,10 +140,15 @@ exports.addNotes = async function (connection, notesBody, type, taskID, noteCrea
     const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
     oldNotes.push(newNote);
     const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
-    const addNoteResult = await withTransaction(async () => {
-      const updateResult = await connection.execute(updateQuery, [oldNotes, taskID]);
+    if (connection) {
+      const addNoteResult = await withTransaction(async () => {
+        const updateResult = await connection.execute(updateQuery, [oldNotes, taskID]);
+        return updateResult;
+      });
+    } else {
+      const updateResult = await executeQuery(updateQuery, [oldNotes, taskID]);
       return updateResult;
-    });
+    }
   } catch (err) {
     const error = new Error(err.message);
     error.code = err.code || 500;
