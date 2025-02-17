@@ -175,12 +175,12 @@ Add feature so that unauthorized redirect to login
   1.  Update task (done)
   1.  Update app (done)
   1.  Release task (OPEN -> TODO) (done)
-  1.  Seek approval (DONE -> CLOSED)(send email here)
+  1.  Seek approval (DOING -> DONE)(send email here) (done)
   1.  Demote from DOING to TODO (done)
-  1.  Approve task (DOING -> DONE) (done)
+  1.  Approve task (DONE -> CLOSED) (done)
   1.  Reject task (DONE -> DOING) (done)
   1.  Work on task (TODO -> DOING) (done)
-  1.  Reassign task to different sprint plan (part of update task?)
+  1.  Reassign task to different sprint plan (part of update task?) (yes)
 
 - Any user can view any task.
 - User can only edit a task if they have permissions based on the app group permissions (which is checked backend)
