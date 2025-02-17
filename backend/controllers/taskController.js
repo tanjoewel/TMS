@@ -1,4 +1,4 @@
-const { executeQuery, createQueryBuilder, withTransaction } = require("../util/sql");
+const { executeQuery, createQueryBuilder, withTransaction, updateQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
 const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
@@ -71,13 +71,45 @@ exports.getTasksForApp = async function (req, res) {
   }
 };
 
+exports.updateTask = async function (req, res) {
+  // the only updatable fields are plan and notes, and each field is optional. But in the way I am designing the frontend, the plan will always be sent over.
+  // the notes will just be a string
+
+  const { taskID } = req.params;
+  const { plan, notesBody, noteCreator } = req.body;
+  const values = [plan, taskID];
+  const args = ["task_plan"];
+
+  const updateQuery = updateQueryBuilder("task", "task_id", args);
+
+  console.log(updateQuery, values);
+  try {
+    const updateResult = await withTransaction(async (connection) => {
+      if (notesBody) {
+        const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
+        const getResult = await executeQuery(getQuery, [taskID]);
+        const addNotesQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
+        const oldNotes = JSON.parse(getResult[0].task_notes);
+        const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type: 1 };
+        oldNotes.push(newNote);
+        const updateResult = await connection.execute(addNotesQuery, [oldNotes, taskID]);
+      }
+      const updateResult = await connection.execute(updateQuery, values);
+    });
+    res.send("Task successfully updated");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error updating task: " + err.message });
+  }
+};
+
 // this should only be called when user wants to add a note. Other notes being added should be part of their respective APIs
 exports.addNotesRoute = async function (req, res) {
-  const { body, note_creator } = req.body;
+  const { body, noteCreator } = req.body;
   const { taskID } = req.params;
   // get the note from this particular task
   const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
-  const mandatoryFields = ["body", "note_creator"];
+  const mandatoryFields = ["body", "noteCreator"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -91,12 +123,11 @@ exports.addNotesRoute = async function (req, res) {
     return;
   }
   try {
-    const updateResult = await exports.addNotes(body, 1, taskID, note_creator);
+    const updateResult = await exports.addNotes(body, 1, taskID, noteCreator);
     res.send("Notes updated successfully");
   } catch (err) {
-    const error = new Error(err.message);
-    error.code = err.code || 500;
-    throw error;
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error adding note: " + err.message });
   }
 };
 
@@ -104,12 +135,14 @@ exports.addNotes = async function (notesBody, type, taskID, noteCreator = proces
   // first get the old notes from the task
   const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
   try {
+    // check if the specified task ID exists
     const getResult = await executeQuery(getQuery, [taskID]);
     if (getResult.length === 0) {
       const error = new Error("Task with specified task ID does not exist");
       error.code = 400;
       throw error;
     }
+    // do we also want to check if the noteCreator is a valid user?
     const oldNotes = JSON.parse(getResult[0].task_notes);
     const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
     oldNotes.push(newNote);
@@ -129,9 +162,8 @@ exports.releaseTask = async function (req, res) {
     const updateResult = exports.stateTransition(taskID, STATE_TODO);
     res.send("Task successfully released");
   } catch (err) {
-    const error = new Error(err.message);
-    error.code = err.code || 500;
-    throw error;
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error releasing task: " + err.message });
   }
 };
 

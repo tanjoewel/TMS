@@ -11,5 +11,6 @@ router.post("/create/:acronym", taskController.createTask);
 router.get("/:acronym", taskController.getTasksForApp);
 router.patch("/addNote/:taskID", taskController.addNotesRoute);
 router.patch("/release/:taskID", taskController.releaseTask);
+router.patch("/update/:taskID", taskController.updateTask);
 
 module.exports = router;
