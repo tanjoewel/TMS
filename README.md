@@ -185,3 +185,24 @@ Add feature so that unauthorized redirect to login
 - Any user can view any task.
 - User can only edit a task if they have permissions based on the app group permissions (which is checked backend)
 - If their permissions are revoked, the page refreshes and becomes read-only
+
+RBAC middleware
+
+- The purpose of the middleware is to protect certain routes to ensure that only users with permissions to work on that state can use the APIs pertaining to that state.
+  - So for example, we want to ensure that only the user group defined in "app_permit_todo" can use the APIs that are associated with the "todo" state, namely:
+    1. Work on task
+    1. Add notes
+- One annoying caveat is that the updating plan is not as simple as just updating whenever. It should only be updated when it is in the open state and when the task is rejected.
+- Defining it at controller level is always a solution, but is there a more elegant way of doing it?
+- The middleware should require three pieces of information:
+  1.  The task ID the route is targeting
+  1.  The app acronym
+  1.  The user ID of the user trying to use the route
+- The first two are part of the path, so we should be able to get them from `req.params`.
+- The user ID should be set in `req.decoded` by the authenticateToken middleware.
+- Then the middleware's job is to
+  1. Retrieve the state of the task using the taskID
+  1. Retrieve the permissions of the state using the app acronym
+  1. Determine if the user has permissions using the userID.
+- And simply return true or false. If it is false, then send 403 to frontend.
+  I think that should work? Even for the updating plan?
