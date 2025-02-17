@@ -158,8 +158,9 @@ exports.addNotes = async function (connection, notesBody, type, taskID, noteCrea
 
 exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -169,8 +170,9 @@ exports.releaseTask = async function (req, res) {
 
 exports.demoteTask = async function (req, res) {
   const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -178,10 +180,8 @@ exports.demoteTask = async function (req, res) {
   }
 };
 
-exports.stateTransition = async function (taskID, newState) {
+exports.stateTransition = async function (taskID, newState, notesBody, noteCreator) {
   // maybe TODO validate the state changes
-
-  // i need to add a note to reflect the state change
 
   // get the previous state of the task
   try {
@@ -193,12 +193,21 @@ exports.stateTransition = async function (taskID, newState) {
     }
     const oldState = task[0].Task_state;
     const newNoteBody = `${oldState} >> ${newState}`;
+    const isStateChanged = oldState !== newState;
 
     const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
     // add the notes and update in a transaction
     const transactionResult = await withTransaction(async (connection) => {
+      // the actual state transition
       const updateResult = await executeQuery(updateQuery, [newState, taskID]);
-      const addNoteResult = await exports.addNotes(connection, newNoteBody, 0, taskID);
+      // system update note
+      if (isStateChanged) {
+        const addNoteResult = await exports.addNotes(connection, newNoteBody, 0, taskID);
+      }
+      // user update note
+      if (notesBody && noteCreator) {
+        const addUserNoteResult = await exports.addNotes(connection, notesBody, 1, taskID, noteCreator);
+      }
     });
     return transactionResult;
   } catch (err) {

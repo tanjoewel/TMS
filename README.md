@@ -171,6 +171,7 @@ Add feature so that unauthorized redirect to login
   1. DONE -> DOING
 
 - List of APIs needed
+
   1.  Update task (done)
   1.  Update app (done)
   1.  Release task (done)
@@ -180,3 +181,7 @@ Add feature so that unauthorized redirect to login
   1.  Reject task
   1.  Work on task
   1.  Reassign task to different sprint plan (part of update task?)
+
+- Any user can view any task.
+- User can only edit a task if they have permissions based on the app group permissions (which is checked backend)
+- If their permissions are revoked, the page refreshes and becomes read-only
