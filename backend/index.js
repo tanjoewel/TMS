@@ -35,8 +35,8 @@ app.use(express.json());
 app.use("/users", userRoutes);
 app.use("/groups", groupRoutes);
 app.use("/profile", profileRoutes);
-app.use("/application", applicationRoutes);
-app.use("/task", taskRoutes);
+app.use("/app", applicationRoutes);
+// app.use("/task", taskRoutes);
 app.use("/plan", planRoutes);
 
 const port = process.env.PORT;

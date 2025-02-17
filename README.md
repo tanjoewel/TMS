@@ -206,3 +206,5 @@ RBAC middleware
   1. Determine if the user has permissions using the userID.
 - And simply return true or false. If it is false, then send 403 to frontend.
   I think that should work? Even for the updating plan?
+
+React router has a useLocation hook to determine which route you are in.

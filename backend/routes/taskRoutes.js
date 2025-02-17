@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const authenticateToken = require("../middleware/authenticateToken");
 const taskController = require("../controllers/taskController");
@@ -8,8 +8,8 @@ const taskController = require("../controllers/taskController");
 router.use(authenticateToken);
 
 // crud apis
-router.get("/:acronym", taskController.getTasksForApp);
-router.post("/create/:acronym", taskController.createTask);
+router.get("/", taskController.getTasksForApp);
+router.post("/create", taskController.createTask);
 router.patch("/update/:taskID", taskController.updateTask);
 
 router.patch("/addNote/:taskID", taskController.addNotesRoute);

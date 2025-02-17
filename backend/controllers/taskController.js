@@ -152,7 +152,9 @@ exports.addNotes = async function (connection, notes, taskID) {
       return updateResult;
     }
   } catch (err) {
-    await connection.rollback();
+    if (connection) {
+      await connection.rollback();
+    }
     const error = new Error(err.message);
     error.code = err.code || 500;
     throw error;
@@ -195,15 +197,24 @@ exports.workOnTask = async function (req, res) {
   }
 };
 
-exports.approveTask = async function (req, res) {
+exports.seekApproval = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, notesBody, noteCreator);
-    res.send("Task successfully approved");
+    // trigger the sending of email.
+
+    // first, get all the users in the project lead group (which is the group in app_permit_done)
+    const getPermitDoneQuery = "SELECT";
+
+    // next, get all their emails
+
+    // lastly, send out the emails using nodemailer
+
+    const updateResult = await exports.stateTransition(taskID, DONE, notesBody, noteCreator);
+    res.send("Task successfully rejected");
   } catch (err) {
     const errorCode = err.code || 500;
-    res.status(errorCode).json({ message: "Error approving task: " + err.message });
+    res.status(errorCode).json({ message: "Error rejecting task: " + err.message });
   }
 };
 
@@ -216,6 +227,18 @@ exports.rejectTask = async function (req, res) {
   } catch (err) {
     const errorCode = err.code || 500;
     res.status(errorCode).json({ message: "Error rejecting task: " + err.message });
+  }
+};
+
+exports.approveTask = async function (req, res) {
+  const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
+  try {
+    const updateResult = await exports.stateTransition(taskID, STATE_CLOSED, notesBody, noteCreator);
+    res.send("Task successfully approved");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error approving task: " + err.message });
   }
 };
 
