@@ -2,7 +2,7 @@ const { executeQuery, createQueryBuilder, withTransaction, updateQueryBuilder } 
 const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
 const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
-
+const sendEmail = require("../util/emailService");
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
   const { task_name, task_description, task_plan, task_creator, task_owner } = req.body;
@@ -198,23 +198,50 @@ exports.workOnTask = async function (req, res) {
 };
 
 exports.seekApproval = async function (req, res) {
-  const { taskID } = req.params;
+  const { acronym, taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
     // trigger the sending of email.
 
-    // first, get all the users in the project lead group (which is the group in app_permit_done)
-    const getPermitDoneQuery = "SELECT";
+    // first, get the project lead group (which is the group in app_permit_done)
+    const getPermitDoneQuery = "SELECT App_permit_Done FROM application WHERE (app_acronym = ?)";
+    const getPermitDoneResult = await executeQuery(getPermitDoneQuery, [acronym]);
+    const projectLeadGroup = getPermitDoneResult[0].App_permit_Done;
 
-    // next, get all their emails
+    // next, get all the emails of users in the project lead group
+    const getUsersQuery =
+      "SELECT user_username, user_email FROM user LEFT JOIN user_group ON user.user_username=user_group.user_group_username WHERE (user_enabled=1) AND (user_group_groupName= ? );";
+    const getUsersResult = await executeQuery(getUsersQuery, [projectLeadGroup]);
+    const emails = [];
+    getUsersResult.forEach((user) => {
+      if (user.user_email) {
+        emails.push(user.user_email);
+      }
+    });
 
     // lastly, send out the emails using nodemailer
 
-    const updateResult = await exports.stateTransition(taskID, DONE, notesBody, noteCreator);
-    res.send("Task successfully rejected");
+    // just testing it (this works!)
+    // await sendEmail(process.env.EMAIL_USER, "Test nodemailer email", "Hello, this is a test email from my Node.js app!");
+
+    // only set this flag to true when we want to send emails.
+    const FLAG = false;
+    if (FLAG) {
+      for (let i = 0; i < emails.length; i++) {
+        await sendEmail(
+          emails[i],
+          `Seek approval for task ${taskID}`,
+          `A user has triggered a seek approval action for task ${taskID} at ${new Date().toLocaleTimeString()}. Please log on to TMS to approve or reject the task.`
+        );
+      }
+    }
+
+    // only if all the emails are sent do we set the task status to DONE
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, notesBody, noteCreator);
+    res.send("Seek approval successful");
   } catch (err) {
     const errorCode = err.code || 500;
-    res.status(errorCode).json({ message: "Error rejecting task: " + err.message });
+    res.status(errorCode).json({ message: "Error seeking approval: " + err.message });
   }
 };
 

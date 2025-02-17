@@ -20,5 +20,6 @@ router.patch("/demote/:taskID", taskController.demoteTask);
 router.patch("/work/:taskID", taskController.workOnTask);
 router.patch("/approve/:taskID", taskController.approveTask);
 router.patch("/reject/:taskID", taskController.rejectTask);
+router.patch("/seek/:taskID", taskController.seekApproval);
 
 module.exports = router;
