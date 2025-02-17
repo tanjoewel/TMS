@@ -174,7 +174,7 @@ Add feature so that unauthorized redirect to login
   1.  Update task
   1.  Update plan
   1.  Update app
-  1.  Release task
+  1.  Release task (done)
   1.  Seek approval (send email here)
   1.  Demote from DOING to TODO
   1.  Approve task

@@ -73,11 +73,11 @@ exports.getTasksForApp = async function (req, res) {
 
 // this should only be called when user wants to add a note. Other notes being added should be part of their respective APIs
 exports.addNotesRoute = async function (req, res) {
-  const { body, task_creator } = req.body;
-  const { taskId } = req.params;
+  const { body, note_creator } = req.body;
+  const { taskID } = req.params;
   // get the note from this particular task
   const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
-  const mandatoryFields = ["body", "task_creator"];
+  const mandatoryFields = ["body", "note_creator"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -91,16 +91,7 @@ exports.addNotesRoute = async function (req, res) {
     return;
   }
   try {
-    const getResult = await executeQuery(getQuery, [taskId]);
-    if (getResult.length === 0) {
-      res.status(400).json({ message: "Task with specified task ID does not exist" });
-      return;
-    }
-    const oldNotes = JSON.parse(getResult[0].task_notes);
-    const newNote = { text: body, date_posted: new Date().toLocaleTimeString(), creator: task_creator, type: 1 };
-    oldNotes.push(newNote);
-    const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
-    const updateResult = await executeQuery(updateQuery, [oldNotes, taskId]);
+    const updateResult = await exports.addNotes(body, 1, taskID, note_creator);
     res.send("Notes updated successfully");
   } catch (err) {
     const error = new Error(err.message);
@@ -109,10 +100,33 @@ exports.addNotesRoute = async function (req, res) {
   }
 };
 
-exports.releaseTask = async function (req, res) {
-  const { taskId } = req.params;
+exports.addNotes = async function (notesBody, type, taskID, noteCreator = process.env.SYSTEM_USER) {
+  // first get the old notes from the task
+  const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
   try {
-    const updateResult = exports.stateTransition(taskId, STATE_TODO);
+    const getResult = await executeQuery(getQuery, [taskID]);
+    if (getResult.length === 0) {
+      const error = new Error("Task with specified task ID does not exist");
+      error.code = 400;
+      throw error;
+    }
+    const oldNotes = JSON.parse(getResult[0].task_notes);
+    const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
+    oldNotes.push(newNote);
+    const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
+    const updateResult = await executeQuery(updateQuery, [oldNotes, taskID]);
+    return updateResult;
+  } catch (err) {
+    const error = new Error(err.message);
+    error.code = err.code || 500;
+    throw error;
+  }
+};
+
+exports.releaseTask = async function (req, res) {
+  const { taskID } = req.params;
+  try {
+    const updateResult = exports.stateTransition(taskID, STATE_TODO);
     res.send("Task successfully released");
   } catch (err) {
     const error = new Error(err.message);
