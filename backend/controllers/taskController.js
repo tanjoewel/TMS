@@ -64,6 +64,7 @@ exports.getTasksForApp = async function (req, res) {
   const query = "SELECT * FROM task WHERE (task_app_acronym=?)";
   try {
     const result = await executeQuery(query, [acronym]);
+    // format the result here before sending to frontend - probably don't want to be sending everything
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });

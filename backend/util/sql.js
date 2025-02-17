@@ -25,11 +25,14 @@ async function executeQuery(query, args) {
   // as a result, we simply leave the connection open until the app stops running (which we do by ctrl+c in the terminal).
 }
 
+/**
+ * A wrapper function to handle transactions. This function takes in another function which contains all the execution with the connection.
+ */
 async function withTransaction(callback) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    await callback(connection); // Call the function that executes queries
+    await callback(connection);
     await connection.commit();
   } catch (error) {
     console.error("Transaction error:", error);
@@ -40,6 +43,9 @@ async function withTransaction(callback) {
   }
 }
 
+/**
+ * Helper function to build queries to insert rows into tables. The structure is similar across many different queries.
+ */
 const createQueryBuilder = function (tablename, args) {
   const startQuery = `INSERT INTO ${tablename} `;
   const middleQuery = ` VALUES `;
