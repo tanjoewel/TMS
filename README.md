@@ -172,7 +172,7 @@ Add feature so that unauthorized redirect to login
 
 - List of APIs needed
   1.  Update task (done)
-  1.  Update app
+  1.  Update app (done)
   1.  Release task (done)
   1.  Seek approval (send email here)
   1.  Demote from DOING to TODO

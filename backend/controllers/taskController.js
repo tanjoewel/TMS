@@ -73,7 +73,7 @@ exports.getTasksForApp = async function (req, res) {
 
 exports.updateTask = async function (req, res) {
   // the only updatable fields are plan and notes, and each field is optional. But in the way I am designing the frontend, the plan will always be sent over.
-  // the notes will just be a string
+  // the notes will just be a string, but we do need information about who is creating the note which has to be taken from the frontend.
 
   const { taskID } = req.params;
   const { plan, notesBody, noteCreator } = req.body;
@@ -81,8 +81,6 @@ exports.updateTask = async function (req, res) {
   const args = ["task_plan"];
 
   const updateQuery = updateQueryBuilder("task", "task_id", args);
-
-  console.log(updateQuery, values);
   try {
     const updateResult = await withTransaction(async (connection) => {
       if (notesBody) {
