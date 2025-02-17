@@ -175,7 +175,8 @@ Add feature so that unauthorized redirect to login
   1.  Update app (done)
   1.  Release task (done)
   1.  Seek approval (send email here)
-  1.  Demote from DOING to TODO
+  1.  Demote from DOING to TODO (done)
   1.  Approve task
   1.  Reject task
+  1.  Work on task
   1.  Reassign task to different sprint plan (part of update task?)

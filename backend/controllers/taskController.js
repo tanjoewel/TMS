@@ -22,7 +22,7 @@ exports.createTask = async function (req, res) {
   let anyEmptyFields = false;
   // system generate task notes
   // type is 0 for system generated, 1 for user generated
-  const task_notes = [{ text: "CREATE >> OPEN", date_posted: localeTime, creator: task_creator, type: 0 }];
+  const task_notes = [{ text: "CREATE >> OPEN", date_posted: localeTime, creator: process.env.SYSTEM_USER, type: 0 }];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
   // validation
   const mandatoryFields = ["task_name", "task_creator"];
@@ -84,13 +84,7 @@ exports.updateTask = async function (req, res) {
   try {
     const updateResult = await withTransaction(async (connection) => {
       if (notesBody) {
-        const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
-        const getResult = await executeQuery(getQuery, [taskID]);
-        const addNotesQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
-        const oldNotes = JSON.parse(getResult[0].task_notes);
-        const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type: 1 };
-        oldNotes.push(newNote);
-        const updateResult = await connection.execute(addNotesQuery, [oldNotes, taskID]);
+        const updateResult = await exports.addNotes(connection, notesBody, 1, taskID, noteCreator);
       }
       const updateResult = await connection.execute(updateQuery, values);
     });
@@ -105,8 +99,6 @@ exports.updateTask = async function (req, res) {
 exports.addNotesRoute = async function (req, res) {
   const { body, noteCreator } = req.body;
   const { taskID } = req.params;
-  // get the note from this particular task
-  const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
   const mandatoryFields = ["body", "noteCreator"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
@@ -121,7 +113,9 @@ exports.addNotesRoute = async function (req, res) {
     return;
   }
   try {
-    const updateResult = await exports.addNotes(body, 1, taskID, noteCreator);
+    const addNotesResult = await withTransaction(async (connection) => {
+      const updateResult = await exports.addNotes(connection, body, 1, taskID, noteCreator);
+    });
     res.send("Notes updated successfully");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -129,24 +123,26 @@ exports.addNotesRoute = async function (req, res) {
   }
 };
 
-exports.addNotes = async function (notesBody, type, taskID, noteCreator = process.env.SYSTEM_USER) {
-  // first get the old notes from the task
-  const getQuery = "SELECT task_notes FROM task WHERE (task_id = ?)";
+/**
+ * This function should always be part of a transaction.
+ */
+exports.addNotes = async function (connection, notesBody, type, taskID, noteCreator = process.env.SYSTEM_USER) {
   try {
-    // check if the specified task ID exists
-    const getResult = await executeQuery(getQuery, [taskID]);
+    const getResult = await exports.getTaskByID(taskID);
     if (getResult.length === 0) {
       const error = new Error("Task with specified task ID does not exist");
       error.code = 400;
       throw error;
     }
     // do we also want to check if the noteCreator is a valid user?
-    const oldNotes = JSON.parse(getResult[0].task_notes);
+    const oldNotes = JSON.parse(getResult[0].Task_notes);
     const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
     oldNotes.push(newNote);
     const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
-    const updateResult = await executeQuery(updateQuery, [oldNotes, taskID]);
-    return updateResult;
+    const addNoteResult = await withTransaction(async () => {
+      const updateResult = await connection.execute(updateQuery, [oldNotes, taskID]);
+      return updateResult;
+    });
   } catch (err) {
     const error = new Error(err.message);
     error.code = err.code || 500;
@@ -179,7 +175,41 @@ exports.demoteTask = async function (req, res) {
 exports.stateTransition = async function (taskID, newState) {
   // maybe TODO validate the state changes
 
-  const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
-  const updateResult = await executeQuery(updateQuery, [newState, taskID]);
-  return updateResult;
+  // i need to add a note to reflect the state change
+
+  // get the previous state of the task
+  try {
+    const task = await exports.getTaskByID(taskID);
+    if (task.length === 0) {
+      const error = new Error("Task does not exist");
+      error.code = 400;
+      throw error;
+    }
+    const oldState = task[0].Task_state;
+    const newNoteBody = `${oldState} >> ${newState}`;
+
+    const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
+    // add the notes and update in a transaction
+    const transactionResult = await withTransaction(async (connection) => {
+      const updateResult = await executeQuery(updateQuery, [newState, taskID]);
+      const addNoteResult = await exports.addNotes(connection, newNoteBody, 0, taskID);
+    });
+    return transactionResult;
+  } catch (err) {
+    const error = new Error("Error getting task: " + err.message);
+    error.code = 500;
+    throw error;
+  }
+};
+
+exports.getTaskByID = async function (taskID) {
+  const getQuery = "SELECT * FROM task WHERE (task_id = ?);";
+  try {
+    const result = await executeQuery(getQuery, [taskID]);
+    return result;
+  } catch (err) {
+    const error = new Error("Error getting task: " + err.message);
+    error.code = 500;
+    throw error;
+  }
 };
