@@ -1,7 +1,7 @@
 const { executeQuery, createQueryBuilder, withTransaction } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
-const { STATE_OPEN } = require("../util/enums");
+const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
 
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
@@ -47,8 +47,8 @@ exports.createTask = async function (req, res) {
   const newRNumber = oldRNumber + 1;
   try {
     await withTransaction(async (connection) => {
-      // increment the running number. by incrementing after the task_id is generated, we ensure that the first task created will be the number specified by the user
       const incrementQuery = "UPDATE application SET App_Rnumber = ? WHERE (App_Acronym = ?);";
+      // increment the running number. by incrementing after the task_id is generated, we ensure that the first task created will be the number specified by the user
       await connection.execute(incrementQuery, [newRNumber, acronym]);
       await connection.execute(query, argsArray);
     });
@@ -107,4 +107,24 @@ exports.addNotesRoute = async function (req, res) {
     error.code = err.code || 500;
     throw error;
   }
+};
+
+exports.releaseTask = async function (req, res) {
+  const { taskId } = req.params;
+  try {
+    const updateResult = exports.stateTransition(taskId, STATE_TODO);
+    res.send("Task successfully released");
+  } catch (err) {
+    const error = new Error(err.message);
+    error.code = err.code || 500;
+    throw error;
+  }
+};
+
+exports.stateTransition = async function (taskID, newState) {
+  // maybe TODO validate the state changes
+
+  const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
+  const updateResult = await executeQuery(updateQuery, [taskID, newState]);
+  return updateResult;
 };

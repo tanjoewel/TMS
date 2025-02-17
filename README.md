@@ -146,7 +146,7 @@ Add feature so that unauthorized redirect to login
 - Rnumber can be above 9999. Need to change the table.
 - The acronym and Rnumber for an application is readonly after creation. The rest can be editable.
 - Use our own service for the sending of email.
-  - Use Ethereal for email testing.
+  - Use Ethereal for email testing (although i don't mind spamming my personal gmail for this)
 - Description box must be big enough so that we don't need to scroll up and down
   - At least 5 lines must fit.
 - For RBAC, we can create a general middleware (re-use the checkAdmin middleware, but make it more general) and pass in an array of roles. To do this we need to have a set of roles defined somewhere.
@@ -160,3 +160,23 @@ Add feature so that unauthorized redirect to login
      1. Get all tasks related to the app
      1. Get all plans related to the app
      1. Get the association between the tasks and the plans.
+
+- Allowed task state transitions (these and nothing else)
+
+  1. OPEN -> TODO
+  1. TODO -> DOING
+  1. DOING -> TODO
+  1. DOING -> DONE
+  1. DONE -> CLOSED
+  1. DONE -> DOING
+
+- List of APIs needed
+  1.  Update task
+  1.  Update plan
+  1.  Update app
+  1.  Release task
+  1.  Seek approval (send email here)
+  1.  Demote from DOING to TODO
+  1.  Approve task
+  1.  Reject task
+  1.  Reassign task to different sprint plan (part of update task?)
