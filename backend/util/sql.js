@@ -66,9 +66,21 @@ const createQueryBuilder = function (tablename, args) {
   return startQuery + columnNames + middleQuery + values + ";";
 };
 
+const updateQueryBuilder = function (tablename, conditional, args) {
+  const startQuery = `UPDATE ${tablename} SET `;
+  const endQuery = ` WHERE (${conditional} = ?);`;
+  const updates = [];
+  for (let i = 0; i < args.length; i++) {
+    updates.push(`${args[i]} = ?`);
+  }
+  const finalQuery = startQuery + updates.join(", ") + endQuery;
+  return finalQuery;
+};
+
 module.exports = {
   pool,
   executeQuery,
   createQueryBuilder,
+  updateQueryBuilder,
   withTransaction,
 };
