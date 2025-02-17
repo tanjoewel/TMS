@@ -65,6 +65,10 @@ exports.getTasksForApp = async function (req, res) {
   try {
     const result = await executeQuery(query, [acronym]);
     // format the result here before sending to frontend - probably don't want to be sending everything
+    result.map((task) => {
+      const formattedNotes = JSON.parse(task.Task_notes);
+      task["Task_notes"] = formattedNotes;
+    });
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });
@@ -191,6 +195,30 @@ exports.workOnTask = async function (req, res) {
   }
 };
 
+exports.approveTask = async function (req, res) {
+  const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
+  try {
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, notesBody, noteCreator);
+    res.send("Task successfully approved");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error approving task: " + err.message });
+  }
+};
+
+exports.rejectTask = async function (req, res) {
+  const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
+  try {
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    res.send("Task successfully rejected");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error rejecting task: " + err.message });
+  }
+};
+
 exports.stateTransition = async function (taskID, newState, notesBody, noteCreator) {
   // maybe TODO validate the state changes
 
@@ -245,6 +273,9 @@ exports.getTaskByID = async function (taskID) {
   }
 };
 
+/**
+ * Helper function to build a note. This is simply here to prevent the mental overhead of building the JSON object and having to remember the date posted field.
+ */
 function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
   const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
   return newNote;

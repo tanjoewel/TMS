@@ -18,5 +18,7 @@ router.patch("/addNote/:taskID", taskController.addNotesRoute);
 router.patch("/release/:taskID", taskController.releaseTask);
 router.patch("/demote/:taskID", taskController.demoteTask);
 router.patch("/work/:taskID", taskController.workOnTask);
+router.patch("/approve/:taskID", taskController.approveTask);
+router.patch("/reject/:taskID", taskController.rejectTask);
 
 module.exports = router;
