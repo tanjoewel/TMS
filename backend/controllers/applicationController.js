@@ -1,4 +1,4 @@
-const { executeQuery, createQueryBuilder } = require("../util/sql");
+const { executeQuery, createQueryBuilder, updateQueryBuilder } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 
 exports.createApplication = async function (req, res) {
@@ -106,6 +106,58 @@ exports.getAllApplications = async function (req, res) {
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting all the applications: " } + err.message);
+  }
+};
+
+exports.updateApplication = async function (req, res) {
+  // all fields except for acronym and RNumber are editable and are all optional
+  const { acronym } = req.params;
+  const {
+    appDescription: app_description,
+    appStartDate: app_startDate,
+    appEndDate: app_endDate,
+    appPermitCreate: app_permit_create,
+    appPermitOpen: app_permit_open,
+    appPermitToDoList: app_permit_toDoList,
+    appPermitDoing: app_permit_doing,
+    appPermitDone: app_permit_done,
+  } = req.body;
+
+  const updateBuilderArgs = [];
+  const values = [];
+
+  const argsArray = [app_description, app_startDate, app_endDate, app_permit_create, app_permit_open, app_permit_toDoList, app_permit_doing, app_permit_done];
+  const columnNamesArray = [
+    "app_description",
+    "app_startDate",
+    "app_endDate",
+    "app_permit_create",
+    "app_permit_open",
+    "app_permit_toDoList",
+    "app_permit_doing",
+    "app_permit_done",
+  ];
+
+  if (app_description.length > 65536) {
+    res.status(400).json({ message: "App description must be less than 65536 characters long" });
+    return;
+  }
+
+  for (let i = 0; i < argsArray.length; i++) {
+    if (argsArray[i]) {
+      updateBuilderArgs.push(columnNamesArray[i]);
+      values.push(argsArray[i]);
+    }
+  }
+  values.push(acronym);
+
+  const updateQuery = updateQueryBuilder("application", "app_acronym", updateBuilderArgs);
+  try {
+    const updateResult = await executeQuery(updateQuery, values);
+    res.send("Application successfully updated");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error updating application: " + err.message });
   }
 };
 

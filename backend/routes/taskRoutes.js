@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const authenticateToken = require("../middleware/authenticateToken");
 const taskController = require("../controllers/taskController");
@@ -7,8 +7,19 @@ const taskController = require("../controllers/taskController");
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
 
-router.post("/create/:acronym", taskController.createTask);
-router.get("/:acronym", taskController.getTasksForApp);
-router.patch("/addNote/:taskId", taskController.addNotesRoute);
+// crud apis
+router.get("/", taskController.getTasksForApp);
+router.post("/create", taskController.createTask);
+router.patch("/update/:taskID", taskController.updateTask);
+
+router.patch("/addNote/:taskID", taskController.addNotesRoute);
+
+// state transition apis
+router.patch("/release/:taskID", taskController.releaseTask);
+router.patch("/demote/:taskID", taskController.demoteTask);
+router.patch("/work/:taskID", taskController.workOnTask);
+router.patch("/approve/:taskID", taskController.approveTask);
+router.patch("/reject/:taskID", taskController.rejectTask);
+router.patch("/seek/:taskID", taskController.seekApproval);
 
 module.exports = router;
