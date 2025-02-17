@@ -17,5 +17,6 @@ router.patch("/addNote/:taskID", taskController.addNotesRoute);
 // state transition apis
 router.patch("/release/:taskID", taskController.releaseTask);
 router.patch("/demote/:taskID", taskController.demoteTask);
+router.patch("/work/:taskID", taskController.workOnTask);
 
 module.exports = router;

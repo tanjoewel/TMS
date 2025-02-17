@@ -84,7 +84,8 @@ exports.updateTask = async function (req, res) {
   try {
     const updateResult = await withTransaction(async (connection) => {
       if (notesBody) {
-        const updateResult = await exports.addNotes(connection, notesBody, 1, taskID, noteCreator);
+        const newNote = buildNote(notesBody, 1, noteCreator);
+        const updateResult = await exports.addNotes(connection, [newNote], taskID);
       }
       const updateResult = await connection.execute(updateQuery, values);
     });
@@ -113,10 +114,8 @@ exports.addNotesRoute = async function (req, res) {
     return;
   }
   try {
-    // const addNotesResult = await withTransaction(async (connection) => {
-    //   const updateResult = await exports.addNotes(connection, body, 1, taskID, noteCreator);
-    // });
-    const addNotesResult = await exports.addNotes(null, body, 1, taskID, noteCreator);
+    const newNote = buildNote(body, 1, noteCreator);
+    const addNotesResult = await exports.addNotes(null, [newNote], taskID);
     res.send("Notes updated successfully");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -127,7 +126,7 @@ exports.addNotesRoute = async function (req, res) {
 /**
  * This function should always be part of a transaction. If for some reason it is not, pass in null as the first argument.
  */
-exports.addNotes = async function (connection, notesBody, type, taskID, noteCreator = process.env.SYSTEM_USER) {
+exports.addNotes = async function (connection, notes, taskID) {
   try {
     const getResult = await exports.getTaskByID(taskID);
     if (getResult.length === 0) {
@@ -137,19 +136,19 @@ exports.addNotes = async function (connection, notesBody, type, taskID, noteCrea
     }
     // do we also want to check if the noteCreator is a valid user?
     const oldNotes = JSON.parse(getResult[0].Task_notes);
-    const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
-    oldNotes.push(newNote);
+    const newNotes = oldNotes.concat(notes);
     const updateQuery = "UPDATE task SET task_notes = ? WHERE (task_id = ?);";
     if (connection) {
       const addNoteResult = await withTransaction(async () => {
-        const updateResult = await connection.execute(updateQuery, [oldNotes, taskID]);
+        const updateResult = await connection.execute(updateQuery, [newNotes, taskID]);
         return updateResult;
       });
     } else {
-      const updateResult = await executeQuery(updateQuery, [oldNotes, taskID]);
+      const updateResult = await executeQuery(updateQuery, [newNotes, taskID]);
       return updateResult;
     }
   } catch (err) {
+    await connection.rollback();
     const error = new Error(err.message);
     error.code = err.code || 500;
     throw error;
@@ -173,10 +172,22 @@ exports.demoteTask = async function (req, res) {
   const { notesBody, noteCreator } = req.body;
   try {
     const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
-    res.send("Task successfully released");
+    res.send("Task successfully demoted");
   } catch (err) {
     const errorCode = err.code || 500;
     res.status(errorCode).json({ message: "Error demoting task: " + err.message });
+  }
+};
+
+exports.workOnTask = async function (req, res) {
+  const { taskID } = req.params;
+  const { notesBody, noteCreator } = req.body;
+  try {
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    res.send("Task successfully set to being worked on");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error setting task to being worked on: " + err.message });
   }
 };
 
@@ -196,17 +207,22 @@ exports.stateTransition = async function (taskID, newState, notesBody, noteCreat
     const isStateChanged = oldState !== newState;
 
     const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
+    const notes = [];
+    if (isStateChanged) {
+      const systemNote = buildNote(newNoteBody, 0, process.env.SYSTEM_USER);
+      notes.push(systemNote);
+    }
+    if (notesBody && noteCreator) {
+      const userNote = buildNote(notesBody, 1, noteCreator);
+      notes.push(userNote);
+    }
     // add the notes and update in a transaction
     const transactionResult = await withTransaction(async (connection) => {
       // the actual state transition
-      const updateResult = await executeQuery(updateQuery, [newState, taskID]);
-      // system update note
-      if (isStateChanged) {
-        const addNoteResult = await exports.addNotes(connection, newNoteBody, 0, taskID);
-      }
-      // user update note
-      if (notesBody && noteCreator) {
-        const addUserNoteResult = await exports.addNotes(connection, notesBody, 1, taskID, noteCreator);
+      const updateResult = await connection.execute(updateQuery, [newState, taskID]);
+      // adding the notes
+      if (notes.length > 0) {
+        const addNotesResult = await exports.addNotes(connection, notes, taskID);
       }
     });
     return transactionResult;
@@ -228,3 +244,8 @@ exports.getTaskByID = async function (taskID) {
     throw error;
   }
 };
+
+function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
+  const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
+  return newNote;
+}
