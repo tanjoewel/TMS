@@ -13,6 +13,20 @@ exports.createTask = async function (req, res) {
   const oldRNumber = app[0].App_Rnumber;
   const task_id = `${acronym}_${oldRNumber}`;
   const task_app_acronym = acronym;
+  // checking for perms. we do this here because the task is not created yet, so there is no task to get the state from in the middleware.
+  const permittedGroup = app[0].App_permit_Create;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?) AND (user_group_groupname = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username, permittedGroup]);
+
+  if (getUserGroupsResult.length === 0) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
+  // if we reach here, the user is permitted to create the task.
 
   const task_state = STATE_OPEN;
   const columnsArray = ["task_id", "task_name", "task_description", "task_notes", "task_plan", "task_app_acronym", "task_state", "task_creator", "task_owner"];
