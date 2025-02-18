@@ -18,10 +18,17 @@ exports.createTask = async function (req, res) {
   const username = req.decoded.username;
 
   const getUserGroupsQuery =
-    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?) AND (user_group_groupname = ?)";
-  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username, permittedGroup]);
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup) || userGroups.includes(process.env.HARDCODED_PL_GROUP);
 
-  if (getUserGroupsResult.length === 0) {
+  console.log(userGroups);
+
+  if (!permitted) {
     res.status(403).json({ message: "User is not authorized to perform this action" });
     return;
   }
