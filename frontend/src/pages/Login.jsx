@@ -8,7 +8,7 @@ import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
-const Home = () => {
+const Login = () => {
   const navigate = useNavigate();
   const { login, setIsAuthenticated, setIsAdmin } = useAuth();
   const LoginButton = styled(Button)({
@@ -120,4 +120,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Login;
