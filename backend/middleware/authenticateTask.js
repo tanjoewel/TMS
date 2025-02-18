@@ -41,7 +41,6 @@ async function authenticateTask(req, res, next) {
   const getUserGroupsQuery =
     "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?) AND (user_group_groupname = ?)";
   const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username, permittedGroup]);
-  console.log("CURRENT TASK STATE: ", getUserGroupsResult);
 
   if (getUserGroupsResult.length === 0) {
     res.status(403).json({ message: "User is not authorized to perform this action" });

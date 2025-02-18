@@ -166,7 +166,7 @@ exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -178,7 +178,7 @@ exports.demoteTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully demoted");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -190,7 +190,7 @@ exports.workOnTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator);
     res.send("Task successfully set to being worked on");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -238,7 +238,7 @@ exports.seekApproval = async function (req, res) {
     }
 
     // only if all the emails are sent do we set the task status to DONE
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator);
     res.send("Seek approval successful");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -250,7 +250,7 @@ exports.rejectTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_DOING, notesBody, noteCreator);
     res.send("Task successfully rejected");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -262,7 +262,7 @@ exports.approveTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_CLOSED, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator);
     res.send("Task successfully approved");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -270,9 +270,7 @@ exports.approveTask = async function (req, res) {
   }
 };
 
-exports.stateTransition = async function (taskID, newState, notesBody, noteCreator) {
-  // maybe TODO validate the state changes
-
+exports.stateTransition = async function (taskID, prevState, newState, notesBody, noteCreator) {
   // get the previous state of the task
   try {
     const task = await exports.getTaskByID(taskID);
@@ -282,6 +280,11 @@ exports.stateTransition = async function (taskID, newState, notesBody, noteCreat
       throw error;
     }
     const oldState = task[0].Task_state;
+    if (oldState !== prevState) {
+      const error = new Error(`Invalid state transition`);
+      error.code = 400;
+      throw error;
+    }
     const newNoteBody = `${oldState} >> ${newState}`;
     const isStateChanged = oldState !== newState;
 
@@ -306,7 +309,7 @@ exports.stateTransition = async function (taskID, newState, notesBody, noteCreat
     });
     return transactionResult;
   } catch (err) {
-    const error = new Error("Error getting task: " + err.message);
+    const error = new Error(err.message);
     error.code = 500;
     throw error;
   }
