@@ -198,6 +198,7 @@ RBAC middleware
   1.  The task ID the route is targeting
   1.  The app acronym
   1.  The user ID of the user trying to use the route
+  1.  There is one more isn't there, the state that we want to do RBAC for, so that we know which column in app we need to query and which group we need to check. NO ALL YOU NEED IS THE CURRENT STATE OF THE TASK
 - The first two are part of the path, so we should be able to get them from `req.params`.
 - The user ID should be set in `req.decoded` by the authenticateToken middleware.
 - Then the middleware's job is to

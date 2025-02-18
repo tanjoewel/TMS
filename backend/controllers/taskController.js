@@ -3,6 +3,7 @@ const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
 const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
 const sendEmail = require("../util/emailService");
+
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
   const { task_name, task_description, task_plan, task_creator, task_owner } = req.body;
