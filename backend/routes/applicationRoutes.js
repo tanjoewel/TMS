@@ -3,6 +3,7 @@ const router = express.Router();
 
 // nested route
 const taskRoutes = require("./taskRoutes");
+const planRoutes = require("./planRoutes");
 
 const authenticateToken = require("../middleware/authenticateToken");
 const applicationController = require("../controllers/applicationController");
@@ -10,6 +11,7 @@ const applicationController = require("../controllers/applicationController");
 // mandatory middleware to run when routes are called.
 router.use(authenticateToken);
 router.use("/:acronym/task", taskRoutes);
+router.use("/:acronym/plan", planRoutes);
 
 router.post("/create", applicationController.createApplication);
 router.get("/all", applicationController.getAllApplications);

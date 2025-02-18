@@ -3,6 +3,7 @@ const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
 const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
 const sendEmail = require("../util/emailService");
+
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
   const { task_name, task_description, task_plan, task_creator, task_owner } = req.body;
@@ -12,6 +13,27 @@ exports.createTask = async function (req, res) {
   const oldRNumber = app[0].App_Rnumber;
   const task_id = `${acronym}_${oldRNumber}`;
   const task_app_acronym = acronym;
+  // checking for perms. we do this here because the task is not created yet, so there is no task to get the state from in the middleware.
+  const permittedGroup = app[0].App_permit_Create;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup) || userGroups.includes(process.env.HARDCODED_PL_GROUP);
+
+  console.log(userGroups);
+
+  if (!permitted) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
+  // if we reach here, the user is permitted to create the task.
 
   const task_state = STATE_OPEN;
   const columnsArray = ["task_id", "task_name", "task_description", "task_notes", "task_plan", "task_app_acronym", "task_state", "task_creator", "task_owner"];
@@ -165,7 +187,7 @@ exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -177,7 +199,7 @@ exports.demoteTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator);
     res.send("Task successfully demoted");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -189,7 +211,7 @@ exports.workOnTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator);
     res.send("Task successfully set to being worked on");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -237,7 +259,7 @@ exports.seekApproval = async function (req, res) {
     }
 
     // only if all the emails are sent do we set the task status to DONE
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator);
     res.send("Seek approval successful");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -249,7 +271,7 @@ exports.rejectTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_DOING, notesBody, noteCreator);
     res.send("Task successfully rejected");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -261,7 +283,7 @@ exports.approveTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_CLOSED, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator);
     res.send("Task successfully approved");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -269,9 +291,7 @@ exports.approveTask = async function (req, res) {
   }
 };
 
-exports.stateTransition = async function (taskID, newState, notesBody, noteCreator) {
-  // maybe TODO validate the state changes
-
+exports.stateTransition = async function (taskID, prevState, newState, notesBody, noteCreator) {
   // get the previous state of the task
   try {
     const task = await exports.getTaskByID(taskID);
@@ -281,6 +301,11 @@ exports.stateTransition = async function (taskID, newState, notesBody, noteCreat
       throw error;
     }
     const oldState = task[0].Task_state;
+    if (oldState !== prevState) {
+      const error = new Error(`Invalid state transition`);
+      error.code = 400;
+      throw error;
+    }
     const newNoteBody = `${oldState} >> ${newState}`;
     const isStateChanged = oldState !== newState;
 
@@ -305,7 +330,7 @@ exports.stateTransition = async function (taskID, newState, notesBody, noteCreat
     });
     return transactionResult;
   } catch (err) {
-    const error = new Error("Error getting task: " + err.message);
+    const error = new Error(err.message);
     error.code = 500;
     throw error;
   }

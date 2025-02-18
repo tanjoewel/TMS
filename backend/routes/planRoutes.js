@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const authenticateToken = require("../middleware/authenticateToken");
 const planController = require("../controllers/planController");
@@ -8,6 +8,6 @@ const planController = require("../controllers/planController");
 router.use(authenticateToken);
 
 router.post("/create", planController.createPlan);
-router.get("/:acronym", planController.getPlansForApp);
+router.get("/", planController.getPlansForApp);
 
 module.exports = router;

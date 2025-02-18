@@ -2,11 +2,12 @@ const { createQueryBuilder, executeQuery } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 
 exports.createPlan = async function (req, res) {
-  const { plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym, plan_color } = req.body;
+  const { plan_mvp_name, plan_startDate, plan_endDate, plan_color } = req.body;
+  const { acronym } = req.params;
   const query = createQueryBuilder("plan", ["plan_mvp_name", "plan_startDate", "plan_endDate", "plan_app_acronym", "plan_color"]);
 
   // validation
-  const mandatoryFields = ["plan_mvp_name", "plan_app_acronym"];
+  const mandatoryFields = ["plan_mvp_name"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -48,8 +49,20 @@ exports.createPlan = async function (req, res) {
     return;
   }
 
+  // auth - only hardcoded PM can create plan
+  const username = req.decoded.username;
+  const permittedGroup = process.env.HARDCODED_PM_GROUP;
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?) AND (user_group_groupname = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username, permittedGroup]);
+
+  if (getUserGroupsResult.length === 0) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
   try {
-    const result = await executeQuery(query, [plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym, plan_color]);
+    const result = await executeQuery(query, [plan_mvp_name, plan_startDate, plan_endDate, acronym, plan_color]);
     res.send("Plan successfully created");
   } catch (err) {
     res.status(500).json({ message: "Error creating plan: " + err.message });
@@ -58,6 +71,7 @@ exports.createPlan = async function (req, res) {
 
 exports.getPlansForApp = async function (req, res) {
   const { acronym } = req.params;
+  console.log(acronym);
   const query = "SELECT * FROM plan WHERE (plan_app_acronym=?)";
   try {
     const result = await executeQuery(query, [acronym]);
