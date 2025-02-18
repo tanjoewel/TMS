@@ -34,7 +34,7 @@ const Login = () => {
         if (res.data.isAdmin) {
           setIsAdmin(true);
         }
-        navigate("/tasks");
+        navigate("/app");
       }
     } catch (e) {
       // const snackbarMessage = "Invalid login. Please try again.";

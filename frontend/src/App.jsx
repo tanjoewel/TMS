@@ -8,7 +8,7 @@ import Header from "./components/Header";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import Tasks from "./pages/Tasks";
+import Applications from "./pages/Applications";
 import NotFound from "./pages/NotFound";
 // authentication and authorization
 import AdminRoute from "./components/AdminRoute";
@@ -29,7 +29,7 @@ function App() {
               <Route path="/users" element={<Users />} />
             </Route>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/app" element={<Applications />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
