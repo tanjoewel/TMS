@@ -138,9 +138,11 @@ exports.updateApplication = async function (req, res) {
     "app_permit_done",
   ];
 
-  if (app_description.length > 65536) {
-    res.status(400).json({ message: "App description must be less than 65536 characters long" });
-    return;
+  if (app_description) {
+    if (app_description.length > 65536) {
+      res.status(400).json({ message: "App description must be less than 65536 characters long" });
+      return;
+    }
   }
 
   for (let i = 0; i < argsArray.length; i++) {
