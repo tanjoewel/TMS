@@ -73,6 +73,11 @@ const Home = () => {
           sx={{
             width: "250px",
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleClick(); // Call the same function as the button
+            }
+          }}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -82,6 +87,11 @@ const Home = () => {
           label="Password"
           value={password}
           fullWidth
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleClick(); // Call the same function as the button
+            }
+          }}
           onChange={(e) => {
             setPassword(e.target.value);
           }}
