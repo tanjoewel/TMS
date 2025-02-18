@@ -3,7 +3,7 @@ import { Button, TableRow, TableCell, TextField, MenuItem, Switch, FormControl, 
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
-const User = (props) => {
+const CreateUser = (props) => {
   const [checked, setChecked] = useState(true);
   const [groups, setGroups] = useState([]);
 
@@ -139,4 +139,4 @@ const User = (props) => {
   );
 };
 
-export default User;
+export default CreateUser;

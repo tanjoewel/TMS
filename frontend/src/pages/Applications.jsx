@@ -16,7 +16,7 @@ import {
   FormControl,
   Select,
 } from "@mui/material";
-import CreateUser from "../components/CreateUser";
+import CreateApplication from "../components/CreateApplication";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 
@@ -59,11 +59,13 @@ const Applications = () => {
                 <TableCell>Permit Todo</TableCell>
                 <TableCell>Permit Doing</TableCell>
                 <TableCell>Permit Done</TableCell>
-                <TableCell>Permit Action</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             {/* Table body */}
-            <TableBody></TableBody>
+            <TableBody>
+              <CreateApplication />
+            </TableBody>
           </Table>
         </TableContainer>
       </Box>
