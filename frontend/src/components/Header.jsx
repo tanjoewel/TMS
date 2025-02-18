@@ -23,7 +23,7 @@ const Header = () => {
   }
 
   function handleClickTask(e) {
-    navigate("/tasks");
+    navigate("/app");
   }
 
   function handleClickProfile(e) {
