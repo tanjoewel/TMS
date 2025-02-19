@@ -143,9 +143,18 @@ const Applications = () => {
                         verticalAlign: "top",
                         whiteSpace: "normal",
                         wordBreak: "break-word",
+                        width: "100%",
+                        maxWidth: "none",
                       }}
                     >
-                      <TextField value={app.App_Description} variant="standard" InputProps={{ disableUnderline: true }} multiline></TextField>
+                      <TextField
+                        fullWidth
+                        value={app.App_Description}
+                        variant="standard"
+                        InputProps={{ disableUnderline: true }}
+                        multiline
+                        width="100%"
+                      ></TextField>
                     </TableCell>
                     {/* Start date cell */}
                     <TableCell>
