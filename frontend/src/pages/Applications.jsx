@@ -22,6 +22,8 @@ import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 import DatePicker from "react-datepicker";
 // default CSS from react-datepicker for the datepicker dropdown itself.
 import "react-datepicker/dist/react-datepicker.css";
+// CSS for the box itself
+import "../styles.css";
 
 const Applications = () => {
   const [showError, setShowError] = useState(false);
@@ -90,15 +92,15 @@ const Applications = () => {
       </Typography>
       <Box sx={{ mx: 3, mt: 2 }}>
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650, border: "1px solid black" }} aria-label="simple table" size="small">
+          <Table sx={{ minWidth: 650, border: "1px solid black", tableLayout: "fixed" }} aria-label="simple table" size="small">
             {/* Table header */}
             <TableHead>
               <TableRow sx={{ "& > th:not(:last-child)": { borderRight: "1px solid black" }, borderBottom: "2px solid black" }}>
                 <TableCell label={"username"}>Acronym</TableCell>
-                <TableCell>R. Num</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Start Date</TableCell>
-                <TableCell>End Date</TableCell>
+                <TableCell sx={{ width: "125px" }}>R. Num</TableCell>
+                <TableCell sx={{ width: "350px" }}>Description</TableCell>
+                <TableCell sx={{ width: "125px" }}>Start Date</TableCell>
+                <TableCell sx={{ width: "125px" }}>End Date</TableCell>
                 <TableCell>Permit Create</TableCell>
                 <TableCell>Permit Open</TableCell>
                 <TableCell>Permit Todo</TableCell>
@@ -121,7 +123,6 @@ const Applications = () => {
                         verticalAlign: "top",
                         whiteSpace: "normal",
                         wordBreak: "break-word",
-                        maxWidth: "150px",
                       }}
                     >
                       <Button>{app.App_Acronym}</Button>
@@ -132,29 +133,27 @@ const Applications = () => {
                         verticalAlign: "top",
                         whiteSpace: "normal",
                         wordBreak: "break-word",
-                        maxWidth: "125px",
                       }}
                     >
                       <Typography padding="10px">{app.App_Rnumber}</Typography>
                     </TableCell>
                     {/* App description cell */}
                     <TableCell
-                      style={{
+                      sx={{
                         verticalAlign: "top",
                         whiteSpace: "normal",
                         wordBreak: "break-word",
-                        maxWidth: "250px",
                       }}
                     >
                       <TextField value={app.App_Description} variant="standard" InputProps={{ disableUnderline: true }} multiline></TextField>
                     </TableCell>
                     {/* Start date cell */}
                     <TableCell>
-                      <DatePicker onChange={(date) => handleDatePicker(date, "App.startDate")}></DatePicker>
+                      <DatePicker className="custom-datepicker" showIcon onChange={(date) => handleDatePicker(date, "App.startDate")}></DatePicker>
                     </TableCell>
                     {/* End date cell */}
                     <TableCell>
-                      <DatePicker onChange={(date) => handleDatePicker(date, "App.endDate")}></DatePicker>
+                      <DatePicker className="custom-datepicker" showIcon onChange={(date) => handleDatePicker(date, "App.endDate")}></DatePicker>
                     </TableCell>
                     {/* Permit create cell */}
                     <TableCell>

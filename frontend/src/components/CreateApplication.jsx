@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { TableRow, TableCell, TextField, Button, Select, MenuItem, FormControl } from "@mui/material";
+import DatePicker from "react-datepicker";
+// default CSS from react-datepicker for the datepicker dropdown itself.
+import "react-datepicker/dist/react-datepicker.css";
+// CSS for the box itself
+import "../styles.css";
 
 const CreateApplication = () => {
   const [application, setApplication] = useState({
     acronym: null,
     runningNumber: null,
     description: null,
-    startDate: null,
-    endDate: null,
+    startDate: new Date("2025-01-01"),
+    endDate: new Date("2027-02-02"),
     permitCreate: "",
     permitOpen: "",
     permitTodo: "",
@@ -26,6 +31,11 @@ const CreateApplication = () => {
       ...prev,
       [cell]: event.target.value,
     }));
+  }
+
+  function handleDatePicker(date, field) {
+    console.log("HANDLED DATE PICKER: ", date, field);
+    alert("Date picker clicked");
   }
 
   // need to load unique group names, then all the permit cells will use it. for now this is a dummy list of groups
@@ -107,29 +117,16 @@ const CreateApplication = () => {
         </TableCell>
         {/* Start date cell (DATEPICKER)*/}
         <TableCell>
-          <TextField
-            placeholder="Enter start date"
-            fullWidth={true}
-            name="Start date"
-            sx={{
-              "& .MuiInputLabel-root": {
-                fontSize: "12px",
-              },
-            }}
-          ></TextField>
+          <DatePicker
+            className="custom-datepicker"
+            selected={application.startDate}
+            showIcon
+            onChange={(date) => handleDatePicker(date, "startDate")}
+          ></DatePicker>
         </TableCell>
         {/* End Date cell (DATEPICKER)*/}
         <TableCell>
-          <TextField
-            placeholder="Enter end date"
-            fullWidth={true}
-            name="End date"
-            sx={{
-              "& .MuiInputLabel-root": {
-                fontSize: "12px",
-              },
-            }}
-          ></TextField>
+          <DatePicker className="custom-datepicker" selected={application.endDate} showIcon onChange={(date) => handleDatePicker(date, "endDate")}></DatePicker>
         </TableCell>
         {/* Permit Create cell */}
         <TableCell>
