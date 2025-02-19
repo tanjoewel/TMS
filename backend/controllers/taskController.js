@@ -26,8 +26,6 @@ exports.createTask = async function (req, res) {
   });
   const permitted = userGroups.includes(permittedGroup) || userGroups.includes(process.env.HARDCODED_PL_GROUP);
 
-  console.log(userGroups);
-
   if (!permitted) {
     res.status(403).json({ message: "User is not authorized to perform this action" });
     return;
@@ -353,6 +351,11 @@ exports.getTaskByID = async function (taskID) {
   const getQuery = "SELECT * FROM task WHERE (task_id = ?);";
   try {
     const result = await executeQuery(getQuery, [taskID]);
+    if (result.length === 0) {
+      const error = new Error("Task with specified ID does not exist");
+      error.code = 404;
+      throw error;
+    }
     return result;
   } catch (err) {
     const error = new Error("Error getting task: " + err.message);
@@ -365,6 +368,6 @@ exports.getTaskByID = async function (taskID) {
  * Helper function to build a note. This is simply here to prevent the mental overhead of building the JSON object and having to remember the date posted field.
  */
 function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
-  const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
+  const newNote = { text: notesBody, date_posted: new Date().toLocaleString(), creator: noteCreator, type };
   return newNote;
 }
