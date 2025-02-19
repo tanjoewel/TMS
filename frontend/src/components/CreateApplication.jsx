@@ -37,7 +37,14 @@ const CreateApplication = () => {
     <>
       <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" }, "& > td": { backgroundColor: "#e0e0e0" } }}>
         {/* Acronym cell */}
-        <TableCell>
+        <TableCell
+          style={{
+            verticalAlign: "top",
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            maxWidth: "150px",
+          }}
+        >
           <TextField
             placeholder="Enter acronym"
             fullWidth={true}
@@ -47,10 +54,20 @@ const CreateApplication = () => {
                 fontSize: "12px",
               },
             }}
+            variant="standard"
+            InputProps={{ disableUnderline: true }}
+            multiline
           ></TextField>
         </TableCell>
         {/* Running number cell */}
-        <TableCell>
+        <TableCell
+          style={{
+            verticalAlign: "top",
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            maxWidth: "125px",
+          }}
+        >
           <TextField
             placeholder="Enter R. Num"
             fullWidth={true}
@@ -60,10 +77,20 @@ const CreateApplication = () => {
                 fontSize: "12px",
               },
             }}
+            variant="standard"
+            InputProps={{ disableUnderline: true }}
+            multiline
           ></TextField>
         </TableCell>
         {/* Description cell */}
-        <TableCell>
+        <TableCell
+          style={{
+            verticalAlign: "top",
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            maxWidth: "250px",
+          }}
+        >
           <TextField
             placeholder="Enter description"
             fullWidth={true}
@@ -73,6 +100,9 @@ const CreateApplication = () => {
                 fontSize: "12px",
               },
             }}
+            variant="standard"
+            InputProps={{ disableUnderline: true }}
+            multiline
           ></TextField>
         </TableCell>
         {/* Start date cell (DATEPICKER)*/}
