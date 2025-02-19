@@ -92,15 +92,15 @@ const Applications = () => {
               <TableRow sx={{ "& > th:not(:last-child)": { borderRight: "1px solid black" }, borderBottom: "2px solid black" }}>
                 <TableCell sx={{ width: "125px" }}>Acronym</TableCell>
                 <TableCell sx={{ width: "125px" }}>R. Num</TableCell>
-                <TableCell sx={{ width: "350px" }}>Description</TableCell>
+                <TableCell sx={{ width: "200px" }}>Description</TableCell>
                 <TableCell sx={{ width: "125px" }}>Start Date</TableCell>
-                <TableCell sx={{ width: "125px" }}>End Date</TableCell>
-                <TableCell sx={{ width: "125px" }}>Permit Create</TableCell>
-                <TableCell sx={{ width: "125px" }}>Permit Open</TableCell>
-                <TableCell sx={{ width: "125px" }}>Permit Todo</TableCell>
-                <TableCell sx={{ width: "125px" }}>Permit Doing</TableCell>
-                <TableCell sx={{ width: "125px" }}>Permit Done</TableCell>
-                <TableCell sx={{ width: "100px" }}>Action</TableCell>
+                <TableCell sx={{ width: "100px" }}>End Date</TableCell>
+                <TableCell sx={{ width: "100px" }}>Permit Create</TableCell>
+                <TableCell sx={{ width: "100px" }}>Permit Open</TableCell>
+                <TableCell sx={{ width: "100px" }}>Permit Todo</TableCell>
+                <TableCell sx={{ width: "100px" }}>Permit Doing</TableCell>
+                <TableCell sx={{ width: "100px" }}>Permit Done</TableCell>
+                <TableCell sx={{ width: "75px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             {/* Table body */}
