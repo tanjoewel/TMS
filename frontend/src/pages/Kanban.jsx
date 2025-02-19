@@ -1,5 +1,6 @@
 import { Grid2, Paper, Typography, Box, Button } from "@mui/material";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const Kanban = () => {
   /*
@@ -18,6 +19,15 @@ const Kanban = () => {
     { title: "CLOSED", color: "#8A2BE2", tasks: ["Design UI/UX for coffees"] },
   ];
 
+  const [tasks, setTasks] = useState([]);
+
+  const { acronym } = useParams();
+
+  useEffect(() => {
+    // get the tasks from app here, if it is not a valid acronym go to 404 not found as people can just directly enter the URL
+    console.log("ACRONYM FROM URL: ", acronym);
+  }, []);
+
   function handleTaskClick(event, task) {
     // the task here should return us the task id that then allows us to navigate into the task page
     console.log(event.target.value, task);
@@ -35,7 +45,7 @@ const Kanban = () => {
       {/* Task Board Grid */}
       <Grid2 container spacing={2} sx={{ mt: 2 }}>
         {taskColumns.map((column, index) => (
-          <Grid2 item xs={12} sm={6} md={2.4} key={index}>
+          <Grid2 xs={12} sm={6} md={2.4} key={index}>
             {/* Column Container */}
             <Paper elevation={3} sx={{ p: 2, minHeight: "60vh", display: "flex", flexDirection: "column" }}>
               <Typography fontWeight="bold" sx={{ mb: 2 }}>

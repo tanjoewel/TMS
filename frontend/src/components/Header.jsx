@@ -31,7 +31,7 @@ const Header = () => {
   }
 
   function handleClickTest(e) {
-    navigate("/kanban");
+    navigate("/app/TMS1");
   }
 
   return (

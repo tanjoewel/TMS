@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   TextField,
   Box,
@@ -32,6 +33,7 @@ const Applications = () => {
   const [groups, setGroups] = useState([]);
 
   const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   async function getApps() {
     try {
@@ -53,8 +55,8 @@ const Applications = () => {
 
   // when the page first loads, get the applications and unique groups from the database
   useEffect(() => {
-    getApps();
     getDistinctGroups();
+    getApps();
   }, []);
 
   function handleDatePicker(date, field) {
@@ -70,22 +72,14 @@ const Applications = () => {
     alert("update application clicked");
   }
 
+  function handleAppAcronymClick(acronym) {
+    navigate(`/app/${acronym}`);
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", px: 5 }}>
         <h2>Applications</h2>
-        {/* <div>
-          <TextField
-            id="groupname"
-            label="Group name"
-            size="small"
-            value={groupname}
-            onChange={(e) => {
-              setGroupname(e.target.value);
-            }}
-          />
-          <Button onClick={handleCreateClick}>Create</Button>
-        </div> */}
       </Box>
       <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" paddingLeft="26px" fontSize="20px">
         {errorMessage}
@@ -125,7 +119,7 @@ const Applications = () => {
                         wordBreak: "break-word",
                       }}
                     >
-                      <Button>{app.App_Acronym}</Button>
+                      <Button onClick={() => handleAppAcronymClick(app.App_Acronym)}>{app.App_Acronym}</Button>
                     </TableCell>
                     {/* Running number cell (typography as it is read only)*/}
                     <TableCell

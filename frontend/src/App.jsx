@@ -31,7 +31,7 @@ function App() {
             </Route>
             <Route path="/profile" element={<Profile />} />
             <Route path="/app" element={<Applications />} />
-            <Route path="/kanban" element={<Kanban />} />
+            <Route path="/app/:acronym" element={<Kanban />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
