@@ -20,6 +20,8 @@ import CreateApplication from "../components/CreateApplication";
 import Axios from "axios";
 import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 import DatePicker from "react-datepicker";
+// default CSS from react-datepicker for the datepicker dropdown itself.
+import "react-datepicker/dist/react-datepicker.css";
 
 const Applications = () => {
   const [showError, setShowError] = useState(false);
@@ -58,7 +60,7 @@ const Applications = () => {
     alert("Date picker clicked");
   }
 
-  function handlePermitSelect(index, event) {
+  function handlePermitSelect(index, event, field) {
     alert("permit select clicked");
   }
 
@@ -114,16 +116,37 @@ const Applications = () => {
                 return (
                   <TableRow sx={{ "& > td:not(:last-child)": { borderRight: "1px solid black", p: "1px" } }} key={app.App_Acronym}>
                     {/* Acronym cell */}
-                    <TableCell>
+                    <TableCell
+                      style={{
+                        verticalAlign: "top",
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        maxWidth: "150px",
+                      }}
+                    >
                       <Button>{app.App_Acronym}</Button>
                     </TableCell>
                     {/* Running number cell (typography as it is read only)*/}
-                    <TableCell>
-                      <Typography>{app.App_Rnumber}</Typography>
+                    <TableCell
+                      style={{
+                        verticalAlign: "top",
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        maxWidth: "125px",
+                      }}
+                    >
+                      <Typography padding="10px">{app.App_Rnumber}</Typography>
                     </TableCell>
                     {/* App description cell */}
-                    <TableCell>
-                      <TextField value={app.App_Description}></TextField>
+                    <TableCell
+                      style={{
+                        verticalAlign: "top",
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        maxWidth: "250px",
+                      }}
+                    >
+                      <TextField value={app.App_Description} variant="standard" InputProps={{ disableUnderline: true }} multiline></TextField>
                     </TableCell>
                     {/* Start date cell */}
                     <TableCell>
