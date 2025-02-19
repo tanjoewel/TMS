@@ -71,7 +71,6 @@ exports.createPlan = async function (req, res) {
 
 exports.getPlansForApp = async function (req, res) {
   const { acronym } = req.params;
-  console.log(acronym);
   const query = "SELECT * FROM plan WHERE (plan_app_acronym=?)";
   try {
     const result = await executeQuery(query, [acronym]);

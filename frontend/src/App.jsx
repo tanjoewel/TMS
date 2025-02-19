@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./AuthContext";
 import { SnackbarProvider } from "./SnackbarContext";
 import Kanban from "./pages/Kanban";
+import Task from "./pages/Task";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/app" element={<Applications />} />
             <Route path="/app/:acronym" element={<Kanban />} />
+            <Route path="/app/:acronym/task/:taskID" element={<Task />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
