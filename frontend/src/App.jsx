@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // contexts
 import { AuthProvider } from "./AuthContext";
 import { SnackbarProvider } from "./SnackbarContext";
+import Kanban from "./pages/Kanban";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             </Route>
             <Route path="/profile" element={<Profile />} />
             <Route path="/app" element={<Applications />} />
+            <Route path="/kanban" element={<Kanban />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
