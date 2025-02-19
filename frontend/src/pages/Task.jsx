@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Typography, Button, Select, Paper, Box, TextField, MenuItem } from "@mui/material";
 import Axios from "axios";
+import { useAuth } from "../AuthContext";
 
 const Task = () => {
   /*
@@ -18,16 +19,29 @@ const Task = () => {
   7. Error message
   8. Create task page
   */
-  const [errorMessage, setErrorMessage] = useState("Error message here");
+  const [errorMessage, setErrorMessage] = useState("lmao");
+  const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [task, setTask] = useState(null);
   const [plans, setPlans] = useState([]);
+  const [newNotes, setNewNotes] = useState("");
+  const [updatePage, setUpdatePage] = useState(0);
 
   // the URL here should contain both the app acronym and task ID
   const { acronym, taskID } = useParams();
   const navigate = useNavigate();
+  const { username } = useAuth();
 
   const colormap = ["green", "black"];
+  const BUTTON_ACTIONS = {
+    RELEASE: 1,
+    WORK: 2,
+    DEMOTE: 3,
+    SEEK: 4,
+    REJECT: 5,
+    APPROVE: 6,
+    UPDATE: 7,
+  };
 
   async function getTask() {
     const getTasksResult = await Axios.get(`/app/${acronym}/task/${taskID}`);
@@ -50,6 +64,7 @@ const Task = () => {
         navigate("/404");
       }
       try {
+        setLoading(true);
         await getPlans();
         await getTask();
         setLoading(false);
@@ -63,7 +78,7 @@ const Task = () => {
       }
     };
     a();
-  }, []);
+  }, [updatePage]);
 
   function handleSelectChange(event) {
     setTask((prev) => ({
@@ -72,6 +87,54 @@ const Task = () => {
     }));
   }
 
+  async function handleButtonClick(action) {
+    const stateTransitionBody = {
+      notesBody: newNotes,
+      noteCreator: username,
+    };
+    const updateBody = { notesBody: newNotes, noteCreator: username, plan: task.Task_plan };
+    try {
+      switch (action) {
+        case BUTTON_ACTIONS.RELEASE:
+          await Axios.patch(`/app/${acronym}/task/release/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.WORK:
+          await Axios.patch(`/app/${acronym}/task/work/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.DEMOTE:
+          await Axios.patch(`/app/${acronym}/task/demote/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.SEEK:
+          await Axios.patch(`/app/${acronym}/task/seek/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.REJECT:
+          await Axios.patch(`/app/${acronym}/task/reject/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.APPROVE:
+          await Axios.patch(`/app/${acronym}/task/approve/${taskID}`, stateTransitionBody);
+          break;
+        case BUTTON_ACTIONS.UPDATE:
+          await Axios.patch(`/app/${acronym}/task/update/${taskID}`, updateBody);
+          setNewNotes("");
+          break;
+      }
+      setUpdatePage((prev) => {
+        return prev + 1;
+      });
+      setShowError(false);
+    } catch (err) {
+      console.log(err);
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
+      // this will call the APIs which will cause protectedroutes to trigger if it is invalid jwt
+      setUpdatePage((prev) => {
+        return prev + 1;
+      });
+      console.log(err.response.data.message);
+    }
+  }
+
+  // prevent rendering if loading is on so that things like the select element is synced.
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -79,7 +142,7 @@ const Task = () => {
   return (
     <Box sx={{ py: 2, px: 5 }}>
       {/* Error message (this position is good) */}
-      <Typography variant="body2" color="error">
+      <Typography variant="body2" color="error" sx={{ visibility: showError ? "visible" : "hidden" }}>
         {errorMessage}
       </Typography>
       {/* Back button (this position is also good) */}
@@ -133,19 +196,35 @@ const Task = () => {
             variant="standard"
             InputProps={{ disableUnderline: true }}
             multiline
+            value={newNotes}
+            onChange={(event) => setNewNotes(event.target.value)}
           />
         </Box>
       </Box>
 
       {/* Footer Buttons */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop={"50px"}>
-        <Button variant="text">Release Task</Button>
-        <Button variant="text">Work On Task</Button>
-        <Button variant="text">Return task to ToDo List</Button>
-        <Button variant="text">Seek Approval</Button>
-        <Button variant="text">Reject Task</Button>
-        <Button variant="text">Approve task</Button>
-        <Button variant="contained">Save Changes</Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.RELEASE)}>
+          Release Task
+        </Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.WORK)}>
+          Work On Task
+        </Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.DEMOTE)}>
+          Return task to ToDo List
+        </Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}>
+          Seek Approval
+        </Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}>
+          Reject Task
+        </Button>
+        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}>
+          Approve task
+        </Button>
+        <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
+          Save Changes
+        </Button>
       </Box>
     </Box>
   );
