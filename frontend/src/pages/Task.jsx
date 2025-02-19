@@ -4,33 +4,38 @@ import { Typography, Button, Select, Paper, Box, TextField, MenuItem } from "@mu
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
 
-const Task = () => {
-  /*
-  TODOs for this component
-  1. Get the task based on the task ID in the URL (done)
-    1.5 Navigate to 404 if not a valid task or app ID (done)
-  2. Get all plans (done)
-  3. Format the task notes (fk this shit man) (done)
-  4. Set the UI based on the state of the task
-    4.1 Hiding/showing buttons based on state
-    4.2 Disabling/enabling certain fields based on state (for user perms can rely on backend)
-  5. Update task API (done)
-  6. Bottom button APIs (done)
-  7. Error message
-  8. Create task page
-  */
+const Task = (props) => {
+  const { username } = useAuth();
   const [errorMessage, setErrorMessage] = useState("lmao");
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [task, setTask] = useState(null);
+  const [task, setTask] = useState({
+    Task_id: "dummy",
+    Task_name: "",
+    Task_description: "",
+    Task_notes: [],
+    Task_plan: "",
+    Task_app_Acronym: "",
+    Task_state: "CREATE",
+    Task_creator: "",
+    Task_owner: "",
+    Task_createDate: "",
+  });
   const [plans, setPlans] = useState([]);
   const [newNotes, setNewNotes] = useState("");
   const [updatePage, setUpdatePage] = useState(0);
+  const [createTask, setCreateTask] = useState({
+    task_name: "",
+    task_description: "",
+    task_plan: "",
+    task_creator: username,
+    task_owner: username,
+  });
 
   // the URL here should contain both the app acronym and task ID
   const { acronym, taskID } = useParams();
   const navigate = useNavigate();
-  const { username } = useAuth();
+  const type = props.type;
 
   const colormap = ["green", "black"];
   const BUTTON_ACTIONS = {
@@ -41,6 +46,7 @@ const Task = () => {
     REJECT: 5,
     APPROVE: 6,
     UPDATE: 7,
+    CREATE: 8,
   };
 
   const STATE_OPEN = "OPEN";
@@ -48,6 +54,9 @@ const Task = () => {
   const STATE_DOING = "DOING";
   const STATE_DONE = "DONE";
   const STATE_CLOSED = "CLOSED";
+
+  const VIEW_TYPE = "view";
+  const CREATE_TYPE = "create";
 
   async function getTask() {
     const getTasksResult = await Axios.get(`/app/${acronym}/task/${taskID}`);
@@ -65,14 +74,12 @@ const Task = () => {
 
   useEffect(() => {
     const a = async () => {
-      // idk if this will ever happen because it should always exist otherwise this component will not be loaded.
-      if (!(acronym && taskID)) {
-        navigate("/404");
-      }
       try {
         setLoading(true);
+        if (type === VIEW_TYPE) {
+          await getTask();
+        }
         await getPlans();
-        await getTask();
         setLoading(false);
       } catch (err) {
         // only some kinds of error we want to route to 404, basically if the backend throws a 404 itself
@@ -87,10 +94,17 @@ const Task = () => {
   }, [updatePage]);
 
   function handleSelectChange(event) {
-    setTask((prev) => ({
-      ...prev,
-      ["Task_plan"]: event.target.value,
-    }));
+    if (type === CREATE_TYPE) {
+      setCreateTask((prev) => ({
+        ...prev,
+        ["task_plan"]: event.target.value,
+      }));
+    } else {
+      setTask((prev) => ({
+        ...prev,
+        ["Task_plan"]: event.target.value,
+      }));
+    }
   }
 
   async function handleButtonClick(action) {
@@ -123,6 +137,9 @@ const Task = () => {
           await Axios.patch(`/app/${acronym}/task/update/${taskID}`, updateBody);
           setNewNotes("");
           break;
+        case BUTTON_ACTIONS.CREATE:
+          await Axios.post(`/app/${acronym}/task/create`, createTask);
+          break;
       }
       setUpdatePage((prev) => {
         return prev + 1;
@@ -145,6 +162,11 @@ const Task = () => {
     return <div>Loading...</div>;
   }
 
+  // true if addNotes should be disabled
+  const disableAddNotes = task.Task_state === STATE_CLOSED || type === CREATE_TYPE;
+  // true if select plan should be disabled
+  const disablePlanSelect = task.Task_state === STATE_CLOSED;
+
   return (
     <Box sx={{ py: 2, px: 5 }}>
       {/* Error message (this position is good) */}
@@ -158,16 +180,40 @@ const Task = () => {
         {/* this should all be one box */}
         <Box flex={1}>
           <Box display={"flex"} justifyContent={"space-between"}>
-            <Typography variant="h6" fontWeight="bold">
-              {task.Task_name}
-            </Typography>
-            <Typography variant="h6">{task.Task_state}</Typography>
+            {type === CREATE_TYPE ? (
+              // Textfield to write the name
+              <TextField
+                placeholder="Enter task name"
+                onChange={(event) =>
+                  setCreateTask((prev) => ({
+                    ...prev,
+                    ["task_name"]: event.target.value,
+                  }))
+                }
+              ></TextField>
+            ) : (
+              <>
+                <Typography variant="h6" fontWeight="bold">
+                  {task.Task_name}
+                </Typography>
+              </>
+            )}
+
+            <Typography variant="h6">{type === CREATE_TYPE ? "CREATE" : task.Task_state}</Typography>
           </Box>
 
           <Typography variant="body2">{task.Task_app_Acronym}</Typography>
 
-          {/* Plan Field (Change this to a SELECT) */}
-          <Select value={task.Task_plan} renderValue={(selected) => (selected ? selected : "select")} displayEmpty width={"50%"} onChange={handleSelectChange}>
+          {/* Plan Field */}
+          <Select
+            disabled={disablePlanSelect}
+            value={type === CREATE_TYPE ? createTask.task_plan : task.Task_plan}
+            renderValue={(selected) => (selected ? selected : "select")}
+            displayEmpty
+            width={"50%"}
+            onChange={handleSelectChange}
+            sx={{ backgroundColor: disablePlanSelect ? "grey" : "white" }}
+          >
             {plans.map((plan) => (
               <MenuItem key={plan} value={plan}>
                 {plan}
@@ -180,7 +226,25 @@ const Task = () => {
             Description
           </Typography>
           <Paper sx={{ padding: 2, height: "250px", overflow: "auto", width: "100%" }}>
-            <Typography>{task.Task_description}</Typography>
+            {type === CREATE_TYPE ? (
+              // For user to add their description
+              <TextField
+                placeholder="Enter task description here"
+                fullWidth
+                height="100%"
+                sx={{
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
+                }}
+                variant="standard"
+                InputProps={{ disableUnderline: true }}
+                onChange={(event) => setCreateTask((prev) => ({ ...prev, ["task_description"]: event.target.value }))}
+              ></TextField>
+            ) : (
+              <>
+                <Typography>{task.Task_description}</Typography>
+              </>
+            )}
           </Paper>
         </Box>
 
@@ -198,63 +262,81 @@ const Task = () => {
           <TextField
             fullWidth
             placeholder="Add a note..."
-            sx={{ marginTop: 1, border: "1px solid #ddd", padding: 1, verticalAlign: "top", whiteSpace: "normal", wordBreak: "break-word", height: "100px" }}
+            sx={{
+              marginTop: 1,
+              border: "1px solid #ddd",
+              padding: 1,
+              verticalAlign: "top",
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+              height: "100px",
+              backgroundColor: disableAddNotes ? "grey" : "white",
+            }}
             variant="standard"
             InputProps={{ disableUnderline: true }}
             multiline
             value={newNotes}
             onChange={(event) => setNewNotes(event.target.value)}
+            disabled={disableAddNotes}
           />
         </Box>
       </Box>
 
       {/* Footer Buttons */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop={"50px"}>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_OPEN ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.RELEASE)}
-        >
-          Release Task
-        </Button>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_TODO ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.WORK)}
-        >
-          Work On Task
-        </Button>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.DEMOTE)}
-        >
-          Return task to ToDo List
-        </Button>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}
-        >
-          Seek Approval
-        </Button>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}
-        >
-          Reject Task
-        </Button>
-        <Button
-          variant="text"
-          sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
-          onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}
-        >
-          Approve task
-        </Button>
-        <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
-          Save Changes
-        </Button>
+        {type === CREATE_TYPE ? (
+          <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.CREATE)}>
+            Create task
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_OPEN ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.RELEASE)}
+            >
+              Release Task
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_TODO ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.WORK)}
+            >
+              Work On Task
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.DEMOTE)}
+            >
+              Return task to ToDo List
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}
+            >
+              Seek Approval
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}
+            >
+              Reject Task
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}
+            >
+              Approve task
+            </Button>
+            <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
+              Save Changes
+            </Button>
+          </>
+        )}
       </Box>
     </Box>
   );

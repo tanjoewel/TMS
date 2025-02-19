@@ -33,7 +33,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/app" element={<Applications />} />
             <Route path="/app/:acronym" element={<Kanban />} />
-            <Route path="/app/:acronym/task/:taskID" element={<Task />} />
+            <Route path="/app/:acronym/task/:taskID" element={<Task type="view" />} />
+            <Route path="/app/:acronym/create" element={<Task type="create" />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
