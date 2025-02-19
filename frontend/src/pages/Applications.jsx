@@ -96,17 +96,17 @@ const Applications = () => {
             {/* Table header */}
             <TableHead>
               <TableRow sx={{ "& > th:not(:last-child)": { borderRight: "1px solid black" }, borderBottom: "2px solid black" }}>
-                <TableCell label={"username"}>Acronym</TableCell>
+                <TableCell sx={{ width: "125px" }}>Acronym</TableCell>
                 <TableCell sx={{ width: "125px" }}>R. Num</TableCell>
                 <TableCell sx={{ width: "350px" }}>Description</TableCell>
                 <TableCell sx={{ width: "125px" }}>Start Date</TableCell>
                 <TableCell sx={{ width: "125px" }}>End Date</TableCell>
-                <TableCell>Permit Create</TableCell>
-                <TableCell>Permit Open</TableCell>
-                <TableCell>Permit Todo</TableCell>
-                <TableCell>Permit Doing</TableCell>
-                <TableCell>Permit Done</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell sx={{ width: "125px" }}>Permit Create</TableCell>
+                <TableCell sx={{ width: "125px" }}>Permit Open</TableCell>
+                <TableCell sx={{ width: "125px" }}>Permit Todo</TableCell>
+                <TableCell sx={{ width: "125px" }}>Permit Doing</TableCell>
+                <TableCell sx={{ width: "125px" }}>Permit Done</TableCell>
+                <TableCell sx={{ width: "100px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             {/* Table body */}
@@ -149,11 +149,21 @@ const Applications = () => {
                     </TableCell>
                     {/* Start date cell */}
                     <TableCell>
-                      <DatePicker className="custom-datepicker" showIcon onChange={(date) => handleDatePicker(date, "App.startDate")}></DatePicker>
+                      <DatePicker
+                        className="custom-datepicker"
+                        selected={app.App_startDate}
+                        showIcon
+                        onChange={(date) => handleDatePicker(date, "App.startDate")}
+                      ></DatePicker>
                     </TableCell>
                     {/* End date cell */}
                     <TableCell>
-                      <DatePicker className="custom-datepicker" showIcon onChange={(date) => handleDatePicker(date, "App.endDate")}></DatePicker>
+                      <DatePicker
+                        className="custom-datepicker"
+                        selected={app.App_endDate}
+                        showIcon
+                        onChange={(date) => handleDatePicker(date, "App.endDate")}
+                      ></DatePicker>
                     </TableCell>
                     {/* Permit create cell */}
                     <TableCell>
@@ -195,7 +205,7 @@ const Applications = () => {
                     <TableCell>
                       <FormControl fullWidth>
                         <Select
-                          value={app.App_permit_todoList}
+                          value={app.App_permit_toDoList}
                           onChange={(event) => handlePermitSelect(index, event, "App_permit_toDoList")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
