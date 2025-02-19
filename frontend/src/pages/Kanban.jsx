@@ -1,6 +1,7 @@
-import { Grid2, Paper, Typography, Box, Button } from "@mui/material";
+import { Grid2, Paper, Typography, Box, Button, StepConnector } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 
 const Kanban = () => {
   /*
@@ -9,6 +10,7 @@ const Kanban = () => {
     1.5 Get the tasks state up and running, and the UI to use and manipulate that state
   2. Sort the tasks into its statuses
   3. Assign the tasks the plan colours
+  4. Create task button (should be quite fast)
   */
   // dummy data just to make sure the UI works - this is not even in the right format actually
   const taskColumns = [
@@ -18,6 +20,8 @@ const Kanban = () => {
     { title: "DONE", color: "#FFA500", tasks: ["API for making coffee"] },
     { title: "CLOSED", color: "#8A2BE2", tasks: ["Design UI/UX for coffees"] },
   ];
+
+  const states = [STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED];
 
   const [tasks, setTasks] = useState([]);
 
@@ -42,34 +46,29 @@ const Kanban = () => {
         Task Board - namehere
       </Typography>
 
-      {/* Task Board Grid */}
-      <Grid2 container spacing={2} sx={{ mt: 2 }}>
-        {taskColumns.map((column, index) => (
-          <Grid2 xs={12} sm={6} md={2.4} key={index}>
-            {/* Column Container */}
-            <Paper elevation={3} sx={{ p: 2, minHeight: "60vh", display: "flex", flexDirection: "column" }}>
-              <Typography fontWeight="bold" sx={{ mb: 2 }}>
-                {column.title}
-              </Typography>
+      <Button>Create Task</Button>
 
-              {/* Task Cards */}
-              {column.tasks.map((task, i) => (
-                <Paper
-                  key={i}
-                  sx={{
-                    p: 1.5,
-                    mb: 1.5,
-                    border: `2px solid ${column.color}`,
-                    borderRadius: 1,
-                  }}
-                >
-                  <Button onClick={(event) => handleTaskClick(event, task)}>{task}</Button>
-                </Paper>
-              ))}
-            </Paper>
-          </Grid2>
-        ))}
-      </Grid2>
+      {/* Task Board Grid */}
+      <Box display={"flex"} justifyContent={"space-between"}>
+        <Paper elevation={3} sx={{ p: 2, minHeight: "60vh", display: "flex", flexDirection: "column" }}>
+          <Typography fontWeight="bold" sx={{ mb: 2 }}>
+            OPEN
+          </Typography>
+
+          {/* Task Cards */}
+
+          <Paper
+            sx={{
+              p: 1.5,
+              mb: 1.5,
+              border: `2px solid gray`,
+              borderRadius: 1,
+            }}
+          >
+            <Button onClick={(event) => handleTaskClick(event)}>{"Test"}</Button>
+          </Paper>
+        </Paper>
+      </Box>
     </Box>
   );
 };

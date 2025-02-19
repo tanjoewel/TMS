@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Typography, Button, Select, Paper, Box, TextField, MenuItem } from "@mui/material";
 import Axios from "axios";
 import { useAuth } from "../AuthContext";
+import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 
 const Task = (props) => {
   const { username } = useAuth();
@@ -49,11 +50,11 @@ const Task = (props) => {
     CREATE: 8,
   };
 
-  const STATE_OPEN = "OPEN";
-  const STATE_TODO = "TODO";
-  const STATE_DOING = "DOING";
-  const STATE_DONE = "DONE";
-  const STATE_CLOSED = "CLOSED";
+  // const STATE_OPEN = "OPEN";
+  // const STATE_TODO = "TODO";
+  // const STATE_DOING = "DOING";
+  // const STATE_DONE = "DONE";
+  // const STATE_CLOSED = "CLOSED";
 
   const VIEW_TYPE = "view";
   const CREATE_TYPE = "create";
