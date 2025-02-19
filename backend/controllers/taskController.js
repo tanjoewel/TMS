@@ -336,6 +336,19 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
   }
 };
 
+exports.getTaskByIDRoute = async function (req, res) {
+  const { taskID } = req.params;
+  try {
+    const getTaskResult = await exports.getTaskByID(taskID);
+    const task = getTaskResult[0];
+    const parsedNotes = JSON.parse(task.Task_notes);
+    task.Task_notes = parsedNotes;
+    res.send(task);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
 exports.getTaskByID = async function (taskID) {
   const getQuery = "SELECT * FROM task WHERE (task_id = ?);";
   try {
