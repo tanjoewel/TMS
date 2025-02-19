@@ -14,8 +14,8 @@ const Task = () => {
   4. Set the UI based on the state of the task
     4.1 Hiding/showing buttons based on state
     4.2 Disabling/enabling certain fields based on state (for user perms can rely on backend)
-  5. Update task API
-  6. Bottom button APIs
+  5. Update task API (done)
+  6. Bottom button APIs (done)
   7. Error message
   8. Create task page
   */
@@ -42,6 +42,12 @@ const Task = () => {
     APPROVE: 6,
     UPDATE: 7,
   };
+
+  const STATE_OPEN = "OPEN";
+  const STATE_TODO = "TODO";
+  const STATE_DOING = "DOING";
+  const STATE_DONE = "DONE";
+  const STATE_CLOSED = "CLOSED";
 
   async function getTask() {
     const getTasksResult = await Axios.get(`/app/${acronym}/task/${taskID}`);
@@ -204,22 +210,46 @@ const Task = () => {
 
       {/* Footer Buttons */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop={"50px"}>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.RELEASE)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_OPEN ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.RELEASE)}
+        >
           Release Task
         </Button>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.WORK)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_TODO ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.WORK)}
+        >
           Work On Task
         </Button>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.DEMOTE)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.DEMOTE)}
+        >
           Return task to ToDo List
         </Button>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}
+        >
           Seek Approval
         </Button>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}
+        >
           Reject Task
         </Button>
-        <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}>
+        <Button
+          variant="text"
+          sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
+          onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}
+        >
           Approve task
         </Button>
         <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
