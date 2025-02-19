@@ -35,14 +35,11 @@ exports.createTask = async function (req, res) {
 
   const task_state = STATE_OPEN;
   const columnsArray = ["task_id", "task_name", "task_description", "task_notes", "task_plan", "task_app_acronym", "task_state", "task_creator", "task_owner"];
-  const date = new Date();
-
-  const localeTime = date.toLocaleTimeString();
 
   let anyEmptyFields = false;
   // system generate task notes
   // type is 0 for system generated, 1 for user generated
-  const task_notes = [{ text: "CREATE >> OPEN", date_posted: localeTime, creator: process.env.SYSTEM_USER, type: 0 }];
+  const task_notes = [buildNote("CREATE >> OPEN", 0, process.env.SYSTEM_USER)];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
   // validation
   const mandatoryFields = ["task_name", "task_creator"];
