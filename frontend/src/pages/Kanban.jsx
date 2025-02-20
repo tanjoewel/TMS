@@ -81,17 +81,20 @@ const Kanban = () => {
   return (
     <Box sx={{ p: 4 }}>
       {/* Header */}
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        {/* Need app name here */}
-        Task Board - {acronym}
-      </Typography>
-
-      <Button onClick={handleCreateTaskClick}>Create Task</Button>
-
-      {/* Task Board Grid */}
       <Box display={"flex"} justifyContent={"space-between"}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          {/* Need app name here */}
+          Task Board - {acronym}
+        </Typography>
+
+        <Button onClick={handleCreateTaskClick} variant="contained">
+          Create Task
+        </Button>
+      </Box>
+      {/* Task Board Grid */}
+      <Box display={"flex"} justifyContent={"space-between"} paddingTop="20px">
         {states.map((state) => (
-          <Paper elevation={3} sx={{ p: 2, minHeight: "60vh", display: "flex", flexDirection: "column" }} key={state}>
+          <Paper elevation={3} sx={{ p: 2, minHeight: "60vh", display: "flex", flexDirection: "column", width: `${(100 - 15) / states.length}%` }} key={state}>
             <Typography fontWeight="bold" sx={{ mb: 2 }}>
               {state}
             </Typography>
@@ -103,7 +106,6 @@ const Kanban = () => {
                 sx={{
                   p: 1.5,
                   mb: 1.5,
-                  // replace the gray with the color
                   border: `2px solid ${task.Plan_color}`,
                   borderRadius: 1,
                 }}
