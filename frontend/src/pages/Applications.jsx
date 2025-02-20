@@ -105,7 +105,7 @@ const Applications = () => {
             {/* Table body */}
             <TableBody>
               {/* Create application row */}
-              <CreateApplication />
+              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} />
               {/* Applcations */}
               {apps.map((app, index) => {
                 return (

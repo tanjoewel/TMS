@@ -209,3 +209,11 @@ RBAC middleware
   I think that should work? Even for the updating plan?
 
 React router has a useLocation hook to determine which route you are in.
+
+### IMPT
+
+- I want to store the app start date and end date as strings of the form 'MM/DD/YYYY' (this is the output for `new Date().toLocaleDateString()`). This means that I need to
+  - Change the type in the database to VARCHAR(10)
+  - Just pass in the string directly
+  - Change the regex in app controller to only accept string
+  - When return there is no need to convert anything, just directly what is from the database.

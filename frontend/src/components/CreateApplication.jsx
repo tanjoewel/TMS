@@ -5,25 +5,53 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 // CSS for the box itself
 import "../styles.css";
+import Axios from "axios";
 
-const CreateApplication = () => {
-  const [application, setApplication] = useState({
-    acronym: null,
-    runningNumber: null,
-    description: null,
-    startDate: new Date("2025-01-01"),
-    endDate: new Date("2027-02-02"),
-    permitCreate: "",
-    permitOpen: "",
-    permitTodo: "",
-    permitDoing: "",
-    permitDone: "",
-  });
+const CreateApplication = (props) => {
+  const date = new Date();
+  const defaultApp = {
+    App_Acronym: "",
+    App_Description: "",
+    App_Rnumber: "",
+    // startDate: "04/20/2025",
+    // endDate: "07/08/2027", (it will be of this format)
+    App_startDate: date.toLocaleDateString(),
+    App_endDate: new Date(date.setMonth(date.getMonth() + 2)).toLocaleDateString(),
+    App_permit_Create: "",
+    App_permit_Open: "",
+    App_permit_toDoList: "",
+    App_permit_Doing: "",
+    App_permit_Done: "",
+  };
 
-  const groups = ["admin", "PL", "PM", "dev", "test1"];
+  const setShowError = props.setShowError;
+  const setErrorMessage = props.setErrorMessage;
 
-  function handleCreateApplicationClick() {
-    alert("create app clicked");
+  const [application, setApplication] = useState(defaultApp);
+
+  async function handleCreateApplicationClick() {
+    // send create app Axios request here
+    try {
+      // console.log(parseInt(application.App_Rnumber));
+      const axiosResponse = await Axios.post("/app/create", application);
+      setApplication((prev) => ({
+        ...prev,
+        ["App_Acronym"]: "",
+        ["App_Description"]: "",
+        ["App_Rnumber"]: "",
+      }));
+      setShowError(false);
+    } catch (err) {
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
+    }
+  }
+
+  function handleTextfieldChange(event, field) {
+    setApplication((prev) => ({
+      ...prev,
+      [field]: event.target.value,
+    }));
   }
 
   function handleGroupSelect(event, cell) {
@@ -34,14 +62,11 @@ const CreateApplication = () => {
   }
 
   function handleDatePicker(date, field) {
-    console.log("HANDLED DATE PICKER: ", date, field);
-    alert("Date picker clicked");
+    setApplication((prev) => ({
+      ...prev,
+      [field]: date.toLocaleDateString(),
+    }));
   }
-
-  // need to load unique group names, then all the permit cells will use it. for now this is a dummy list of groups
-  useEffect(() => {
-    console.log("Load group names here");
-  }, []);
 
   return (
     <>
@@ -67,6 +92,10 @@ const CreateApplication = () => {
             variant="standard"
             InputProps={{ disableUnderline: true }}
             multiline
+            onChange={(event) => {
+              handleTextfieldChange(event, "App_Acronym");
+            }}
+            value={application.App_Acronym}
           ></TextField>
         </TableCell>
         {/* Running number cell */}
@@ -90,6 +119,10 @@ const CreateApplication = () => {
             variant="standard"
             InputProps={{ disableUnderline: true }}
             multiline
+            onChange={(event) => {
+              handleTextfieldChange(event, "App_Rnumber");
+            }}
+            value={application.App_Rnumber}
           ></TextField>
         </TableCell>
         {/* Description cell */}
@@ -113,31 +146,40 @@ const CreateApplication = () => {
             variant="standard"
             InputProps={{ disableUnderline: true }}
             multiline
+            onChange={(event) => {
+              handleTextfieldChange(event, "App_Description");
+            }}
+            value={application.App_Description}
           ></TextField>
         </TableCell>
         {/* Start date cell (DATEPICKER)*/}
         <TableCell>
           <DatePicker
             className="custom-datepicker"
-            selected={application.startDate}
+            selected={application.App_startDate}
             showIcon
-            onChange={(date) => handleDatePicker(date, "startDate")}
+            onChange={(date) => handleDatePicker(date, "App_startDate")}
           ></DatePicker>
         </TableCell>
         {/* End Date cell (DATEPICKER)*/}
         <TableCell>
-          <DatePicker className="custom-datepicker" selected={application.endDate} showIcon onChange={(date) => handleDatePicker(date, "endDate")}></DatePicker>
+          <DatePicker
+            className="custom-datepicker"
+            selected={application.App_endDate}
+            showIcon
+            onChange={(date) => handleDatePicker(date, "App_endDate")}
+          ></DatePicker>
         </TableCell>
         {/* Permit Create cell */}
         <TableCell>
           <FormControl fullWidth>
             <Select
-              value={application.permitCreate}
-              onChange={(event) => handleGroupSelect(event, "permitCreate")}
+              value={application.App_permit_Create}
+              onChange={(event) => handleGroupSelect(event, "App_permit_Create")}
               renderValue={(selected) => (selected ? selected : "select")}
               displayEmpty
             >
-              {groups.map((group) => (
+              {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
                 </MenuItem>
@@ -149,12 +191,12 @@ const CreateApplication = () => {
         <TableCell>
           <FormControl fullWidth>
             <Select
-              value={application.permitOpen}
-              onChange={(event) => handleGroupSelect(event, "permitOpen")}
+              value={application.App_permit_Open}
+              onChange={(event) => handleGroupSelect(event, "App_permit_Open")}
               renderValue={(selected) => (selected ? selected : "select")}
               displayEmpty
             >
-              {groups.map((group) => (
+              {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
                 </MenuItem>
@@ -166,12 +208,12 @@ const CreateApplication = () => {
         <TableCell>
           <FormControl fullWidth>
             <Select
-              value={application.permitTodo}
-              onChange={(event) => handleGroupSelect(event, "permitTodo")}
+              value={application.App_permit_toDoList}
+              onChange={(event) => handleGroupSelect(event, "App_permit_toDoList")}
               renderValue={(selected) => (selected ? selected : "select")}
               displayEmpty
             >
-              {groups.map((group) => (
+              {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
                 </MenuItem>
@@ -183,12 +225,12 @@ const CreateApplication = () => {
         <TableCell>
           <FormControl fullWidth>
             <Select
-              value={application.permitDoing}
-              onChange={(event) => handleGroupSelect(event, "permitDoing")}
+              value={application.App_permit_Doing}
+              onChange={(event) => handleGroupSelect(event, "App_permit_Doing")}
               renderValue={(selected) => (selected ? selected : "select")}
               displayEmpty
             >
-              {groups.map((group) => (
+              {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
                 </MenuItem>
@@ -200,12 +242,12 @@ const CreateApplication = () => {
         <TableCell>
           <FormControl fullWidth>
             <Select
-              value={application.permitDone}
-              onChange={(event) => handleGroupSelect(event, "permitDone")}
+              value={application.App_permit_Done}
+              onChange={(event) => handleGroupSelect(event, "App_permit_Done")}
               renderValue={(selected) => (selected ? selected : "select")}
               displayEmpty
             >
-              {groups.map((group) => (
+              {props.groups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {group}
                 </MenuItem>
