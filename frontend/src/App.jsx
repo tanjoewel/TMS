@@ -8,7 +8,7 @@ import Header from "./components/Header";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import Tasks from "./pages/Tasks";
+import Applications from "./pages/Applications";
 import NotFound from "./pages/NotFound";
 // authentication and authorization
 import AdminRoute from "./components/AdminRoute";
@@ -16,6 +16,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // contexts
 import { AuthProvider } from "./AuthContext";
 import { SnackbarProvider } from "./SnackbarContext";
+import Kanban from "./pages/Kanban";
+import Task from "./pages/Task";
 
 function App() {
   return (
@@ -29,7 +31,10 @@ function App() {
               <Route path="/users" element={<Users />} />
             </Route>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/app" element={<Applications />} />
+            <Route path="/app/:acronym" element={<Kanban />} />
+            <Route path="/app/:acronym/task/:taskID" element={<Task type="view" />} />
+            <Route path="/app/:acronym/create" element={<Task type="create" />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

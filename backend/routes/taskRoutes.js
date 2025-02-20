@@ -10,6 +10,7 @@ router.use(authenticateToken);
 
 // crud apis
 router.get("/", taskController.getTasksForApp);
+router.get("/:taskID", taskController.getTaskByIDRoute);
 router.post("/create", taskController.createTask);
 router.patch("/update/:taskID", authenticateTask, taskController.updateTask);
 

@@ -8,7 +8,7 @@ import { SNACKBAR_SEVERITIES, useSnackbar } from "../SnackbarContext";
 Axios.defaults.baseURL = "http://localhost:8080";
 Axios.defaults.withCredentials = true;
 
-const Home = () => {
+const Login = () => {
   const navigate = useNavigate();
   const { login, setIsAuthenticated, setIsAdmin } = useAuth();
   const LoginButton = styled(Button)({
@@ -34,7 +34,7 @@ const Home = () => {
         if (res.data.isAdmin) {
           setIsAdmin(true);
         }
-        navigate("/tasks");
+        navigate("/app");
       }
     } catch (e) {
       // const snackbarMessage = "Invalid login. Please try again.";
@@ -73,6 +73,11 @@ const Home = () => {
           sx={{
             width: "250px",
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleClick(); // Call the same function as the button
+            }
+          }}
           onChange={(e) => {
             setUsername(e.target.value);
           }}
@@ -82,6 +87,11 @@ const Home = () => {
           label="Password"
           value={password}
           fullWidth
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleClick(); // Call the same function as the button
+            }
+          }}
           onChange={(e) => {
             setPassword(e.target.value);
           }}
@@ -110,4 +120,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Login;

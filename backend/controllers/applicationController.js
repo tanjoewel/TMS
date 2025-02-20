@@ -184,7 +184,7 @@ exports.getApplication = async function (acronym) {
     const result = await executeQuery(query, [acronym]);
     if (result.length === 0) {
       const error = new Error("There is no app with such an acronym");
-      error.code = 400;
+      error.code = 404;
       throw error;
     }
     return result;

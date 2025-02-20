@@ -26,8 +26,6 @@ exports.createTask = async function (req, res) {
   });
   const permitted = userGroups.includes(permittedGroup) || userGroups.includes(process.env.HARDCODED_PL_GROUP);
 
-  console.log(userGroups);
-
   if (!permitted) {
     res.status(403).json({ message: "User is not authorized to perform this action" });
     return;
@@ -37,14 +35,11 @@ exports.createTask = async function (req, res) {
 
   const task_state = STATE_OPEN;
   const columnsArray = ["task_id", "task_name", "task_description", "task_notes", "task_plan", "task_app_acronym", "task_state", "task_creator", "task_owner"];
-  const date = new Date();
-
-  const localeTime = date.toLocaleTimeString();
 
   let anyEmptyFields = false;
   // system generate task notes
   // type is 0 for system generated, 1 for user generated
-  const task_notes = [{ text: "CREATE >> OPEN", date_posted: localeTime, creator: process.env.SYSTEM_USER, type: 0 }];
+  const task_notes = [buildNote("CREATE >> OPEN", 0, process.env.SYSTEM_USER)];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
   // validation
   const mandatoryFields = ["task_name", "task_creator"];
@@ -336,10 +331,28 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
   }
 };
 
+exports.getTaskByIDRoute = async function (req, res) {
+  const { taskID } = req.params;
+  try {
+    const getTaskResult = await exports.getTaskByID(taskID);
+    const task = getTaskResult[0];
+    const parsedNotes = JSON.parse(task.Task_notes);
+    task.Task_notes = parsedNotes;
+    res.send(task);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
 exports.getTaskByID = async function (taskID) {
   const getQuery = "SELECT * FROM task WHERE (task_id = ?);";
   try {
     const result = await executeQuery(getQuery, [taskID]);
+    if (result.length === 0) {
+      const error = new Error("Task with specified ID does not exist");
+      error.code = 404;
+      throw error;
+    }
     return result;
   } catch (err) {
     const error = new Error("Error getting task: " + err.message);
@@ -352,6 +365,6 @@ exports.getTaskByID = async function (taskID) {
  * Helper function to build a note. This is simply here to prevent the mental overhead of building the JSON object and having to remember the date posted field.
  */
 function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
-  const newNote = { text: notesBody, date_posted: new Date().toLocaleTimeString(), creator: noteCreator, type };
+  const newNote = { text: notesBody, date_posted: new Date().toLocaleString(), creator: noteCreator, type };
   return newNote;
 }
