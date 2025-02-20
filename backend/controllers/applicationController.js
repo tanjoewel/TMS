@@ -54,14 +54,15 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  const dateRegex = /^(18|19|20|21)\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])$/;
+  // might need to reconsider how we store dates, this is subject to timezone issues like UTC conversion issues
+  const dateRegex = /^(18|19|20|21)\d{2}[-/](0[1-9]|1[1,2])[-/](0[1-9]|[12][0-9]|3[01])$/;
   if (!App_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'YYYY-MM-DD'" });
+    res.status(400).json({ message: "Start date must be of the form 'YYYY-MM-DD' or 'YYYY/MM/DD'" });
     return;
   }
 
   if (!App_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'YYYY-MM-DD'" });
+    res.status(400).json({ message: "End date must be of the form 'YYYY-MM-DD' or 'YYYY/MM/DD'" });
     return;
   }
 
