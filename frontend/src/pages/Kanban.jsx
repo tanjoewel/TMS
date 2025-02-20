@@ -49,8 +49,6 @@ const Kanban = () => {
   }
 
   useEffect(() => {
-    // get the tasks from app here, if it is not a valid acronym go to 404 not found as people can just directly enter the URL
-    // i have to get plans as well so i know how to color them (maybe i can just do a joined query though) when i get all tasks from app
     const a = async () => {
       try {
         setLoading(true);
@@ -69,12 +67,10 @@ const Kanban = () => {
   }, []);
 
   function handleTaskClick(taskID) {
-    // the task here should return us the task id that then allows us to navigate into the task page
     navigate(`/app/${acronym}/task/${taskID}`);
   }
 
   function handleCreateTaskClick() {
-    console.log(acronym);
     navigate(`/app/${acronym}/create`);
   }
 
@@ -108,7 +104,7 @@ const Kanban = () => {
                   p: 1.5,
                   mb: 1.5,
                   // replace the gray with the color
-                  border: `2px solid gray`,
+                  border: `2px solid ${task.Plan_color}`,
                   borderRadius: 1,
                 }}
                 key={task.Task_id}

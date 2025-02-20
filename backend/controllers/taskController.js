@@ -78,14 +78,14 @@ exports.createTask = async function (req, res) {
 exports.getTasksForApp = async function (req, res) {
   // the app will be in the params
   const { acronym } = req.params;
-  const query = "SELECT * FROM task WHERE (task_app_acronym=?)";
+  const query = "SELECT Task_id, Task_state, Plan_color, Task_name FROM task LEFT JOIN plan ON task.Task_plan=plan.Plan_MVP_name WHERE (task_app_acronym=?);";
   try {
     const result = await executeQuery(query, [acronym]);
     // format the result here before sending to frontend - probably don't want to be sending everything
-    result.map((task) => {
-      const formattedNotes = JSON.parse(task.Task_notes);
-      task["Task_notes"] = formattedNotes;
-    });
+    // result.map((task) => {
+    //   const formattedNotes = JSON.parse(task.Task_notes);
+    //   task["Task_notes"] = formattedNotes;
+    // });
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });

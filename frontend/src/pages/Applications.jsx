@@ -13,7 +13,6 @@ import {
   TableCell,
   MenuItem,
   Typography,
-  Switch,
   FormControl,
   Select,
 } from "@mui/material";
