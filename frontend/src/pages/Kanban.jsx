@@ -5,23 +5,6 @@ import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from ".
 import Axios from "axios";
 
 const Kanban = () => {
-  /*
-  TODOs for this page:
-  1. Get all the tasks for the app
-    1.5 Get the tasks state up and running, and the UI to use and manipulate that state
-  2. Sort the tasks into its statuses
-  3. Assign the tasks the plan colours
-  4. Create task button (should be quite fast)
-  */
-  // dummy data just to make sure the UI works - this is not even in the right format actually
-  const taskColumns = [
-    { title: "OPEN", color: "#000", tasks: ["API for saving customer info", "Design UI/UX for mobile app"] },
-    { title: "TO-DO", color: "#FFD700", tasks: ["Calculate salary", "Design UI/UX for floor plan", "API for serving coffee"] },
-    { title: "DOING", color: "#32CD32", tasks: ["Find new hires"] },
-    { title: "DONE", color: "#FFA500", tasks: ["API for making coffee"] },
-    { title: "CLOSED", color: "#8A2BE2", tasks: ["Design UI/UX for coffees"] },
-  ];
-
   const states = [STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED];
 
   const [tasks, setTasks] = useState([]);
