@@ -68,17 +68,19 @@ const Kanban = () => {
     a();
   }, []);
 
-  function handleTaskClick(event, task) {
+  function handleTaskClick(taskID) {
     // the task here should return us the task id that then allows us to navigate into the task page
-    console.log(event.target.value, task);
-    alert("task button clicked");
+    navigate(`/app/${acronym}/task/${taskID}`);
+  }
+
+  function handleCreateTaskClick() {
+    console.log(acronym);
+    navigate(`/app/${acronym}/create`);
   }
 
   if (loading) {
     return <div>Loading...</div>;
   }
-
-  console.log("GET TASK BY STATE: ", getTasksByState(STATE_OPEN));
 
   return (
     <Box sx={{ p: 4 }}>
@@ -88,7 +90,7 @@ const Kanban = () => {
         Task Board - {acronym}
       </Typography>
 
-      <Button>Create Task</Button>
+      <Button onClick={handleCreateTaskClick}>Create Task</Button>
 
       {/* Task Board Grid */}
       <Box display={"flex"} justifyContent={"space-between"}>
@@ -105,11 +107,13 @@ const Kanban = () => {
                 sx={{
                   p: 1.5,
                   mb: 1.5,
+                  // replace the gray with the color
                   border: `2px solid gray`,
                   borderRadius: 1,
                 }}
+                key={task.Task_id}
               >
-                <Button onClick={(event) => handleTaskClick(event)}>{task.Task_name}</Button>
+                <Button onClick={() => handleTaskClick(task.Task_id)}>{task.Task_name}</Button>
               </Paper>
             ))}
           </Paper>
