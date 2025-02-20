@@ -217,3 +217,6 @@ React router has a useLocation hook to determine which route you are in.
   - Just pass in the string directly
   - Change the regex in app controller to only accept string
   - When return there is no need to convert anything, just directly what is from the database.
+- TODOs
+  - APIs in applications.jsx
+  - Re-rendering after creating app
