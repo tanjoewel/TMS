@@ -218,7 +218,7 @@ React router has a useLocation hook to determine which route you are in.
   - Change the regex in app controller to only accept string
   - When return there is no need to convert anything, just directly what is from the database.
 - TODOs
-  - APIs in applications.jsx
+  - APIs in applications.jsx (done)
   - Re-rendering after creating app (done)
   - Create plan UI in kanban board page
     - Plan_color is randomly generated in the backend

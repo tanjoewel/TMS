@@ -123,16 +123,7 @@ exports.getAllApplications = async function (req, res) {
 exports.updateApplication = async function (req, res) {
   // all fields except for acronym and RNumber are editable and are all optional
   const { acronym } = req.params;
-  const {
-    appDescription: App_Description,
-    appStartDate: App_startDate,
-    appEndDate: App_endDate,
-    appPermitCreate: App_permit_Create,
-    appPermitOpen: App_permit_Open,
-    appPermitToDoList: App_permit_toDoList,
-    appPermitDoing: App_permit_Doing,
-    appPermitDone: App_permit_Done,
-  } = req.body;
+  const { App_Description, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done } = req.body;
 
   const updateBuilderArgs = [];
   const values = [];

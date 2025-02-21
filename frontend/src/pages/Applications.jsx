@@ -77,9 +77,21 @@ const Applications = () => {
     setApps(newApps);
   }
 
-  function handleUpdateApplicationClick(index) {
-    console.log("index: ", apps[index]);
-    // alert("update application clicked");
+  async function handleUpdateApplicationClick(index) {
+    const appToUpdate = apps[index];
+    try {
+      const axiosResponse = await Axios.patch(`app/update/${appToUpdate.App_Acronym}`, appToUpdate);
+      const snackbarMessage = "App has been successfully updated.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      setShowError(false);
+    } catch (err) {
+      if (err.status === 403) {
+        window.location.reload();
+      }
+      console.log(err);
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
+    }
   }
 
   function handleAppAcronymClick(acronym) {

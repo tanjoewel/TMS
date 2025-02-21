@@ -50,12 +50,6 @@ const Task = (props) => {
     CREATE: 8,
   };
 
-  // const STATE_OPEN = "OPEN";
-  // const STATE_TODO = "TODO";
-  // const STATE_DOING = "DOING";
-  // const STATE_DONE = "DONE";
-  // const STATE_CLOSED = "CLOSED";
-
   const VIEW_TYPE = "view";
   const CREATE_TYPE = "create";
 
@@ -81,7 +75,6 @@ const Task = (props) => {
           await getTask();
         }
         await getPlans();
-        setLoading(false);
       } catch (err) {
         // only some kinds of error we want to route to 404, basically if the backend throws a 404 itself
         if (err.status === 404) {
@@ -89,6 +82,8 @@ const Task = (props) => {
         } else {
           console.log(err);
         }
+      } finally {
+        setLoading(false);
       }
     };
     a();

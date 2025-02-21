@@ -30,10 +30,6 @@ const Header = () => {
     navigate("/profile");
   }
 
-  function handleClickTest(e) {
-    navigate("/app/TMS1/task/TMS1_153");
-  }
-
   return (
     <AppBar position="static" color="default" elevation={0}>
       <Toolbar style={{ justifyContent: "space-between" }}>
@@ -45,9 +41,6 @@ const Header = () => {
             <Box style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <Button color="inherit" variant="outlined" onClick={handleClickTask}>
                 Task Management
-              </Button>
-              <Button color="inherit" variant="outlined" onClick={handleClickTest}>
-                Test
               </Button>
               {isAdmin ? (
                 <Button color="inherit" variant="outlined" onClick={handleClickUser}>
