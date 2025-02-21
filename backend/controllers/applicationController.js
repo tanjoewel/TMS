@@ -4,22 +4,22 @@ const { isValueEmpty } = require("../util/validation");
 exports.createApplication = async function (req, res) {
   // extract the request body. This will need some effort to sync with the frontend
   // Can destructure and rename in the same line like:
-  // const {appAcronym: app_acronym, appDescription: app_description} = req.body;
+  // const {appAcronym: App_Acronym, appDescription: App_Description} = req.body;
   const {
-    app_acronym,
-    app_description,
-    app_rNumber,
-    app_startDate,
-    app_endDate,
-    app_permit_create,
-    app_permit_open,
-    app_permit_toDoList,
-    app_permit_doing,
-    app_permit_done,
+    App_Acronym,
+    App_Description,
+    App_Rnumber,
+    App_startDate,
+    App_endDate,
+    App_permit_Create,
+    App_permit_Open,
+    App_permit_toDoList,
+    App_permit_Doing,
+    App_permit_Done,
   } = req.body;
 
   // validation (oh boy theres alot of them)
-  const mandatoryFields = ["app_rNumber", "app_acronym"];
+  const mandatoryFields = ["App_Rnumber", "App_Acronym"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -33,64 +33,75 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  if (app_rNumber < 0) {
+  const numberRegex = /^\d{1,4}$/;
+  if (!App_Rnumber.match(numberRegex)) {
+    res.status(400).json({ message: "App running number must be a positive number between 0 and 9999" });
+    return;
+  }
+
+  const rNumber = parseInt(App_Rnumber);
+
+  if (rNumber < 0) {
     res.status(400).json({ message: "App running number must not be negative" });
     return;
   }
 
-  if (app_acronym.length > 20) {
+  if (App_Acronym.length > 20) {
     res.status(400).json({ message: "App acronym must be between 1 and 20 characters inclusive" });
     return;
   }
 
-  if (app_description.length > 1000) {
+  if (App_Description.length > 1000) {
     res.status(400).json({ message: "App description must be less than 1000 characters" });
     return;
   }
 
   const alphanumericRegex = /^[0-9a-zA-Z]+$/;
-  if (!app_acronym.match(alphanumericRegex)) {
+  if (!App_Acronym.match(alphanumericRegex)) {
     res.status(400).json({ message: "App acronym must only contain alphanumeric characters" });
     return;
   }
 
-  const dateRegex = /^(18|19|20|21)\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])$/;
-  if (!app_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'YYYY-MM-DD'" });
+  // check for MM/DD/YYYY. storing this directly in the DB as a varchar
+  const dateRegex = /^(0?[1-9]|1[1,2])\/(0?[1-9]|[12][0-9]|3[01])\/(18|19|20|21)\d{2}$/;
+  if (!App_startDate.match(dateRegex)) {
+    res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
     return;
   }
 
-  if (!app_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'YYYY-MM-DD'" });
+  if (!App_endDate.match(dateRegex)) {
+    res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
     return;
   }
 
   const query = createQueryBuilder("application", [
-    "app_acronym",
-    "app_description",
-    "app_rNumber",
-    "app_startDate",
-    "app_endDate",
-    "app_permit_create",
-    "app_permit_open",
-    "app_permit_toDoList",
-    "app_permit_doing",
-    "app_permit_done",
+    "App_Acronym",
+    "App_Description",
+    "App_Rnumber",
+    "App_startDate",
+    "App_endDate",
+    "App_permit_Create",
+    "App_permit_Open",
+    "App_permit_toDoList",
+    "App_permit_Doing",
+    "App_permit_Done",
   ]);
 
+  const argsArray = [
+    App_Acronym,
+    App_Description,
+    rNumber,
+    App_startDate,
+    App_endDate,
+    App_permit_Create,
+    App_permit_Open,
+    App_permit_toDoList,
+    App_permit_Doing,
+    App_permit_Done,
+  ];
+
   try {
-    const result = await executeQuery(query, [
-      app_acronym,
-      app_description,
-      app_rNumber,
-      app_startDate,
-      app_endDate,
-      app_permit_create,
-      app_permit_open,
-      app_permit_toDoList,
-      app_permit_doing,
-      app_permit_done,
-    ]);
+    const result = await executeQuery(query, argsArray);
     res.send("Application successfully created");
   } catch (err) {
     res.status(500).json({ message: "Error creating application: " + err.message });
@@ -113,33 +124,33 @@ exports.updateApplication = async function (req, res) {
   // all fields except for acronym and RNumber are editable and are all optional
   const { acronym } = req.params;
   const {
-    appDescription: app_description,
-    appStartDate: app_startDate,
-    appEndDate: app_endDate,
-    appPermitCreate: app_permit_create,
-    appPermitOpen: app_permit_open,
-    appPermitToDoList: app_permit_toDoList,
-    appPermitDoing: app_permit_doing,
-    appPermitDone: app_permit_done,
+    appDescription: App_Description,
+    appStartDate: App_startDate,
+    appEndDate: App_endDate,
+    appPermitCreate: App_permit_Create,
+    appPermitOpen: App_permit_Open,
+    appPermitToDoList: App_permit_toDoList,
+    appPermitDoing: App_permit_Doing,
+    appPermitDone: App_permit_Done,
   } = req.body;
 
   const updateBuilderArgs = [];
   const values = [];
 
-  const argsArray = [app_description, app_startDate, app_endDate, app_permit_create, app_permit_open, app_permit_toDoList, app_permit_doing, app_permit_done];
+  const argsArray = [App_Description, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done];
   const columnNamesArray = [
-    "app_description",
-    "app_startDate",
-    "app_endDate",
-    "app_permit_create",
-    "app_permit_open",
-    "app_permit_toDoList",
-    "app_permit_doing",
-    "app_permit_done",
+    "App_Description",
+    "App_startDate",
+    "App_endDate",
+    "App_permit_Create",
+    "App_permit_Open",
+    "App_permit_toDoList",
+    "App_permit_Doing",
+    "App_permit_Done",
   ];
 
-  if (app_description) {
-    if (app_description.length > 65536) {
+  if (App_Description) {
+    if (App_Description.length > 65536) {
       res.status(400).json({ message: "App description must be less than 65536 characters long" });
       return;
     }
@@ -153,7 +164,7 @@ exports.updateApplication = async function (req, res) {
   }
   values.push(acronym);
 
-  const updateQuery = updateQueryBuilder("application", "app_acronym", updateBuilderArgs);
+  const updateQuery = updateQueryBuilder("application", "App_Acronym", updateBuilderArgs);
   try {
     const updateResult = await executeQuery(updateQuery, values);
     res.send("Application successfully updated");
@@ -174,7 +185,7 @@ exports.getApplicationRoute = async function (req, res) {
 };
 
 exports.getApplication = async function (acronym) {
-  const query = "SELECT * FROM application WHERE (app_acronym = ?)";
+  const query = "SELECT * FROM application WHERE (App_Acronym = ?)";
   if (acronym.trim().length === 0) {
     const error = new Error("App acronym cannot be empty");
     error.code = 400;

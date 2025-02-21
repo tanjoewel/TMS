@@ -13,7 +13,6 @@ import {
   TableCell,
   MenuItem,
   Typography,
-  Switch,
   FormControl,
   Select,
 } from "@mui/material";
@@ -31,6 +30,7 @@ const Applications = () => {
   const [errorMessage, setErrorMessage] = useState("lmao");
   const [apps, setApps] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -55,8 +55,18 @@ const Applications = () => {
 
   // when the page first loads, get the applications and unique groups from the database
   useEffect(() => {
-    getDistinctGroups();
-    getApps();
+    const a = async () => {
+      try {
+        setLoading(true);
+        await getDistinctGroups();
+        await getApps();
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    a();
   }, []);
 
   function handleDatePicker(date, field) {
@@ -74,6 +84,10 @@ const Applications = () => {
 
   function handleAppAcronymClick(acronym) {
     navigate(`/app/${acronym}`);
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -106,7 +120,7 @@ const Applications = () => {
             {/* Table body */}
             <TableBody>
               {/* Create application row */}
-              <CreateApplication />
+              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} />
               {/* Applcations */}
               {apps.map((app, index) => {
                 return (
