@@ -38,7 +38,6 @@ exports.createTask = async function (req, res) {
 
   let anyEmptyFields = false;
   // system generate task notes
-  // type is 0 for system generated, 1 for user generated
   const task_notes = [buildNote("CREATE >> OPEN", 0, process.env.SYSTEM_USER)];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
   // validation
@@ -363,6 +362,7 @@ exports.getTaskByID = async function (taskID) {
 
 /**
  * Helper function to build a note. This is simply here to prevent the mental overhead of building the JSON object and having to remember the date posted field.
+ * type is 0 for system generated, 1 for user generated
  */
 function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
   const newNote = { text: notesBody, date_posted: new Date().toLocaleString(), creator: noteCreator, type };
