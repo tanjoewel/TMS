@@ -342,7 +342,7 @@ exports.getTaskByIDRoute = async function (req, res) {
   try {
     const getTaskResult = await exports.getTaskByID(taskID);
     const task = getTaskResult[0];
-    const parsedNotes = JSON.parse(task.Task_notes);
+    const parsedNotes = JSON.parse(task.Task_notes).reverse();
     task.Task_notes = parsedNotes;
     res.send(task);
   } catch (err) {
