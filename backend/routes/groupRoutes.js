@@ -9,7 +9,8 @@ const checkAdmin = require("../middleware/checkAdmin");
 router.use(authenticateToken);
 
 router.get("/", groupController.getDistinctGroups);
-router.get("/:username", groupController.isUserPM);
+router.get("/isPM/:username", groupController.isUserPM);
+router.get("/canCreate/:username/:acronym", groupController.canCreateTask);
 router.post("/checkgroup", groupController.checkGroupRoute);
 router.post("/assign", checkAdmin, groupController.assignGroup);
 router.post("/create", checkAdmin, groupController.createGroup);

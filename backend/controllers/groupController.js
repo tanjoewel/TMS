@@ -1,5 +1,5 @@
 const { executeQuery } = require("../util/sql");
-const { addGroupRow, getDistinctGroups } = require("../util/commonQueries");
+const { addGroupRow, getDistinctGroups, getAppPermissions } = require("../util/commonQueries");
 require("dotenv").config();
 
 // needed to display the groups in drop down
@@ -31,6 +31,20 @@ exports.isUserPM = async function (req, res) {
     const groups = await exports.getGroups(username);
     const isPM = groups.includes(process.env.HARDCODED_PM_GROUP);
     res.send(isPM);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
+exports.canCreateTask = async function (req, res) {
+  const { username, acronym } = req.params;
+  try {
+    const groups = await exports.getGroups(username);
+    // get the permit_create from applications table
+    const permitCreateGroup = await getAppPermissions(acronym, "App_permit_Create");
+
+    const canCreate = groups.includes(process.env.HARDCODED_PL_GROUP) || groups.includes(permitCreateGroup);
+    res.send(canCreate);
   } catch (err) {
     res.status(err.code || 500).json({ message: err.message });
   }

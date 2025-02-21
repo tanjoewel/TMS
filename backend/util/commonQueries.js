@@ -48,3 +48,15 @@ exports.getDistinctGroups = async function () {
     throw new Error("Error fetching groups: " + err.message);
   }
 };
+
+exports.getAppPermissions = async function (acronym, permission) {
+  // idk why using wildcard did not work
+  const getPermissionsQuery = `SELECT ${permission} FROM application WHERE (App_Acronym=?)`;
+  // "SELECT App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done FROM application WHERE (App_Acronym=?)";
+  try {
+    const result = await executeQuery(getPermissionsQuery, [acronym]);
+    return result[0][permission];
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};

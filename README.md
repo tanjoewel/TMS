@@ -216,6 +216,7 @@ React router has a useParams hook to determine extract the parameters from the U
   - Change the regex in app controller to only accept string
   - When return there is no need to convert anything, just directly what is from the database.
 - TODOs
+
   - APIs in applications.jsx (done)
   - Re-rendering after creating app (done)
   - Create plan UI in kanban board page
@@ -223,9 +224,21 @@ React router has a useParams hook to determine extract the parameters from the U
     - Only the hardcoded PM can see it (the validation is already done on the backend)
   - I probably need to check the role of the user in the frontend so that I can hide or display certain buttons in kanban/task page. (done for the create plan component)
     - I also need to do so for create task, now i could make another route in the backend, but I will probably need to do this thing of checking the user against a permit_XXXX. So I do need to think of how to design in a way that is easily understandable and extensible.
-    - The other place where I will need this is in the task page, where only the user that has the corresponding permission for that state can do anything in that state.
-  - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body).
+    - The other place where I will need this is in the task page, where only the user that has the corresponding permission for that state can do anything in that state. To spell it out a bit more,
+      - Only users in the group that is in that state can see any of the buttons in the bottom row, and can add note.
+      - Only hardcoded PL and users in the permit_create group can see the Create Task button in the kanban board.
+  - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body). (done)
     - The logic of dealing with the task owner do later.
     - Actually, is there anything logic pertaining to the task owner?
       - Should it be that only the task owner can add notes to the task? If so this would only affect literally the save changes button in the task page.
-  - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes.
+  - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes. (done)
+
+### DELETE WHEN DONE
+
+- if i do on frontend, then what info do i need to pass to backend and what info do i need?
+  - i need the user groups, and the permissions for that particular state
+  - if i do on frontend, i need to pass in the state (username can get from token).
+  - if i do on backend, i need a route for every state right? which is not extensible at all.
+  - also on the frontend, how do i design the state (as in useState state) so that i dont have a state for all the different states
+    - i think the easy way is to have one API call, pass in maybe as a request body or a route param the state, then the backend checks the user against that the permissions of the state and simply returns true or false
+    - then on the frontend, the task page i can just have one single state like isAuth, and then since everytime the state changes or it updates the page is re-rendered, we can just call the API in the useEffect and set isAuth appropriately.

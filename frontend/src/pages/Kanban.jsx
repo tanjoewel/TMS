@@ -12,6 +12,7 @@ const Kanban = () => {
   const [tasks, setTasks] = useState([]);
   const [plans, setPlans] = useState([]);
   const [isPM, setIsPM] = useState(false);
+  const [canCreateTask, setCanCreateTask] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +30,19 @@ const Kanban = () => {
     setPlans(appPlans.data);
   }
 
-  async function getUserGroups() {
+  async function getIsPM() {
     try {
-      const axiosResponse = await Axios.get(`/groups/${username}`);
+      const axiosResponse = await Axios.get(`/groups/isPM/${username}`);
       setIsPM(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function getCanCreateTask() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/canCreate/${username}/${acronym}`);
+      setCanCreateTask(axiosResponse.data);
     } catch (err) {
       console.log(err);
     }
@@ -51,7 +61,8 @@ const Kanban = () => {
         setLoading(true);
         await getTasks();
         await getPlans();
-        await getUserGroups();
+        await getIsPM();
+        await getCanCreateTask();
         setLoading(false);
       } catch (err) {
         if (err.status === 404) {
@@ -85,9 +96,14 @@ const Kanban = () => {
           Task Board - {acronym}
         </Typography>
 
-        <Button onClick={handleCreateTaskClick} variant="contained">
-          Create Task
-        </Button>
+        {/* Can only see the create task button if it is authorized by backend */}
+        {canCreateTask ? (
+          <Button onClick={handleCreateTaskClick} variant="contained">
+            Create Task
+          </Button>
+        ) : (
+          <></>
+        )}
       </Box>
       {/* Remember to make this only visible to user if it is hardcoded PM */}
       {isPM ? <CreatePlan /> : <></>}
