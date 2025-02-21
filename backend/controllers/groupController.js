@@ -45,7 +45,7 @@ exports.canCreateTask = async function (req, res) {
     // get the permit_create from applications table
     const permitCreateGroup = await getAppPermissions(acronym, "App_permit_Create");
 
-    const canCreate = groups.includes(process.env.HARDCODED_PL_GROUP) || groups.includes(permitCreateGroup);
+    const canCreate = groups.includes(permitCreateGroup);
     res.send(canCreate);
   } catch (err) {
     res.status(err.code || 500).json({ message: err.message });
