@@ -224,3 +224,5 @@ React router has a useLocation hook to determine which route you are in.
     - Plan_color is randomly generated in the backend
     - Only the hardcoded PM can see it (the validation is already done on the backend)
   - I probably need to check the role of the user in the frontend so that I can hide or display certain buttons in kanban/task page.
+  - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body).
+    - The logic of dealing with the task owner do later.

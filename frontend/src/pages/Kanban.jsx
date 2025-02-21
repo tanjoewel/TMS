@@ -1,20 +1,23 @@
-import { Grid2, Paper, Typography, Box, Button, StepConnector } from "@mui/material";
+import { Paper, Typography, Box, Button } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 import Axios from "axios";
 import CreatePlan from "../components/CreatePlan";
+import { useAuth } from "../AuthContext";
 
 const Kanban = () => {
   const states = [STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED];
 
   const [tasks, setTasks] = useState([]);
   const [plans, setPlans] = useState([]);
+  const [isPM, setIsPM] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
   const { acronym } = useParams();
   const navigate = useNavigate();
+  const { username } = useAuth();
 
   async function getTasks() {
     const appTasks = await Axios.get(`/app/${acronym}/task`);
@@ -24,6 +27,15 @@ const Kanban = () => {
   async function getPlans() {
     const appPlans = await Axios.get(`/app/${acronym}/plan`);
     setPlans(appPlans.data);
+  }
+
+  async function getUserGroups() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/${username}`);
+      setIsPM(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   function getTasksByState(state) {
@@ -39,6 +51,7 @@ const Kanban = () => {
         setLoading(true);
         await getTasks();
         await getPlans();
+        await getUserGroups();
         setLoading(false);
       } catch (err) {
         if (err.status === 404) {
@@ -77,7 +90,7 @@ const Kanban = () => {
         </Button>
       </Box>
       {/* Remember to make this only visible to user if it is hardcoded PM */}
-      <CreatePlan />
+      {isPM ? <CreatePlan /> : <></>}
       {/* Task Board Grid */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop="20px">
         {states.map((state) => (

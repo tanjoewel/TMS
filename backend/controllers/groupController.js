@@ -25,11 +25,12 @@ exports.assignGroup = async function (req, res) {
   }
 };
 
-exports.getOneUsersGroups = async function (req, res) {
+exports.isUserPM = async function (req, res) {
   const { username } = req.params;
   try {
     const groups = await exports.getGroups(username);
-    res.send(groups);
+    const isPM = groups.includes(process.env.HARDCODED_PM_GROUP);
+    res.send(isPM);
   } catch (err) {
     res.status(err.code || 500).json({ message: err.message });
   }
