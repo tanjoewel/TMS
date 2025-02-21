@@ -5,6 +5,9 @@ import Axios from "axios";
 import { useAuth } from "../AuthContext";
 import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 
+/**
+ * This component is overloaded -> the props.type determines if the component is a create task component or a view task component.
+ */
 const Task = (props) => {
   const { username } = useAuth();
   const [errorMessage, setErrorMessage] = useState("lmao");
@@ -146,9 +149,11 @@ const Task = (props) => {
       setErrorMessage(err.response.data.message);
       setShowError(true);
       // this will call the APIs which will cause protectedroutes to trigger if it is invalid jwt
-      setUpdatePage((prev) => {
-        return prev + 1;
-      });
+      if (err.status === 403) {
+        setUpdatePage((prev) => {
+          return prev + 1;
+        });
+      }
       console.log(err.response.data.message);
     }
   }

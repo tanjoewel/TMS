@@ -208,9 +208,7 @@ RBAC middleware
 - And simply return true or false. If it is false, then send 403 to frontend.
   I think that should work? Even for the updating plan?
 
-React router has a useLocation hook to determine which route you are in.
-
-### IMPT
+React router has a useParams hook to determine extract the parameters from the URL.
 
 - I want to store the app start date and end date as strings of the form 'MM/DD/YYYY' (this is the output for `new Date().toLocaleDateString()`). This means that I need to
   - Change the type in the database to VARCHAR(10)
@@ -223,6 +221,10 @@ React router has a useLocation hook to determine which route you are in.
   - Create plan UI in kanban board page
     - Plan_color is randomly generated in the backend
     - Only the hardcoded PM can see it (the validation is already done on the backend)
-  - I probably need to check the role of the user in the frontend so that I can hide or display certain buttons in kanban/task page.
+  - I probably need to check the role of the user in the frontend so that I can hide or display certain buttons in kanban/task page. (done for the create plan component)
+    - I also need to do so for create task, now i could make another route in the backend, but I will probably need to do this thing of checking the user against a permit_XXXX. So I do need to think of how to design in a way that is easily understandable and extensible.
+    - The other place where I will need this is in the task page, where only the user that has the corresponding permission for that state can do anything in that state.
   - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body).
     - The logic of dealing with the task owner do later.
+    - Actually, is there anything logic pertaining to the task owner?
+      - Should it be that only the task owner can add notes to the task?
