@@ -110,6 +110,7 @@ const Task = (props) => {
     const stateTransitionBody = {
       notesBody: newNotes,
       noteCreator: username,
+      taskPlan: task.Task_plan,
     };
     const updateBody = { notesBody: newNotes, noteCreator: username, plan: task.Task_plan };
     try {

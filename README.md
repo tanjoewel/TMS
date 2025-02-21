@@ -227,5 +227,5 @@ React router has a useParams hook to determine extract the parameters from the U
   - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body).
     - The logic of dealing with the task owner do later.
     - Actually, is there anything logic pertaining to the task owner?
-      - Should it be that only the task owner can add notes to the task?
+      - Should it be that only the task owner can add notes to the task? If so this would only affect literally the save changes button in the task page.
   - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes.
