@@ -39,7 +39,7 @@ const Kanban = () => {
         await getPlans();
         setLoading(false);
       } catch (err) {
-        if (err.code === 404) {
+        if (err.status === 404) {
           navigate("/404");
         } else {
           console.log(err);

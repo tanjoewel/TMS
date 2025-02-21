@@ -84,7 +84,7 @@ const Task = (props) => {
         setLoading(false);
       } catch (err) {
         // only some kinds of error we want to route to 404, basically if the backend throws a 404 itself
-        if (err.code === 404) {
+        if (err.status === 404) {
           navigate("/404");
         } else {
           console.log(err);
