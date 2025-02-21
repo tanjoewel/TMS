@@ -180,8 +180,9 @@ exports.addNotes = async function (connection, notes, taskID) {
 exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator, username);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -192,8 +193,9 @@ exports.releaseTask = async function (req, res) {
 exports.demoteTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator, username);
     res.send("Task successfully demoted");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -204,8 +206,9 @@ exports.demoteTask = async function (req, res) {
 exports.workOnTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator, username);
     res.send("Task successfully set to being worked on");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -216,6 +219,7 @@ exports.workOnTask = async function (req, res) {
 exports.seekApproval = async function (req, res) {
   const { acronym, taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
     // trigger the sending of email.
 
@@ -253,7 +257,7 @@ exports.seekApproval = async function (req, res) {
     }
 
     // only if all the emails are sent do we set the task status to DONE
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username);
     res.send("Seek approval successful");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -264,8 +268,9 @@ exports.seekApproval = async function (req, res) {
 exports.rejectTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_DOING, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_DOING, notesBody, noteCreator, username);
     res.send("Task successfully rejected");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -276,8 +281,9 @@ exports.rejectTask = async function (req, res) {
 exports.approveTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator } = req.body;
+  const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator, username);
     res.send("Task successfully approved");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -285,7 +291,7 @@ exports.approveTask = async function (req, res) {
   }
 };
 
-exports.stateTransition = async function (taskID, prevState, newState, notesBody, noteCreator) {
+exports.stateTransition = async function (taskID, prevState, newState, notesBody, noteCreator, username) {
   // get the previous state of the task
   try {
     const task = await exports.getTaskByID(taskID);
@@ -303,8 +309,9 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
     const newNoteBody = `${oldState} >> ${newState}`;
     const isStateChanged = oldState !== newState;
 
-    const updateQuery = "UPDATE task SET task_state = ? WHERE (task_id = ?);";
+    const updateQuery = "UPDATE task SET task_state = ?, Task_owner = ? WHERE (task_id = ?);";
     const notes = [];
+    // TODO set the new task owner here as well
     if (isStateChanged) {
       const systemNote = buildNote(newNoteBody, 0, process.env.SYSTEM_USER);
       notes.push(systemNote);
@@ -316,7 +323,7 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
     // add the notes and update in a transaction
     const transactionResult = await withTransaction(async (connection) => {
       // the actual state transition
-      const updateResult = await connection.execute(updateQuery, [newState, taskID]);
+      const updateResult = await connection.execute(updateQuery, [newState, username, taskID]);
       // adding the notes
       if (notes.length > 0) {
         const addNotesResult = await exports.addNotes(connection, notes, taskID);
