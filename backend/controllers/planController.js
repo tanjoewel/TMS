@@ -2,12 +2,13 @@ const { createQueryBuilder, executeQuery } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 
 exports.createPlan = async function (req, res) {
-  const { plan_mvp_name, plan_startDate, plan_endDate, plan_color } = req.body;
+  const { Plan_MVP_name, Plan_startDate, Plan_endDate } = req.body;
   const { acronym } = req.params;
-  const query = createQueryBuilder("plan", ["plan_mvp_name", "plan_startDate", "plan_endDate", "plan_app_acronym", "plan_color"]);
+  const Plan_Color = generateRandomPlanColor();
+  const query = createQueryBuilder("plan", ["Plan_MVP_name", "Plan_startDate", "Plan_endDate", "Plan_app_Acronym", "Plan_Color"]);
 
   // validation
-  const mandatoryFields = ["plan_mvp_name"];
+  const mandatoryFields = ["Plan_MVP_name"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -21,31 +22,25 @@ exports.createPlan = async function (req, res) {
     return;
   }
 
-  if (plan_mvp_name.length > 50 || plan_mvp_name.length === 0) {
+  if (Plan_MVP_name.length > 50 || Plan_MVP_name.length === 0) {
     res.status(400).json({ message: "Plan MVP name must be between 1 and 50 characters inclusive" });
     return;
   }
 
   const alphanumericWithSpaceRegex = /^[0-9a-zA-Z\h]+$/;
-  if (!plan_mvp_name.match(alphanumericWithSpaceRegex)) {
+  if (!Plan_MVP_name.match(alphanumericWithSpaceRegex)) {
     res.status(400).json({ message: "Plan MVP name only contain alphanumeric characters and whitespaces" });
     return;
   }
 
-  const dateRegex = /^(18|19|20|21)\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])$/;
-  if (!plan_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'YYYY-MM-DD'" });
+  const dateRegex = /^(0?[1-9]|1[1,2])\/(0?[1-9]|[12][0-9]|3[01])\/(18|19|20|21)\d{2}$/;
+  if (!Plan_startDate.match(dateRegex)) {
+    res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
     return;
   }
 
-  if (!plan_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'YYYY-MM-DD'" });
-    return;
-  }
-
-  const colorRegex = /^#[0-9ABCDEF]{6}$/;
-  if (!plan_color.match(colorRegex)) {
-    res.status(400).json({ message: "Color must be of the format '#XXXXXX' where X is a hexadecimal character" });
+  if (!Plan_endDate.match(dateRegex)) {
+    res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
     return;
   }
 
@@ -62,7 +57,7 @@ exports.createPlan = async function (req, res) {
   }
 
   try {
-    const result = await executeQuery(query, [plan_mvp_name, plan_startDate, plan_endDate, acronym, plan_color]);
+    const result = await executeQuery(query, [Plan_MVP_name, Plan_startDate, Plan_endDate, acronym, Plan_Color]);
     res.send("Plan successfully created");
   } catch (err) {
     res.status(500).json({ message: "Error creating plan: " + err.message });
@@ -71,7 +66,7 @@ exports.createPlan = async function (req, res) {
 
 exports.getPlansForApp = async function (req, res) {
   const { acronym } = req.params;
-  const query = "SELECT * FROM plan WHERE (plan_app_acronym=?)";
+  const query = "SELECT * FROM plan WHERE (Plan_app_Acronym=?)";
   try {
     const result = await executeQuery(query, [acronym]);
     res.send(result);
@@ -79,3 +74,14 @@ exports.getPlansForApp = async function (req, res) {
     res.status(500).json({ message: "Error getting plans: " } + err.message);
   }
 };
+
+function generateRandomPlanColor() {
+  // generate a random plan color in hexcode and return it;
+  const allowedCharacters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+  let hexString = "#";
+  for (let i = 0; i < 6; i++) {
+    const randomCharacter = allowedCharacters[Math.floor(Math.random() * allowedCharacters.length)];
+    hexString += randomCharacter;
+  }
+  return hexString;
+}
