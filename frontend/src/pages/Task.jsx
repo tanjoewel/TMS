@@ -143,6 +143,7 @@ const Task = (props) => {
       setUpdatePage((prev) => {
         return prev + 1;
       });
+      setNewNotes("");
       setShowError(false);
     } catch (err) {
       console.log(err);
