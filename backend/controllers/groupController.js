@@ -25,6 +25,16 @@ exports.assignGroup = async function (req, res) {
   }
 };
 
+exports.getOneUsersGroups = async function (req, res) {
+  const { username } = req.params;
+  try {
+    const groups = await exports.getGroups(username);
+    res.send(groups);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
 // for creating a group without a user
 exports.createGroup = async function (req, res) {
   const { groupname } = req.body;
