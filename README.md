@@ -232,3 +232,12 @@ React router has a useParams hook to determine extract the parameters from the U
     - Actually, is there anything logic pertaining to the task owner?
       - Should it be that only the task owner can add notes to the task? If so this would only affect literally the save changes button in the task page.
   - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes. (done)
+
+  - TEST ON MONDAY !!!! (which will be today when you read this dummy)
+  - Change App Description to be Text in db (so 65536 characters).
+  - Must be able to create app without all 5 permits specified (so each of the permit columns are optional)
+  - Remove the 9999 limit for RNumber when creating app
+  - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username)
+  - check if plan start and end date are optional in plan creation.
+  - put task id in the
+  - if got time do success message

@@ -249,7 +249,7 @@ exports.seekApproval = async function (req, res) {
         await sendEmail(
           emails[i],
           `Seek approval for task ${taskID}`,
-          `A user has triggered a seek approval action for task ${taskID} at ${new Date().toLocaleTimeString()}. Please log on to TMS to approve or reject the task.`
+          `A user has triggered a seek approval action for task ${taskID} at ${new Date().toLocaleString()}. Please log on to TMS to approve or reject the task.`
         );
       }
     }
