@@ -24,6 +24,8 @@ const Task = (props) => {
     Task_creator: "",
     Task_owner: "",
     Task_createDate: "",
+    // wont really use this
+    isAuth: false,
   });
   const [plans, setPlans] = useState([]);
   const [newNotes, setNewNotes] = useState("");
@@ -35,6 +37,7 @@ const Task = (props) => {
     task_creator: username,
     task_owner: username,
   });
+  const [isAuth, setIsAuth] = useState(false);
 
   // the URL here should contain both the app acronym and task ID
   const { acronym, taskID } = useParams();
@@ -58,7 +61,10 @@ const Task = (props) => {
 
   async function getTask() {
     const getTasksResult = await Axios.get(`/app/${acronym}/task/${taskID}`);
-    setTask(getTasksResult.data);
+    const task = getTasksResult.data;
+    // console.log(task.isAuth);
+    setIsAuth(task.isAuth);
+    setTask(task);
   }
 
   async function getPlans() {
@@ -166,7 +172,7 @@ const Task = (props) => {
   }
 
   // true if addNotes should be disabled
-  const disableAddNotes = task.Task_state === STATE_CLOSED || type === CREATE_TYPE;
+  const disableAddNotes = task.Task_state === STATE_CLOSED || type === CREATE_TYPE || !isAuth;
   // true if select plan should be disabled
   const disablePlanSelect = task.Task_state === STATE_CLOSED;
 
@@ -291,7 +297,7 @@ const Task = (props) => {
           <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.CREATE)}>
             Create task
           </Button>
-        ) : (
+        ) : isAuth ? (
           <>
             <Button
               variant="text"
@@ -339,6 +345,8 @@ const Task = (props) => {
               Save Changes
             </Button>
           </>
+        ) : (
+          <></>
         )}
       </Box>
     </Box>

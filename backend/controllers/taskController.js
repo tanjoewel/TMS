@@ -2,6 +2,9 @@ const { executeQuery, createQueryBuilder, withTransaction, updateQueryBuilder } 
 const { isValueEmpty } = require("../util/validation");
 const { getApplication } = require("./applicationController");
 const { STATE_OPEN, STATE_CLOSED, STATE_DOING, STATE_DONE, STATE_TODO } = require("../util/enums");
+const { getAppPermissions } = require("../util/commonQueries");
+// refactor this into commonQueries when got time
+const { getGroups } = require("./groupController");
 const sendEmail = require("../util/emailService");
 
 exports.createTask = async function (req, res) {
@@ -80,11 +83,6 @@ exports.getTasksForApp = async function (req, res) {
   const query = "SELECT Task_id, Task_state, Plan_color, Task_name FROM task LEFT JOIN plan ON task.Task_plan=plan.Plan_MVP_name WHERE (task_app_acronym=?);";
   try {
     const result = await executeQuery(query, [acronym]);
-    // format the result here before sending to frontend - probably don't want to be sending everything
-    // result.map((task) => {
-    //   const formattedNotes = JSON.parse(task.Task_notes);
-    //   task["Task_notes"] = formattedNotes;
-    // });
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });
@@ -338,12 +336,24 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
 };
 
 exports.getTaskByIDRoute = async function (req, res) {
-  const { taskID } = req.params;
+  const { acronym, taskID } = req.params;
+  const username = req.decoded.username;
   try {
     const getTaskResult = await exports.getTaskByID(taskID);
     const task = getTaskResult[0];
     const parsedNotes = JSON.parse(task.Task_notes).reverse();
     task.Task_notes = parsedNotes;
+    // i also want to check if the user is authorized to make changes
+    const taskState = task.Task_state;
+    const stateToColumn = new Map();
+    stateToColumn.set(STATE_OPEN, "App_permit_Open");
+    stateToColumn.set(STATE_TODO, "App_permit_toDoList");
+    stateToColumn.set(STATE_DOING, "App_permit_Doing");
+    stateToColumn.set(STATE_DONE, "App_permit_Done");
+    const stateAuth = await getAppPermissions(acronym, stateToColumn.get(taskState));
+    const groups = await getGroups(username);
+    const isAuth = groups.includes(stateAuth);
+    task.isAuth = isAuth;
     res.send(task);
   } catch (err) {
     res.status(err.code || 500).json({ message: err.message });

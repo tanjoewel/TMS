@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
 const { addGroupRow, getDistinctGroups, getAppPermissions } = require("../util/commonQueries");
+const { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE } = require("../util/enums");
 require("dotenv").config();
 
 // needed to display the groups in drop down
@@ -37,6 +38,7 @@ exports.isUserPM = async function (req, res) {
 };
 
 exports.canCreateTask = async function (req, res) {
+  // realized i don't need the username here lol
   const { username, acronym } = req.params;
   try {
     const groups = await exports.getGroups(username);
