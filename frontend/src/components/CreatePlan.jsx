@@ -23,17 +23,17 @@ const CreatePlan = (props) => {
     }));
   }
 
-  function handleCreateClick() {
+  async function handleCreateClick() {
     try {
-      const axiosResponse = Axios.post(`/app/${acronym}/plan/create`);
+      const axiosResponse = await Axios.post(`/app/${acronym}/plan/create`, plan);
       setPlan((prev) => ({
         ...prev,
         ["Plan_MVP_name"]: "",
       }));
       setShowError(false);
     } catch (err) {
-      setShowError(true);
       setErrorMessage(err.response.data.message);
+      setShowError(true);
     }
   }
 
