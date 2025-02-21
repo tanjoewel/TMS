@@ -19,7 +19,7 @@ exports.createApplication = async function (req, res) {
   } = req.body;
 
   // validation (oh boy theres alot of them)
-  const mandatoryFields = ["App_Rnumber", "App_Acronym"];
+  const mandatoryFields = ["App_Acronym", "App_Rnumber"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
