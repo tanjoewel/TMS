@@ -31,6 +31,7 @@ const Applications = () => {
   const [apps, setApps] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatePage, setUpdatePage] = useState(0);
 
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const Applications = () => {
       }
     };
     a();
-  }, []);
+  }, [updatePage]);
 
   function handleDatePicker(date, field) {
     console.log("HANDLED DATE PICKER: ", date, field);
@@ -120,7 +121,7 @@ const Applications = () => {
             {/* Table body */}
             <TableBody>
               {/* Create application row */}
-              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} />
+              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} setUpdatePage={setUpdatePage} />
               {/* Applcations */}
               {apps.map((app, index) => {
                 return (

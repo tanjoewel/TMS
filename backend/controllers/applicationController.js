@@ -46,8 +46,8 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  if (App_Acronym.length > 20) {
-    res.status(400).json({ message: "App acronym must be between 1 and 20 characters inclusive" });
+  if (App_Acronym.length > 50) {
+    res.status(400).json({ message: "App acronym must be between 1 and 50 characters inclusive" });
     return;
   }
 

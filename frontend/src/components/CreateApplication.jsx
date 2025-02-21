@@ -24,8 +24,9 @@ const CreateApplication = (props) => {
     App_permit_Done: "",
   };
 
-  const setShowError = props.setShowError;
-  const setErrorMessage = props.setErrorMessage;
+  // const setShowError = props.setShowError;
+  // const setErrorMessage = props.setErrorMessage;
+  const { setShowError, setErrorMessage, setUpdatePage } = props;
 
   const [application, setApplication] = useState(defaultApp);
 
@@ -40,6 +41,9 @@ const CreateApplication = (props) => {
         ["App_Description"]: "",
         ["App_Rnumber"]: "",
       }));
+      setUpdatePage((prev) => {
+        return prev + 1;
+      });
       setShowError(false);
     } catch (err) {
       setErrorMessage(err.response.data.message);

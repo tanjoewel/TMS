@@ -219,4 +219,7 @@ React router has a useLocation hook to determine which route you are in.
   - When return there is no need to convert anything, just directly what is from the database.
 - TODOs
   - APIs in applications.jsx
-  - Re-rendering after creating app
+  - Re-rendering after creating app (done)
+  - Create plan UI in kanban board page
+    - Plan_color is randomly generated in the backend
+    - Only the hardcoded PM can see it (the validation is already done on the backend)
