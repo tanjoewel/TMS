@@ -6,9 +6,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Box, Typography, TextField, Button } from "@mui/material";
 
-const CreatePlan = (props) => {
+const CreatePlan = () => {
   const { acronym } = useParams();
-  const { setErrorMessage, setShowError } = props;
+  // const { setErrorMessage, setShowError } = props;
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("lmao");
 
   const [plan, setPlan] = useState({
     Plan_MVP_name: "",
@@ -38,32 +40,37 @@ const CreatePlan = (props) => {
   }
 
   return (
-    <Box display={"flex"} alignItems="center" gap={1} maxWidth="70%">
-      <Typography variant="h5" fontWeight="bold">
-        Plan:
+    <>
+      <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" fontSize="20px">
+        {errorMessage}
       </Typography>
-      <TextField
-        placeholder="Enter plan name here"
-        value={plan.Plan_MVP_name}
-        onChange={(event) => handleFieldChange(event.target.value, "Plan_MVP_name")}
-        fullWidth
-        sx={{ minWidth: "200px" }}
-        multiline
-      ></TextField>
-      <DatePicker
-        selected={plan.Plan_startDate}
-        customInput={<TextField variant="outlined" size="small" label="Start date" />}
-        onChange={(date) => handleFieldChange(date.toLocaleDateString(), "Plan_startDate")}
-      />
-      <DatePicker
-        selected={plan.Plan_endDate}
-        customInput={<TextField variant="outlined" size="small" label="End date" />}
-        onChange={(date) => handleFieldChange(date.toLocaleDateString(), "Plan_endDate")}
-      />
-      <Button variant="contained" onClick={handleCreateClick}>
-        Create
-      </Button>
-    </Box>
+      <Box display={"flex"} alignItems="center" gap={1} maxWidth="70%">
+        <Typography variant="h5" fontWeight="bold">
+          Plan:
+        </Typography>
+        <TextField
+          placeholder="Enter plan name here"
+          value={plan.Plan_MVP_name}
+          onChange={(event) => handleFieldChange(event.target.value, "Plan_MVP_name")}
+          fullWidth
+          sx={{ minWidth: "200px" }}
+          multiline
+        ></TextField>
+        <DatePicker
+          selected={plan.Plan_startDate}
+          customInput={<TextField variant="outlined" size="small" label="Start date" />}
+          onChange={(date) => handleFieldChange(date.toLocaleDateString(), "Plan_startDate")}
+        />
+        <DatePicker
+          selected={plan.Plan_endDate}
+          customInput={<TextField variant="outlined" size="small" label="End date" />}
+          onChange={(date) => handleFieldChange(date.toLocaleDateString(), "Plan_endDate")}
+        />
+        <Button variant="contained" onClick={handleCreateClick}>
+          Create
+        </Button>
+      </Box>
+    </>
   );
 };
 

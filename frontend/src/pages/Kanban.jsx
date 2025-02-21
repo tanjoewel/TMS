@@ -10,8 +10,7 @@ const Kanban = () => {
 
   const [tasks, setTasks] = useState([]);
   const [plans, setPlans] = useState([]);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("lmao");
+
   const [loading, setLoading] = useState(true);
 
   const { acronym } = useParams();
@@ -77,11 +76,8 @@ const Kanban = () => {
           Create Task
         </Button>
       </Box>
-      <Typography sx={{ visibility: showError ? "visible" : "hidden" }} color="red" paddingLeft="26px" fontSize="20px">
-        {errorMessage}
-      </Typography>
       {/* Remember to make this only visible to user if it is hardcoded PM */}
-      <CreatePlan setErrorMessage={setErrorMessage} setShowError={setShowError} />
+      <CreatePlan />
       {/* Task Board Grid */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop="20px">
         {states.map((state) => (
