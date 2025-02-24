@@ -247,3 +247,4 @@ React router has a useParams hook to determine extract the parameters from the U
   - if got time do success message
   - if got time optimize the apps state in `Applications.jsx`. not quite sure how to optimize it yet tho
     - One way is to have the edit button in the row but i think no one else is doing that
+  - Can only change the plan when you reject

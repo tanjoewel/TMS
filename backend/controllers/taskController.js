@@ -181,10 +181,10 @@ exports.addNotes = async function (connection, notes, taskID) {
 
 exports.releaseTask = async function (req, res) {
   const { taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_OPEN, STATE_TODO, notesBody, noteCreator, username);
     res.send("Task successfully released");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -194,10 +194,10 @@ exports.releaseTask = async function (req, res) {
 
 exports.demoteTask = async function (req, res) {
   const { taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_TODO, notesBody, noteCreator, username);
     res.send("Task successfully demoted");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -207,10 +207,10 @@ exports.demoteTask = async function (req, res) {
 
 exports.workOnTask = async function (req, res) {
   const { taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_TODO, STATE_DOING, notesBody, noteCreator, username);
     res.send("Task successfully set to being worked on");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -220,7 +220,7 @@ exports.workOnTask = async function (req, res) {
 
 exports.seekApproval = async function (req, res) {
   const { acronym, taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
     // trigger the sending of email.
@@ -258,7 +258,7 @@ exports.seekApproval = async function (req, res) {
     }
 
     // only if all the emails are sent do we set the task status to DONE
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username);
     res.send("Seek approval successful");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -271,7 +271,7 @@ exports.seekApproval = async function (req, res) {
  */
 exports.requestExtension = async function (req, res) {
   const { acronym, taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
     // trigger the sending of email.
@@ -309,7 +309,7 @@ exports.requestExtension = async function (req, res) {
     }
 
     // only if all the emails are sent do we set the task status to DONE
-    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username);
     res.send("Request deadline extension successful");
   } catch (err) {
     const errorCode = err.code || 500;
@@ -332,10 +332,10 @@ exports.rejectTask = async function (req, res) {
 
 exports.approveTask = async function (req, res) {
   const { taskID } = req.params;
-  const { notesBody, noteCreator, taskPlan } = req.body;
+  const { notesBody, noteCreator } = req.body;
   const username = req.decoded.username;
   try {
-    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator, username, taskPlan);
+    const updateResult = await exports.stateTransition(taskID, STATE_DONE, STATE_CLOSED, notesBody, noteCreator, username);
     res.send("Task successfully approved");
   } catch (err) {
     const errorCode = err.code || 500;
