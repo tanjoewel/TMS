@@ -442,7 +442,7 @@ exports.getTaskByID = async function (taskID) {
  * Helper function to build a note. This is simply here to prevent the mental overhead of building the JSON object and having to remember the date posted field.
  * type is 0 for system generated, 1 for user generated
  */
-function buildNote(notesBody, type, noteCreator = process.env.SYSTEM_USER) {
+function buildNote(notesBody, type, noteCreator) {
   const newNote = { text: notesBody, date_posted: new Date().toLocaleString(), creator: noteCreator, type };
   return newNote;
 }
