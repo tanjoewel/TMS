@@ -10,6 +10,7 @@ router.use(authenticateToken);
 
 router.get("/", groupController.getDistinctGroups);
 router.get("/isPM/:username", groupController.isUserPM);
+router.get("/isPL", groupController.isUserPL);
 router.get("/canCreate/:username/:acronym", groupController.canCreateTask);
 router.post("/checkgroup", groupController.checkGroupRoute);
 router.post("/assign", checkAdmin, groupController.assignGroup);

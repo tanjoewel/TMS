@@ -37,6 +37,17 @@ exports.isUserPM = async function (req, res) {
   }
 };
 
+exports.isUserPL = async function (req, res) {
+  const username = req.decoded.username;
+  try {
+    const groups = await exports.getGroups(username);
+    const isPL = groups.includes(process.env.HARDCODED_PL_GROUP);
+    res.send(isPL);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
 exports.canCreateTask = async function (req, res) {
   // realized i don't need the username here lol
   const { username, acronym } = req.params;
