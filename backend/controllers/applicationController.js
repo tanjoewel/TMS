@@ -9,13 +9,13 @@ exports.createApplication = async function (req, res) {
     App_Acronym,
     App_Description,
     App_Rnumber,
-    App_startDate,
-    App_endDate,
-    App_permit_Create,
-    App_permit_Open,
-    App_permit_toDoList,
-    App_permit_Doing,
-    App_permit_Done,
+    App_startDate = null,
+    App_endDate = null,
+    App_permit_Create = null,
+    App_permit_Open = null,
+    App_permit_toDoList = null,
+    App_permit_Doing = null,
+    App_permit_Done = null,
   } = req.body;
 
   // validation (oh boy theres alot of them)
@@ -64,28 +64,19 @@ exports.createApplication = async function (req, res) {
 
   // check for MM/DD/YYYY. storing this directly in the DB as a varchar
   const dateRegex = /^(0?[1-9]|1[1,2])\/(0?[1-9]|[12][0-9]|3[01])\/(18|19|20|21)\d{2}$/;
-  if (!App_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (App_startDate) {
+    if (!App_startDate.match(dateRegex)) {
+      res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
 
-  if (!App_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (App_endDate) {
+    if (!App_endDate.match(dateRegex)) {
+      res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
-
-  const query = createQueryBuilder("application", [
-    "App_Acronym",
-    "App_Description",
-    "App_Rnumber",
-    "App_startDate",
-    "App_endDate",
-    "App_permit_Create",
-    "App_permit_Open",
-    "App_permit_toDoList",
-    "App_permit_Doing",
-    "App_permit_Done",
-  ]);
 
   const argsArray = [
     App_Acronym,
@@ -99,6 +90,9 @@ exports.createApplication = async function (req, res) {
     App_permit_Doing,
     App_permit_Done,
   ];
+
+  const query =
+    "INSERT INTO application (App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   try {
     const result = await executeQuery(query, argsArray);
