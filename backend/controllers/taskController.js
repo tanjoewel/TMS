@@ -41,7 +41,7 @@ exports.createTask = async function (req, res) {
 
   let anyEmptyFields = false;
   // system generate task notes
-  const task_notes = [buildNote("CREATE >> OPEN", 0, process.env.SYSTEM_USER)];
+  const task_notes = [buildNote("CREATE >> OPEN", 0, username)];
   const argsArray = [task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner];
   // validation
   const mandatoryFields = ["task_name", "task_creator"];
