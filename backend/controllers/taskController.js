@@ -311,7 +311,7 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
     const notes = [];
     // TODO set the new task owner here as well
     if (isStateChanged) {
-      const systemNote = buildNote(newNoteBody, 0, process.env.SYSTEM_USER);
+      const systemNote = buildNote(newNoteBody, 0, noteCreator);
       notes.push(systemNote);
     }
     if (notesBody && noteCreator) {
