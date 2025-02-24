@@ -128,6 +128,8 @@ const Kanban = () => {
                 key={task.Task_id}
               >
                 <Button onClick={() => handleTaskClick(task.Task_id)}>{task.Task_name}</Button>
+                <Typography>{task.Task_id}</Typography>
+                <Typography>{task.Task_plan}</Typography>
               </Paper>
             ))}
           </Paper>

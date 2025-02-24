@@ -80,7 +80,8 @@ exports.createTask = async function (req, res) {
 exports.getTasksForApp = async function (req, res) {
   // the app will be in the params
   const { acronym } = req.params;
-  const query = "SELECT Task_id, Task_state, Plan_color, Task_name FROM task LEFT JOIN plan ON task.Task_plan=plan.Plan_MVP_name WHERE (task_app_acronym=?);";
+  const query =
+    "SELECT Task_id, Task_state, Plan_color, Task_name, Task_plan FROM task LEFT JOIN plan ON task.Task_plan=plan.Plan_MVP_name WHERE (task_app_acronym=?);";
   try {
     const result = await executeQuery(query, [acronym]);
     res.send(result);

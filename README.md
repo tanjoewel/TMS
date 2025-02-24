@@ -240,6 +240,6 @@ React router has a useParams hook to determine extract the parameters from the U
   - Remove the 9999 limit for RNumber when creating app (done)
   - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username) (done)
   - check if plan start and end date are optional in plan creation. (done)
-  - put task id in the task card
-  - Input validation (need to do but v lehceh)
+  - put task id in the task card (done)
+  - Input validation (need to do but v lehceh, do if got time, if not just let it crash bah)
   - if got time do success message
