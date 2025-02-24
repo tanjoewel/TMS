@@ -2,7 +2,7 @@ const { createQueryBuilder, executeQuery } = require("../util/sql");
 const { isValueEmpty } = require("../util/validation");
 
 exports.createPlan = async function (req, res) {
-  const { Plan_MVP_name, Plan_startDate, Plan_endDate } = req.body;
+  const { Plan_MVP_name, Plan_startDate = null, Plan_endDate = null } = req.body;
   const { acronym } = req.params;
   const Plan_Color = generateRandomPlanColor();
   const query = createQueryBuilder("plan", ["Plan_MVP_name", "Plan_startDate", "Plan_endDate", "Plan_app_Acronym", "Plan_Color"]);
@@ -34,16 +34,18 @@ exports.createPlan = async function (req, res) {
   }
 
   const dateRegex = /^(0?[1-9]|1[1,2])\/(0?[1-9]|[12][0-9]|3[01])\/(18|19|20|21)\d{2}$/;
-  if (!Plan_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (Plan_startDate) {
+    if (!Plan_startDate.match(dateRegex)) {
+      res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
-
-  if (!Plan_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (Plan_endDate) {
+    if (!Plan_endDate.match(dateRegex)) {
+      res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
-
   // auth - only hardcoded PM can create plan
   const username = req.decoded.username;
   const permittedGroup = process.env.HARDCODED_PM_GROUP;

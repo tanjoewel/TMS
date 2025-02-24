@@ -238,8 +238,8 @@ React router has a useParams hook to determine extract the parameters from the U
   - Change App Description to be Text in db (so 65536 characters). (done)
   - Must be able to create app without all 5 permits specified (so each of the permit columns are optional) (done)
   - Remove the 9999 limit for RNumber when creating app (done)
-  - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username)
-  - check if plan start and end date are optional in plan creation.
+  - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username) (done)
+  - check if plan start and end date are optional in plan creation. (done)
   - put task id in the task card
   - Input validation (need to do but v lehceh)
   - if got time do success message
