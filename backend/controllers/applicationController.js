@@ -18,6 +18,23 @@ exports.createApplication = async function (req, res) {
     App_permit_Done = null,
   } = req.body;
 
+  const permittedGroup = process.env.HARDCODED_PL_GROUP;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup);
+
+  if (!permitted) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
   // validation (oh boy theres alot of them)
   const mandatoryFields = ["App_Acronym", "App_Rnumber"];
   let anyEmptyFields = false;

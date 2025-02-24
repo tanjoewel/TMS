@@ -7,6 +7,9 @@ const { getAppPermissions } = require("../util/commonQueries");
 const { getGroups } = require("./groupController");
 const sendEmail = require("../util/emailService");
 
+// set to true only if you want emails to be sent when transitioning from DOING to DONE
+const FLAG = false;
+
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
   const { task_name, task_description, task_plan, task_creator, task_owner } = req.body;
@@ -27,7 +30,7 @@ exports.createTask = async function (req, res) {
   getUserGroupsResult.forEach((row) => {
     userGroups.push(row.user_group_groupname);
   });
-  const permitted = userGroups.includes(permittedGroup) || userGroups.includes(process.env.HARDCODED_PL_GROUP);
+  const permitted = userGroups.includes(permittedGroup);
 
   if (!permitted) {
     res.status(403).json({ message: "User is not authorized to perform this action" });
@@ -244,7 +247,6 @@ exports.seekApproval = async function (req, res) {
     // await sendEmail(process.env.EMAIL_USER, "Test nodemailer email", "Hello, this is a test email from my Node.js app!");
 
     // only set this flag to true when we want to send emails.
-    const FLAG = false;
     if (FLAG) {
       for (let i = 0; i < emails.length; i++) {
         await sendEmail(
@@ -296,7 +298,6 @@ exports.requestExtension = async function (req, res) {
     // await sendEmail(process.env.EMAIL_USER, "Test nodemailer email", "Hello, this is a test email from my Node.js app!");
 
     // only set this flag to true when we want to send emails.
-    const FLAG = false;
     if (FLAG) {
       for (let i = 0; i < emails.length; i++) {
         await sendEmail(

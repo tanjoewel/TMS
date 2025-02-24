@@ -241,7 +241,8 @@ React router has a useParams hook to determine extract the parameters from the U
   - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username) (done)
   - check if plan start and end date are optional in plan creation. (done)
   - put task id in the task card (done)
-  - If permit create is not defined will crash anot
+  - If permit create is not defined will crash anot (it wont)
+  - only hardcoded pl can create app (done on backend, thinking of how to hide on frontend)
   - Input validation (need to do but v lehceh, do if got time, if not just let it crash bah)
   - if got time do success message
   - if got time optimize the apps state in `Applications.jsx`. not quite sure how to optimize it yet tho
