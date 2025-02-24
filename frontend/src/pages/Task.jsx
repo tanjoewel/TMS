@@ -263,7 +263,7 @@ const Task = (props) => {
           <Paper sx={{ padding: 2, height: "300px", width: "100%", overflow: "auto", border: "1px solid #ddd" }}>
             {/* Can do a map that returns typography */}
             {task.Task_notes.map((note, i) => (
-              <Typography key={i} color={colormap[note.type]}>{`${note.date_posted} ${note.type === 1 ? `(${note.creator})` : ""} ${note.text}`}</Typography>
+              <Typography key={i} color={colormap[note.type]}>{`${note.date_posted} (${note.creator}) ${note.text}`}</Typography>
             ))}
           </Paper>
 
