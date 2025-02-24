@@ -8,7 +8,7 @@ const { getGroups } = require("./groupController");
 const sendEmail = require("../util/emailService");
 
 // set to true only if you want emails to be sent when transitioning from DOING to DONE
-const FLAG = false;
+const FLAG = true;
 
 exports.createTask = async function (req, res) {
   // subject to many, many changes down the line. task creator to be passed down from the frontend
@@ -83,11 +83,27 @@ exports.createTask = async function (req, res) {
 exports.getTasksForApp = async function (req, res) {
   // the app will be in the params
   const { acronym } = req.params;
+  // this left join will get multiple records of the same plan name within different apps, need to process and remove duplicates or use a different query
   const query =
     "SELECT Task_id, Task_state, Plan_color, Task_name, Task_plan FROM task LEFT JOIN plan ON task.Task_plan=plan.Plan_MVP_name WHERE (task_app_acronym=?);";
+  const getTasksFromAppQuery = "SELECT Task_id, Task_state, Task_name, Task_plan FROM task WHERE (Task_app_Acronym = ?);";
+  const getPlansFromAppQuery = "SELECT Plan_MVP_name, Plan_Color FROM plan WHERE (Plan_app_Acronym = ?);";
   try {
     const result = await executeQuery(query, [acronym]);
-    res.send(result);
+    const getTasksFromAppResult = await executeQuery(getTasksFromAppQuery, [acronym]);
+    const getPlansFromAppResult = await executeQuery(getPlansFromAppQuery, [acronym]);
+    console.log(getPlansFromAppResult);
+    const colorMap = new Map();
+    getPlansFromAppResult.forEach((plan) => {
+      colorMap.set(plan.Plan_MVP_name, plan.Plan_Color);
+    });
+    const temp = [];
+    const result2 = getTasksFromAppResult.map((task) => ({
+      ...task,
+      Plan_color: colorMap.get(task.Task_plan),
+    }));
+    // console.log(colorMap);
+    res.send(result2);
   } catch (err) {
     res.status(500).json({ message: "Error getting tasks" + err.message });
   }
@@ -109,7 +125,7 @@ exports.updateTask = async function (req, res) {
         const newNote = buildNote(notesBody, 1, noteCreator);
         const updateResult = await exports.addNotes(connection, [newNote], taskID);
       }
-      const updateResult = await connection.execute(updateQuery, values);
+      // const updateResult = await connection.execute(updateQuery, values);
     });
     res.send("Task successfully updated");
   } catch (err) {
@@ -412,10 +428,12 @@ exports.getTaskByIDRoute = async function (req, res) {
     stateToColumn.set(STATE_TODO, "App_permit_toDoList");
     stateToColumn.set(STATE_DOING, "App_permit_Doing");
     stateToColumn.set(STATE_DONE, "App_permit_Done");
-    const stateAuth = await getAppPermissions(acronym, stateToColumn.get(taskState));
-    const groups = await getGroups(username);
-    const isAuth = groups.includes(stateAuth);
-    task.isAuth = isAuth;
+    if (taskState !== STATE_CLOSED) {
+      const stateAuth = await getAppPermissions(acronym, stateToColumn.get(taskState));
+      const groups = await getGroups(username);
+      const isAuth = groups.includes(stateAuth);
+      task.isAuth = isAuth;
+    }
     res.send(task);
   } catch (err) {
     res.status(err.code || 500).json({ message: err.message });

@@ -249,3 +249,80 @@ React router has a useParams hook to determine extract the parameters from the U
     - One way is to have the edit button in the row but i think no one else is doing that
   - Can only change the plan when you reject
     - Only changed in the backend. For the frontend, we still pass in the taskPlan in the request body but it is not used in any API call other than reject.
+
+### Presentation notes
+
+- make description field have a max line of 5 lines and then have a scrollbar
+- no plan ui when create task
+- delimiter for task notes -> so that we know where one note ends and the other begins
+
+my presentation bugs
+
+- Create task page state is supposed to be OPEN
+- Got 2 blue parrot in birdpark kanban when i only created one
+- ui sucks lol
+  - Button don't look like button
+  - Note history styling
+- SQL (search these on google and then write notes, learn them)
+  - how to use set show plan in mysql
+  - how to use begin transaction in mysql
+    - The theory of transactions in mySQL.
+      - Locking of rows
+    - The syntax of transactions in mySQL.
+    - How to achieve these with `mysql2` in npm.
+- why my closed task goes to the create task page'
+-
+
+### Assignment 3
+
+- Monolith application: model view controller everything is in the controller.
+- you don't load the database because there is a hard limit to the memory
+- controller can only scale up to a physical limit
+  - so if we need to scale we are kind of screwed because in a monolith everything is in the controller
+- take everything in the controller that cannot perform and refactor into microservices
+  - or more commonly, take out one part of it.
+- when we refactor from the controller, we need to change the URL in Axios.
+- you need kubernetes as well (there are 2 parts)
+  - containerize nodejs
+  - once got application container image, it cannot scale but we can deploy it to kubernetes (k8s)
+  - use red hat open container platform (RHOCP) in defense side
+  - RHOCP can do auto scaling, solve the problem of load balancing
+- to do microservices, we need a contract between the frontend and the backend.
+  - STICK TO ENDPOINT NAME, DO NOT GIVE IT YOUR OWN
+  - THE DOCUMENTATION IS STANDARD
+    - WHY ARE WE USING PUT/POST/GET
+- defining error workflow
+  - define ur own error codes, don't need to use html error codes
+  - do not have error messages -> security by design
+- workflow
+  - URL construct (pay special attention to special characters)
+    - URL likely to be localhost
+    - URL not the same reject straightaway
+  - payload structure
+  - identity access management
+    - REST API is stateless -> no cookies
+  - transaction
+- show at least 2 example -> 1 using Axios 1 using curl
+  - understand why use curl, when not to
+    - curl only works in linux
+    - learn how to change the construct, there is some syntax
+    - curl will be used for automated testing in ci/cd pipeline
+    - curl does not need an interface
+- presentation
+  - what is rest api and its characteristic
+  - http methods, parameters, body (security by design)
+- ways of implementing microservice
+  - REST API
+    - stateless (don't need to maintain state, convenient for microservice)
+    - unidirection
+    - JSON/XML payload
+  - grpc (google remote procedure call)
+    - unidirection or bidirectional
+    - protobuf (it is very complex compared to JSON object)
+    - HTTP 2.2 (need to have proxy server to convert 2.2 to HTTP 1.1 before endpoint can use it)
+  - graphql (not recommended)
+    - query backend database like a nosql style (not recommended for frontend)
+    - need to send all instruction into a graphql server (it is an overhead)
+  - websocket
+    - streaming (video/audio)
+  - when to use either is very dependent on the nature of the project.
