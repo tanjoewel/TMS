@@ -140,6 +140,23 @@ exports.updateApplication = async function (req, res) {
   const { acronym } = req.params;
   const { App_Description, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done } = req.body;
 
+  const permittedGroup = process.env.HARDCODED_PL_GROUP;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup);
+
+  if (!permitted) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
   const updateBuilderArgs = [];
   const values = [];
 
