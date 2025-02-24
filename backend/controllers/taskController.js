@@ -264,6 +264,58 @@ exports.seekApproval = async function (req, res) {
   }
 };
 
+/**
+ * This is very similar to seekApproval -> got time overload that function to handle this case as well, for now it will be a separate route
+ */
+exports.requestExtension = async function (req, res) {
+  const { acronym, taskID } = req.params;
+  const { notesBody, noteCreator, taskPlan } = req.body;
+  const username = req.decoded.username;
+  try {
+    // trigger the sending of email.
+
+    // first, get the project lead group (which is the group in app_permit_done)
+    const getPermitDoneQuery = "SELECT App_permit_Done FROM application WHERE (app_acronym = ?)";
+    const getPermitDoneResult = await executeQuery(getPermitDoneQuery, [acronym]);
+    const projectLeadGroup = getPermitDoneResult[0].App_permit_Done;
+
+    // next, get all the emails of users in the project lead group
+    const getUsersQuery =
+      "SELECT user_username, user_email FROM user LEFT JOIN user_group ON user.user_username=user_group.user_group_username WHERE (user_enabled=1) AND (user_group_groupName= ? );";
+    const getUsersResult = await executeQuery(getUsersQuery, [projectLeadGroup]);
+    const emails = [];
+    getUsersResult.forEach((user) => {
+      if (user.user_email) {
+        emails.push(user.user_email);
+      }
+    });
+
+    // lastly, send out the emails using nodemailer
+
+    // just testing it (this works!)
+    // await sendEmail(process.env.EMAIL_USER, "Test nodemailer email", "Hello, this is a test email from my Node.js app!");
+
+    // only set this flag to true when we want to send emails.
+    const FLAG = false;
+    if (FLAG) {
+      for (let i = 0; i < emails.length; i++) {
+        await sendEmail(
+          emails[i],
+          `Request extension for task ${taskID}`,
+          `A user has requested a deadline extension for task ${taskID} at ${new Date().toLocaleString()}. Please log on to TMS to approve or reject the task.`
+        );
+      }
+    }
+
+    // only if all the emails are sent do we set the task status to DONE
+    const updateResult = await exports.stateTransition(taskID, STATE_DOING, STATE_DONE, notesBody, noteCreator, username, taskPlan);
+    res.send("Request deadline extension successful");
+  } catch (err) {
+    const errorCode = err.code || 500;
+    res.status(errorCode).json({ message: "Error requesting extension: " + err.message });
+  }
+};
+
 exports.rejectTask = async function (req, res) {
   const { taskID } = req.params;
   const { notesBody, noteCreator, taskPlan } = req.body;
@@ -308,9 +360,17 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
     const newNoteBody = `${oldState} >> ${newState}`;
     const isStateChanged = oldState !== newState;
 
-    const updateQuery = "UPDATE task SET task_state = ?, Task_owner = ?, Task_plan = ? WHERE (task_id = ?);";
+    const columns = ["task_state", "Task_owner"];
+    const args = [newState, username];
+    if (taskPlan) {
+      columns.push("Task_plan");
+      args.push(taskPlan);
+    }
+    args.push(taskID);
+
+    const updateQuery = updateQueryBuilder("task", "task_id", columns);
+
     const notes = [];
-    // TODO set the new task owner here as well
     if (isStateChanged) {
       const systemNote = buildNote(newNoteBody, 0, noteCreator);
       notes.push(systemNote);
@@ -322,7 +382,7 @@ exports.stateTransition = async function (taskID, prevState, newState, notesBody
     // add the notes and update in a transaction
     const transactionResult = await withTransaction(async (connection) => {
       // the actual state transition
-      const updateResult = await connection.execute(updateQuery, [newState, username, taskPlan, taskID]);
+      const updateResult = await connection.execute(updateQuery, args);
       // adding the notes
       if (notes.length > 0) {
         const addNotesResult = await exports.addNotes(connection, notes, taskID);

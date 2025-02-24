@@ -54,6 +54,7 @@ const Task = (props) => {
     APPROVE: 6,
     UPDATE: 7,
     CREATE: 8,
+    EXTENSION: 9,
   };
 
   const VIEW_TYPE = "view";
