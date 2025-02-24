@@ -32,6 +32,7 @@ const Applications = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatePage, setUpdatePage] = useState(0);
+  const [isPL, setIsPL] = useState(false);
 
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -54,6 +55,15 @@ const Applications = () => {
     }
   }
 
+  async function getIsPL() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/isPL`);
+      setIsPL(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // when the page first loads, get the applications and unique groups from the database
   useEffect(() => {
     const a = async () => {
@@ -61,6 +71,7 @@ const Applications = () => {
         setLoading(true);
         await getDistinctGroups();
         await getApps();
+        await getIsPL();
       } catch (err) {
         console.log(err);
       } finally {
@@ -126,13 +137,13 @@ const Applications = () => {
                 <TableCell sx={{ width: "100px" }}>Permit Todo</TableCell>
                 <TableCell sx={{ width: "100px" }}>Permit Doing</TableCell>
                 <TableCell sx={{ width: "100px" }}>Permit Done</TableCell>
-                <TableCell sx={{ width: "75px" }}>Action</TableCell>
+                {isPL ? <TableCell sx={{ width: "75px" }}>Action</TableCell> : <></>}
               </TableRow>
             </TableHead>
             {/* Table body */}
             <TableBody>
               {/* Create application row */}
-              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} setUpdatePage={setUpdatePage} />
+              {isPL ? <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} setUpdatePage={setUpdatePage} /> : <></>}
               {/* Applcations */}
               {apps.map((app, index) => {
                 return (
@@ -285,9 +296,13 @@ const Applications = () => {
                       </FormControl>
                     </TableCell>
                     {/* Action cell */}
-                    <TableCell>
-                      <Button onClick={() => handleUpdateApplicationClick(index)}>Update</Button>
-                    </TableCell>
+                    {isPL ? (
+                      <TableCell>
+                        <Button onClick={() => handleUpdateApplicationClick(index)}>Update</Button>
+                      </TableCell>
+                    ) : (
+                      <></>
+                    )}
                   </TableRow>
                 );
               })}
