@@ -1,18 +1,24 @@
-import { Grid2, Paper, Typography, Box, Button, StepConnector } from "@mui/material";
+import { Paper, Typography, Box, Button } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 import Axios from "axios";
+import CreatePlan from "../components/CreatePlan";
+import { useAuth } from "../AuthContext";
 
 const Kanban = () => {
   const states = [STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED];
 
   const [tasks, setTasks] = useState([]);
   const [plans, setPlans] = useState([]);
+  const [isPM, setIsPM] = useState(false);
+  const [canCreateTask, setCanCreateTask] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const { acronym } = useParams();
   const navigate = useNavigate();
+  const { username } = useAuth();
 
   async function getTasks() {
     const appTasks = await Axios.get(`/app/${acronym}/task`);
@@ -22,6 +28,24 @@ const Kanban = () => {
   async function getPlans() {
     const appPlans = await Axios.get(`/app/${acronym}/plan`);
     setPlans(appPlans.data);
+  }
+
+  async function getIsPM() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/isPM/${username}`);
+      setIsPM(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function getCanCreateTask() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/canCreate/${username}/${acronym}`);
+      setCanCreateTask(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   function getTasksByState(state) {
@@ -37,9 +61,11 @@ const Kanban = () => {
         setLoading(true);
         await getTasks();
         await getPlans();
+        await getIsPM();
+        await getCanCreateTask();
         setLoading(false);
       } catch (err) {
-        if (err.code === 404) {
+        if (err.status === 404) {
           navigate("/404");
         } else {
           console.log(err);
@@ -64,16 +90,23 @@ const Kanban = () => {
   return (
     <Box sx={{ p: 4 }}>
       {/* Header */}
-      <Box display={"flex"} justifyContent={"space-between"}>
+      <Box display={"flex"} justifyContent={"space-between"} paddingBottom="20px">
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           {/* Need app name here */}
           Task Board - {acronym}
         </Typography>
 
-        <Button onClick={handleCreateTaskClick} variant="contained">
-          Create Task
-        </Button>
+        {/* Can only see the create task button if it is authorized by backend */}
+        {canCreateTask ? (
+          <Button onClick={handleCreateTaskClick} variant="contained">
+            Create Task
+          </Button>
+        ) : (
+          <></>
+        )}
       </Box>
+      {/* Remember to make this only visible to user if it is hardcoded PM */}
+      {isPM ? <CreatePlan /> : <></>}
       {/* Task Board Grid */}
       <Box display={"flex"} justifyContent={"space-between"} paddingTop="20px">
         {states.map((state) => (
@@ -95,6 +128,8 @@ const Kanban = () => {
                 key={task.Task_id}
               >
                 <Button onClick={() => handleTaskClick(task.Task_id)}>{task.Task_name}</Button>
+                <Typography>{task.Task_id}</Typography>
+                <Typography>{task.Task_plan}</Typography>
               </Paper>
             ))}
           </Paper>

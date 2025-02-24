@@ -5,6 +5,9 @@ import Axios from "axios";
 import { useAuth } from "../AuthContext";
 import { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE, STATE_CLOSED } from "../StateEnums";
 
+/**
+ * This component is overloaded -> the props.type determines if the component is a create task component or a view task component.
+ */
 const Task = (props) => {
   const { username } = useAuth();
   const [errorMessage, setErrorMessage] = useState("lmao");
@@ -21,6 +24,8 @@ const Task = (props) => {
     Task_creator: "",
     Task_owner: "",
     Task_createDate: "",
+    // wont really use this
+    isAuth: false,
   });
   const [plans, setPlans] = useState([]);
   const [newNotes, setNewNotes] = useState("");
@@ -32,6 +37,7 @@ const Task = (props) => {
     task_creator: username,
     task_owner: username,
   });
+  const [isAuth, setIsAuth] = useState(false);
 
   // the URL here should contain both the app acronym and task ID
   const { acronym, taskID } = useParams();
@@ -48,20 +54,18 @@ const Task = (props) => {
     APPROVE: 6,
     UPDATE: 7,
     CREATE: 8,
+    EXTENSION: 9,
   };
-
-  // const STATE_OPEN = "OPEN";
-  // const STATE_TODO = "TODO";
-  // const STATE_DOING = "DOING";
-  // const STATE_DONE = "DONE";
-  // const STATE_CLOSED = "CLOSED";
 
   const VIEW_TYPE = "view";
   const CREATE_TYPE = "create";
 
   async function getTask() {
     const getTasksResult = await Axios.get(`/app/${acronym}/task/${taskID}`);
-    setTask(getTasksResult.data);
+    const task = getTasksResult.data;
+    // console.log(task.isAuth);
+    setIsAuth(task.isAuth);
+    setTask(task);
   }
 
   async function getPlans() {
@@ -81,14 +85,15 @@ const Task = (props) => {
           await getTask();
         }
         await getPlans();
-        setLoading(false);
       } catch (err) {
         // only some kinds of error we want to route to 404, basically if the backend throws a 404 itself
-        if (err.code === 404) {
+        if (err.status === 404) {
           navigate("/404");
         } else {
           console.log(err);
         }
+      } finally {
+        setLoading(false);
       }
     };
     a();
@@ -112,6 +117,7 @@ const Task = (props) => {
     const stateTransitionBody = {
       notesBody: newNotes,
       noteCreator: username,
+      taskPlan: task.Task_plan,
     };
     const updateBody = { notesBody: newNotes, noteCreator: username, plan: task.Task_plan };
     try {
@@ -141,19 +147,25 @@ const Task = (props) => {
         case BUTTON_ACTIONS.CREATE:
           await Axios.post(`/app/${acronym}/task/create`, createTask);
           break;
+        case BUTTON_ACTIONS.EXTENSION:
+          await Axios.patch(`/app/${acronym}/task/extension/${taskID}`, stateTransitionBody);
+          break;
       }
       setUpdatePage((prev) => {
         return prev + 1;
       });
+      setNewNotes("");
       setShowError(false);
     } catch (err) {
       console.log(err);
       setErrorMessage(err.response.data.message);
       setShowError(true);
       // this will call the APIs which will cause protectedroutes to trigger if it is invalid jwt
-      setUpdatePage((prev) => {
-        return prev + 1;
-      });
+      if (err.status === 403) {
+        setUpdatePage((prev) => {
+          return prev + 1;
+        });
+      }
       console.log(err.response.data.message);
     }
   }
@@ -164,7 +176,7 @@ const Task = (props) => {
   }
 
   // true if addNotes should be disabled
-  const disableAddNotes = task.Task_state === STATE_CLOSED || type === CREATE_TYPE;
+  const disableAddNotes = task.Task_state === STATE_CLOSED || type === CREATE_TYPE || !isAuth;
   // true if select plan should be disabled
   const disablePlanSelect = task.Task_state === STATE_CLOSED;
 
@@ -255,7 +267,7 @@ const Task = (props) => {
           <Paper sx={{ padding: 2, height: "300px", width: "100%", overflow: "auto", border: "1px solid #ddd" }}>
             {/* Can do a map that returns typography */}
             {task.Task_notes.map((note, i) => (
-              <Typography key={i} color={colormap[note.type]}>{`${note.date_posted} ${note.type === 1 ? `(${note.creator})` : ""} ${note.text}`}</Typography>
+              <Typography key={i} color={colormap[note.type]}>{`${note.date_posted} (${note.creator}) ${note.text}`}</Typography>
             ))}
           </Paper>
 
@@ -289,7 +301,7 @@ const Task = (props) => {
           <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.CREATE)}>
             Create task
           </Button>
-        ) : (
+        ) : isAuth ? (
           <>
             <Button
               variant="text"
@@ -321,6 +333,13 @@ const Task = (props) => {
             </Button>
             <Button
               variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.EXTENSION)}
+            >
+              Request deadline extension
+            </Button>
+            <Button
+              variant="text"
               sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
               onClick={() => handleButtonClick(BUTTON_ACTIONS.REJECT)}
             >
@@ -337,6 +356,8 @@ const Task = (props) => {
               Save Changes
             </Button>
           </>
+        ) : (
+          <></>
         )}
       </Box>
     </Box>

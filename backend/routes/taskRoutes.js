@@ -23,5 +23,6 @@ router.patch("/work/:taskID", authenticateTask, taskController.workOnTask);
 router.patch("/approve/:taskID", authenticateTask, taskController.approveTask);
 router.patch("/reject/:taskID", authenticateTask, taskController.rejectTask);
 router.patch("/seek/:taskID", authenticateTask, taskController.seekApproval);
+router.patch("/extension/:taskID", authenticateTask, taskController.requestExtension);
 
 module.exports = router;

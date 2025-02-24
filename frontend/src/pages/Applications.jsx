@@ -31,6 +31,8 @@ const Applications = () => {
   const [apps, setApps] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatePage, setUpdatePage] = useState(0);
+  const [isPL, setIsPL] = useState(false);
 
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -53,6 +55,15 @@ const Applications = () => {
     }
   }
 
+  async function getIsPL() {
+    try {
+      const axiosResponse = await Axios.get(`/groups/isPL`);
+      setIsPL(axiosResponse.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // when the page first loads, get the applications and unique groups from the database
   useEffect(() => {
     const a = async () => {
@@ -60,6 +71,7 @@ const Applications = () => {
         setLoading(true);
         await getDistinctGroups();
         await getApps();
+        await getIsPL();
       } catch (err) {
         console.log(err);
       } finally {
@@ -67,19 +79,30 @@ const Applications = () => {
       }
     };
     a();
-  }, []);
+  }, [updatePage]);
 
-  function handleDatePicker(date, field) {
-    console.log("HANDLED DATE PICKER: ", date, field);
-    alert("Date picker clicked");
+  function handleFieldChange(newValue, index, field) {
+    const newApps = apps.map((app, i) => {
+      return i === index ? { ...app, [field]: newValue } : app;
+    });
+    setApps(newApps);
   }
 
-  function handlePermitSelect(index, event, field) {
-    alert("permit select clicked");
-  }
-
-  function handleUpdateApplicationClick() {
-    alert("update application clicked");
+  async function handleUpdateApplicationClick(index) {
+    const appToUpdate = apps[index];
+    try {
+      const axiosResponse = await Axios.patch(`app/update/${appToUpdate.App_Acronym}`, appToUpdate);
+      const snackbarMessage = "App has been successfully updated.";
+      showSnackbar(snackbarMessage, SNACKBAR_SEVERITIES[0]);
+      setShowError(false);
+    } catch (err) {
+      if (err.status === 403) {
+        window.location.reload();
+      }
+      console.log(err);
+      setErrorMessage(err.response.data.message);
+      setShowError(true);
+    }
   }
 
   function handleAppAcronymClick(acronym) {
@@ -114,13 +137,13 @@ const Applications = () => {
                 <TableCell sx={{ width: "100px" }}>Permit Todo</TableCell>
                 <TableCell sx={{ width: "100px" }}>Permit Doing</TableCell>
                 <TableCell sx={{ width: "100px" }}>Permit Done</TableCell>
-                <TableCell sx={{ width: "75px" }}>Action</TableCell>
+                {isPL ? <TableCell sx={{ width: "75px" }}>Action</TableCell> : <></>}
               </TableRow>
             </TableHead>
             {/* Table body */}
             <TableBody>
               {/* Create application row */}
-              <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} />
+              {isPL ? <CreateApplication groups={groups} setShowError={setShowError} setErrorMessage={setErrorMessage} setUpdatePage={setUpdatePage} /> : <></>}
               {/* Applcations */}
               {apps.map((app, index) => {
                 return (
@@ -162,6 +185,7 @@ const Applications = () => {
                         InputProps={{ disableUnderline: true }}
                         multiline
                         width="100%"
+                        onChange={(event) => handleFieldChange(event.target.value, index, "App_Description")}
                       ></TextField>
                     </TableCell>
                     {/* Start date cell */}
@@ -170,7 +194,7 @@ const Applications = () => {
                         className="custom-datepicker"
                         selected={app.App_startDate}
                         showIcon
-                        onChange={(date) => handleDatePicker(date, "App.startDate")}
+                        onChange={(date) => handleFieldChange(date.toLocaleDateString(), index, "App_startDate")}
                       ></DatePicker>
                     </TableCell>
                     {/* End date cell */}
@@ -179,7 +203,7 @@ const Applications = () => {
                         className="custom-datepicker"
                         selected={app.App_endDate}
                         showIcon
-                        onChange={(date) => handleDatePicker(date, "App.endDate")}
+                        onChange={(date) => handleFieldChange(date.toLocaleDateString(), index, "App_endDate")}
                       ></DatePicker>
                     </TableCell>
                     {/* Permit create cell */}
@@ -187,7 +211,7 @@ const Applications = () => {
                       <FormControl fullWidth>
                         <Select
                           value={app.App_permit_Create}
-                          onChange={(event) => handlePermitSelect(index, event, "App_permit_Create")}
+                          onChange={(event) => handleFieldChange(event.target.value, index, "App_permit_Create")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
                           fullWidth
@@ -205,7 +229,7 @@ const Applications = () => {
                       <FormControl fullWidth>
                         <Select
                           value={app.App_permit_Open}
-                          onChange={(event) => handlePermitSelect(index, event, "App_permit_Open")}
+                          onChange={(event) => handleFieldChange(event.target.value, index, "App_permit_Open")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
                           fullWidth
@@ -223,7 +247,7 @@ const Applications = () => {
                       <FormControl fullWidth>
                         <Select
                           value={app.App_permit_toDoList}
-                          onChange={(event) => handlePermitSelect(index, event, "App_permit_toDoList")}
+                          onChange={(event) => handleFieldChange(event.target.value, index, "App_permit_toDoList")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
                           fullWidth
@@ -241,7 +265,7 @@ const Applications = () => {
                       <FormControl fullWidth>
                         <Select
                           value={app.App_permit_Doing}
-                          onChange={(event) => handlePermitSelect(index, event, "App_permit_Doing")}
+                          onChange={(event) => handleFieldChange(event.target.value, index, "App_permit_Doing")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
                           fullWidth
@@ -259,7 +283,7 @@ const Applications = () => {
                       <FormControl fullWidth>
                         <Select
                           value={app.App_permit_Done}
-                          onChange={(event) => handlePermitSelect(index, event, "App_permit_Done")}
+                          onChange={(event) => handleFieldChange(event.target.value, index, "App_permit_Done")}
                           renderValue={(selected) => (selected ? selected : "select")}
                           displayEmpty
                         >
@@ -272,9 +296,13 @@ const Applications = () => {
                       </FormControl>
                     </TableCell>
                     {/* Action cell */}
-                    <TableCell>
-                      <Button onClick={handleUpdateApplicationClick}>Update</Button>
-                    </TableCell>
+                    {isPL ? (
+                      <TableCell>
+                        <Button onClick={() => handleUpdateApplicationClick(index)}>Update</Button>
+                      </TableCell>
+                    ) : (
+                      <></>
+                    )}
                   </TableRow>
                 );
               })}

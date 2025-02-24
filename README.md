@@ -208,9 +208,7 @@ RBAC middleware
 - And simply return true or false. If it is false, then send 403 to frontend.
   I think that should work? Even for the updating plan?
 
-React router has a useLocation hook to determine which route you are in.
-
-### IMPT
+React router has a useParams hook to determine extract the parameters from the URL.
 
 - I want to store the app start date and end date as strings of the form 'MM/DD/YYYY' (this is the output for `new Date().toLocaleDateString()`). This means that I need to
   - Change the type in the database to VARCHAR(10)
@@ -218,5 +216,34 @@ React router has a useLocation hook to determine which route you are in.
   - Change the regex in app controller to only accept string
   - When return there is no need to convert anything, just directly what is from the database.
 - TODOs
-  - APIs in applications.jsx
-  - Re-rendering after creating app
+
+  - APIs in applications.jsx (done)
+  - Re-rendering after creating app (done)
+  - Create plan UI in kanban board page
+    - Plan_color is randomly generated in the backend
+    - Only the hardcoded PM can see it (the validation is already done on the backend)
+  - I probably need to check the role of the user in the frontend so that I can hide or display certain buttons in kanban/task page. (done for the create plan component)
+    - I also need to do so for create task, now i could make another route in the backend, but I will probably need to do this thing of checking the user against a permit_XXXX. So I do need to think of how to design in a way that is easily understandable and extensible.
+    - The other place where I will need this is in the task page, where only the user that has the corresponding permission for that state can do anything in that state. To spell it out a bit more,
+      - Only users in the group that is in that state can see any of the buttons in the bottom row, and can add note.
+      - Only hardcoded PL and users in the permit_create group can see the Create Task button in the kanban board.
+  - Setting of task owner (this is just taking the username from AuthContext and passing it into the request body). (done)
+    - The logic of dealing with the task owner do later.
+    - Actually, is there anything logic pertaining to the task owner?
+      - Should it be that only the task owner can add notes to the task? If so this would only affect literally the save changes button in the task page.
+  - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes. (done)
+
+  - TEST ON MONDAY !!!! (which will be today when you read this dummy)
+  - Request for deadline extension button (done)
+  - Change App Description to be Text in db (so 65536 characters). (done)
+  - Must be able to create app without all 5 permits specified (so each of the permit columns are optional) (done)
+  - Remove the 9999 limit for RNumber when creating app (done)
+  - all notes must have usernames stamped (so for example the create >> open will be stamped with the task creator username) (done)
+  - check if plan start and end date are optional in plan creation. (done)
+  - put task id in the task card (done)
+  - If permit create is not defined will crash anot (it wont)
+  - only hardcoded pl can create app (done on backend, thinking of how to hide on frontend)
+  - Input validation (need to do but v lehceh, do if got time, if not just let it crash bah)
+  - if got time do success message
+  - if got time optimize the apps state in `Applications.jsx`. not quite sure how to optimize it yet tho
+    - One way is to have the edit button in the row but i think no one else is doing that

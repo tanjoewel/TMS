@@ -76,7 +76,7 @@ app.post("/login", async (req, res) => {
   const userAgent = req.headers["user-agent"];
 
   // generate jwt token and send it. take note of the order
-  const token = jwt.sign({ username: dbUsername, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15h" });
+  const token = jwt.sign({ username: dbUsername, ip, userAgent }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
   res.cookie("auth_token", token);
 

@@ -1,5 +1,6 @@
 const { executeQuery } = require("../util/sql");
-const { addGroupRow, getDistinctGroups } = require("../util/commonQueries");
+const { addGroupRow, getDistinctGroups, getAppPermissions } = require("../util/commonQueries");
+const { STATE_OPEN, STATE_TODO, STATE_DOING, STATE_DONE } = require("../util/enums");
 require("dotenv").config();
 
 // needed to display the groups in drop down
@@ -22,6 +23,43 @@ exports.assignGroup = async function (req, res) {
     res.status(200).json({ message: "Group successfully assigned" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.isUserPM = async function (req, res) {
+  const { username } = req.params;
+  try {
+    const groups = await exports.getGroups(username);
+    const isPM = groups.includes(process.env.HARDCODED_PM_GROUP);
+    res.send(isPM);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
+exports.isUserPL = async function (req, res) {
+  const username = req.decoded.username;
+  try {
+    const groups = await exports.getGroups(username);
+    const isPL = groups.includes(process.env.HARDCODED_PL_GROUP);
+    res.send(isPL);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
+  }
+};
+
+exports.canCreateTask = async function (req, res) {
+  // realized i don't need the username here lol
+  const { username, acronym } = req.params;
+  try {
+    const groups = await exports.getGroups(username);
+    // get the permit_create from applications table
+    const permitCreateGroup = await getAppPermissions(acronym, "App_permit_Create");
+
+    const canCreate = groups.includes(permitCreateGroup);
+    res.send(canCreate);
+  } catch (err) {
+    res.status(err.code || 500).json({ message: err.message });
   }
 };
 

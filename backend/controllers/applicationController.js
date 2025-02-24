@@ -9,17 +9,34 @@ exports.createApplication = async function (req, res) {
     App_Acronym,
     App_Description,
     App_Rnumber,
-    App_startDate,
-    App_endDate,
-    App_permit_Create,
-    App_permit_Open,
-    App_permit_toDoList,
-    App_permit_Doing,
-    App_permit_Done,
+    App_startDate = null,
+    App_endDate = null,
+    App_permit_Create = null,
+    App_permit_Open = null,
+    App_permit_toDoList = null,
+    App_permit_Doing = null,
+    App_permit_Done = null,
   } = req.body;
 
+  const permittedGroup = process.env.HARDCODED_PL_GROUP;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup);
+
+  if (!permitted) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
+
   // validation (oh boy theres alot of them)
-  const mandatoryFields = ["App_Rnumber", "App_Acronym"];
+  const mandatoryFields = ["App_Acronym", "App_Rnumber"];
   let anyEmptyFields = false;
   for (let i = 0; i < mandatoryFields.length; i++) {
     const field = mandatoryFields[i];
@@ -33,21 +50,25 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  const numberRegex = /^\d{1,4}$/;
-  if (!App_Rnumber.match(numberRegex)) {
-    res.status(400).json({ message: "App running number must be a positive number between 0 and 9999" });
+  const rNumber = parseInt(App_Rnumber);
+
+  if (rNumber === NaN) {
+    res.status(400).json({ message: "App running number must be a number" });
     return;
   }
-
-  const rNumber = parseInt(App_Rnumber);
 
   if (rNumber < 0) {
     res.status(400).json({ message: "App running number must not be negative" });
     return;
   }
 
-  if (App_Acronym.length > 20) {
-    res.status(400).json({ message: "App acronym must be between 1 and 20 characters inclusive" });
+  if (rNumber > 2 ** 31 - 1) {
+    res.status(400).json({ message: "App running number must be less than 2^31-1" });
+    return;
+  }
+
+  if (App_Acronym.length > 50) {
+    res.status(400).json({ message: "App acronym must be between 1 and 50 characters inclusive" });
     return;
   }
 
@@ -64,28 +85,19 @@ exports.createApplication = async function (req, res) {
 
   // check for MM/DD/YYYY. storing this directly in the DB as a varchar
   const dateRegex = /^(0?[1-9]|1[1,2])\/(0?[1-9]|[12][0-9]|3[01])\/(18|19|20|21)\d{2}$/;
-  if (!App_startDate.match(dateRegex)) {
-    res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (App_startDate) {
+    if (!App_startDate.match(dateRegex)) {
+      res.status(400).json({ message: "Start date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
 
-  if (!App_endDate.match(dateRegex)) {
-    res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
-    return;
+  if (App_endDate) {
+    if (!App_endDate.match(dateRegex)) {
+      res.status(400).json({ message: "End date must be of the form 'MM/DD/YYYY'" });
+      return;
+    }
   }
-
-  const query = createQueryBuilder("application", [
-    "App_Acronym",
-    "App_Description",
-    "App_Rnumber",
-    "App_startDate",
-    "App_endDate",
-    "App_permit_Create",
-    "App_permit_Open",
-    "App_permit_toDoList",
-    "App_permit_Doing",
-    "App_permit_Done",
-  ]);
 
   const argsArray = [
     App_Acronym,
@@ -99,6 +111,9 @@ exports.createApplication = async function (req, res) {
     App_permit_Doing,
     App_permit_Done,
   ];
+
+  const query =
+    "INSERT INTO application (App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   try {
     const result = await executeQuery(query, argsArray);
@@ -123,16 +138,24 @@ exports.getAllApplications = async function (req, res) {
 exports.updateApplication = async function (req, res) {
   // all fields except for acronym and RNumber are editable and are all optional
   const { acronym } = req.params;
-  const {
-    appDescription: App_Description,
-    appStartDate: App_startDate,
-    appEndDate: App_endDate,
-    appPermitCreate: App_permit_Create,
-    appPermitOpen: App_permit_Open,
-    appPermitToDoList: App_permit_toDoList,
-    appPermitDoing: App_permit_Doing,
-    appPermitDone: App_permit_Done,
-  } = req.body;
+  const { App_Description, App_startDate, App_endDate, App_permit_Create, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done } = req.body;
+
+  const permittedGroup = process.env.HARDCODED_PL_GROUP;
+  const username = req.decoded.username;
+
+  const getUserGroupsQuery =
+    "SELECT user_username, user_group_groupname FROM user LEFT JOIN user_group ON user_username = user_group_username WHERE (user_username = ?)";
+  const getUserGroupsResult = await executeQuery(getUserGroupsQuery, [username]);
+  const userGroups = [];
+  getUserGroupsResult.forEach((row) => {
+    userGroups.push(row.user_group_groupname);
+  });
+  const permitted = userGroups.includes(permittedGroup);
+
+  if (!permitted) {
+    res.status(403).json({ message: "User is not authorized to perform this action" });
+    return;
+  }
 
   const updateBuilderArgs = [];
   const values = [];
