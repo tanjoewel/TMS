@@ -234,7 +234,7 @@ React router has a useParams hook to determine extract the parameters from the U
   - Setting the plan and then clicking a state change button does not change the plan as well. This is something to add to stateTransition and all the different routes. (done)
 
   - TEST ON MONDAY !!!! (which will be today when you read this dummy)
-  - Request for deadline extension button
+  - Request for deadline extension button (done)
   - Change App Description to be Text in db (so 65536 characters). (done)
   - Must be able to create app without all 5 permits specified (so each of the permit columns are optional) (done)
   - Remove the 9999 limit for RNumber when creating app (done)

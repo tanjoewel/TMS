@@ -147,6 +147,9 @@ const Task = (props) => {
         case BUTTON_ACTIONS.CREATE:
           await Axios.post(`/app/${acronym}/task/create`, createTask);
           break;
+        case BUTTON_ACTIONS.EXTENSION:
+          await Axios.patch(`/app/${acronym}/task/extension/${taskID}`, stateTransitionBody);
+          break;
       }
       setUpdatePage((prev) => {
         return prev + 1;
@@ -327,6 +330,13 @@ const Task = (props) => {
               onClick={() => handleButtonClick(BUTTON_ACTIONS.SEEK)}
             >
               Seek Approval
+            </Button>
+            <Button
+              variant="text"
+              sx={{ visibility: task.Task_state !== STATE_DOING ? "hidden" : "visible" }}
+              onClick={() => handleButtonClick(BUTTON_ACTIONS.EXTENSION)}
+            >
+              Request deadline extension
             </Button>
             <Button
               variant="text"
