@@ -27,9 +27,9 @@ exports.createPlan = async function (req, res) {
     return;
   }
 
-  const alphanumericWithSpaceRegex = /^[0-9a-zA-Z\h]+$/;
+  const alphanumericWithSpaceRegex = /^[0-9a-zA-Z\s]+$/;
   if (!Plan_MVP_name.match(alphanumericWithSpaceRegex)) {
-    res.status(400).json({ message: "Plan MVP name only contain alphanumeric characters and whitespaces" });
+    res.status(400).json({ message: "Plan MVP name must only contain alphanumeric characters and whitespaces" });
     return;
   }
 
