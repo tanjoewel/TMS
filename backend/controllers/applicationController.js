@@ -33,16 +33,20 @@ exports.createApplication = async function (req, res) {
     return;
   }
 
-  const numberRegex = /^\d{1,4}$/;
-  if (!App_Rnumber.match(numberRegex)) {
-    res.status(400).json({ message: "App running number must be a positive number between 0 and 9999" });
+  const rNumber = parseInt(App_Rnumber);
+
+  if (rNumber === NaN) {
+    res.status(400).json({ message: "App running number must be a number" });
     return;
   }
 
-  const rNumber = parseInt(App_Rnumber);
-
   if (rNumber < 0) {
     res.status(400).json({ message: "App running number must not be negative" });
+    return;
+  }
+
+  if (rNumber > 2 ** 31 - 1) {
+    res.status(400).json({ message: "App running number must be less than 2^31-1" });
     return;
   }
 
