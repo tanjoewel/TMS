@@ -38,6 +38,7 @@ const Task = (props) => {
     task_owner: username,
   });
   const [isAuth, setIsAuth] = useState(false);
+  const [currPlan, setCurrPlan] = useState("");
 
   // the URL here should contain both the app acronym and task ID
   const { acronym, taskID } = useParams();
@@ -66,6 +67,7 @@ const Task = (props) => {
     // console.log(task.isAuth);
     setIsAuth(task.isAuth);
     setTask(task);
+    setCurrPlan(task.Task_plan);
   }
 
   async function getPlans() {
@@ -82,6 +84,7 @@ const Task = (props) => {
       try {
         setLoading(true);
         if (type === VIEW_TYPE) {
+          console.log("ran get task");
           await getTask();
         }
         await getPlans();
@@ -255,7 +258,7 @@ const Task = (props) => {
               ></TextField>
             ) : (
               <>
-                <Typography>{task.Task_description}</Typography>
+                <Typography multiline>{task.Task_description}</Typography>
               </>
             )}
           </Paper>
@@ -270,28 +273,31 @@ const Task = (props) => {
               <Typography key={i} color={colormap[note.type]}>{`${note.date_posted} (${note.creator}) ${note.text}`}</Typography>
             ))}
           </Paper>
-
-          {/* Add Note Field */}
-          <TextField
-            fullWidth
-            placeholder="Add a note..."
-            sx={{
-              marginTop: 1,
-              border: "1px solid #ddd",
-              padding: 1,
-              verticalAlign: "top",
-              whiteSpace: "normal",
-              wordBreak: "break-word",
-              height: "100px",
-              backgroundColor: disableAddNotes ? "grey" : "white",
-            }}
-            variant="standard"
-            InputProps={{ disableUnderline: true }}
-            multiline
-            value={newNotes}
-            onChange={(event) => setNewNotes(event.target.value)}
-            disabled={disableAddNotes}
-          />
+          <Box sx={{ height: "100px", overflow: "auto" }}>
+            {/* Add Note Field */}
+            <TextField
+              fullWidth
+              placeholder="Add a note..."
+              sx={{
+                marginTop: 1,
+                border: "1px solid #ddd",
+                padding: 1,
+                verticalAlign: "top",
+                whiteSpace: "normal",
+                wordBreak: "break-word",
+                height: "100px",
+                backgroundColor: disableAddNotes ? "grey" : "white",
+              }}
+              variant="standard"
+              InputProps={{ disableUnderline: true }}
+              multiline
+              value={newNotes}
+              onChange={(event) => setNewNotes(event.target.value)}
+              disabled={disableAddNotes}
+              maxLines={10}
+              border="1 px black"
+            />
+          </Box>
         </Box>
       </Box>
 
@@ -349,10 +355,11 @@ const Task = (props) => {
               variant="text"
               sx={{ visibility: task.Task_state !== STATE_DONE ? "hidden" : "visible" }}
               onClick={() => handleButtonClick(BUTTON_ACTIONS.APPROVE)}
+              disabled={task.Task_plan !== currPlan}
             >
               Approve task
             </Button>
-            <Button variant="contained" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
+            <Button variant="text" onClick={() => handleButtonClick(BUTTON_ACTIONS.UPDATE)}>
               Save Changes
             </Button>
           </>
