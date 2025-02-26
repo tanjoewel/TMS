@@ -71,7 +71,7 @@ We also need to define our own error workflow, in particular
 
 We also need to design our own
 
-- URL construct. This one also needs to be of a specific format (not sure what it is tbh).
+- URL construct. This one also needs to be of a specific format (HTTP method + path).
 - Payload structure
 - Transaction
 
@@ -84,3 +84,53 @@ For this course, we need to show at least 2 examples, 1 using `Axios` and 1 usin
 - Parameters
 - Body
 - Security by design
+
+### TODO
+
+- Figure out how `curl` works.
+- Understand how `Axios` works.
+- How REST APIs work
+  - Basically why choose REST API over the other options
+- Change all the APIs to not have any param.
+
+### REST APIs
+
+From the [Red Hat website](https://www.redhat.com/en/topics/api/what-is-a-rest-api) (surely Red Hat is credible right)
+
+- An API is a set of definitions and protocols for building and integrating application software.
+  - It is usually thought of as a contract between an information provider and somebody who needs the information (user).
+  - In the case of a web app, the frontend is the user and the backend is the information provider. The API, then, specifies how exactly this exchange of information occurs - what does the user provide, and what does the information provider need to provide accurate information.
+- REST is a set of architectural constraints (?????)
+  - Criteria for an API to be considered RESTful
+    - Client-server architecture
+    - Stateless client-server communication -> no client information stored between get requests, each request is separate and unconnected
+    - Cacheable data
+    - Uniform interface between components, information transferred in a standard form
+      - This just seems like standard stuff tho, theres 4 subpoints on the website go look at it.
+    - Server organized into hierarchies invisible to the client (????).
+
+Security aspects can be found in this [pretty decent blog?](https://stackoverflow.blog/2021/10/06/best-practices-for-authentication-and-authorization-for-rest-apis/)
+
+Feels kind of out of the scope though.
+
+Scalability from [this blog post](https://apitoolkit.io/blog/rest-api-scalability/)
+
+- What makes REST APIs scalable is their stateless design. If the load on one server becomes too high, spin up a new server and start handling requests. The new server does not need any knowledge of previous interactions.
+  Also can
+  - Implement caching
+  - Use load balancer
+  - Optimize database interactions
+  - Rate limiting
+
+### Meeting 1pm 26/02/2025
+
+- Success codes
+- Case sensitivity for parameters
+- Justification for HTTP method
+  - Method name to be used in the URL, so for example for **CreateTask** it should be `{{BASE_URL}}/CreateTask` (think that is what product owner wants)
+  - We use POST for `CreateTask` because it is the standard for creating resources, but also we need to pass in sensitive data to the backend. We can do that by passing it into the body and secure using SSL.
+  - Use JSON because it is simple and readable by both human and machine(?).
+  - For `GetTaskByState`, it is a similar justification to `CreateTask`.
+- What is REST API
+  - REST stands for Representational State Transfer
+  -
