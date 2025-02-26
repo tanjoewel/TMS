@@ -104,7 +104,7 @@ From the [Red Hat website](https://www.redhat.com/en/topics/api/what-is-a-rest-a
   - Criteria for an API to be considered RESTful
     - Client-server architecture
     - Stateless client-server communication -> no client information stored between get requests, each request is separate and unconnected
-    - Cacheable data
+    - Cacheable data that streamlines client-server interaction
     - Uniform interface between components, information transferred in a standard form
       - This just seems like standard stuff tho, theres 4 subpoints on the website go look at it.
     - Server organized into hierarchies invisible to the client (????).
@@ -133,4 +133,63 @@ Scalability from [this blog post](https://apitoolkit.io/blog/rest-api-scalabilit
   - For `GetTaskByState`, it is a similar justification to `CreateTask`.
 - What is REST API
   - REST stands for Representational State Transfer
-  -
+  - `Content-Type` in the request header should be 'application/json' because we are passing in a JSON object.
+- Different types of content that we can send: more common ones
+  - Application/json for JSON object
+  - text/plain for plain strings
+  - form-data for form content
+
+### Meeting 4pm
+
+#### APIs
+
+- CreateTask
+  - Task description is optional
+  - Only those in the group defined in App_permit_Create can CreateTask
+- GetTaskbyState
+  - **Application wide**, not plan wide
+- PromoteTask2Done
+  - Has a lot of outcomes, need to consider
+    - App_permit_Doing
+    - Email
+      - Different cases and errors
+    - Notes
+    - For assignment 2 we did it all in one API call.
+  - Most of us -> promote task to done, then if there is notes add it into notes history. So it is the same as the behaviour in the PromoteTask2Done API.
+    - Notes is a separate API in assignment 2, but in this case we need to pass it in as a body.
+  - We all agree on what the APIs actually do -> similar to assignment 2 functionality except for GetTaskbyState
+
+#### Error codes
+
+- Discussion about invalid HTTP method
+  - GT: How to check for invalid HTTP method?
+  - JW: The way Postman checks for it when we do Postman is that it first checks for the method and then checks if there are any URLs for that method. So for Postman and Axios it will come out to an invalid URL because there is no URL under the specific method that is chosen.
+    - However, we don't know if cURL or Powershell handles it differently, **so this is something that we need to go and research**.
+  - Conclusion: leave it there for now.
+  - Kevin: URL too long, invalid character, endpoint not found.
+    - Essentially they have finer granularity in the errors.
+  - GT: How do we catch those errors?
+  - Kevin: length can just check the length, use the URL constructor to check if it is a valid URL (if it is invalid you cannot create the object), use regex for special characters, invalid params (there is no query params where there should not be one).
+    - [URL constructor](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL)
+  - No invalid HTTP method for group A2. (Might include it but no idea how to check it)
+  - Kevin: URL too long is not part of URL format (format is ok but URL is just too long)
+  - GT: Is invalid characters part of URL format
+    - Kevin: No, that is a separate check. Invalid URL format is when you pass it into the `URL()` constructor and it fails to create the object.
+- Payload structure
+  - Task description and task plan is optional, so there should not be error code for when they are empty.
+  - Organize the error codes
+    - Validation ()
+- Remember <mark>**not to add any additional characters in your error codes**</mark> so that hackers cannot tell what is going on.
+  - When we return the error, just return the code without a message.
+- Kevin: payload too large, what do we put as status code
+  - GT: Put our own custom code
+- Kevin: We put both 401 and 403
+  - GT: However that caan be a security flaw, because if we get 403 that means the account exists but is not authorized
+  - Kevin brings up the case that was tested in assignment 1, about how to redirect the user to login page if he is not authorized. If everything is 403, how do we know if the access is gone or if the account is gone? That is the justification for having 2 different account statuses.
+  - GT: Just do what is needed on error, instead of checking the code to decide behaviour
+- GT: So we want to do 400 for everything?
+  - Consensus is yes, we do 400 for everything
+- GT: What does too large URL mean? Because the maxBodyLength in the examples show "Infinity"
+  - Kevin: Not too sure, get back later
+- Format: 'E' and then 4 numbers so `EXXXX`.
+  - The first number tells us what it is (replaces the letters that we previously used), and then the last 3 numbers are just ascending.
