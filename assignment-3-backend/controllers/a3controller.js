@@ -25,14 +25,22 @@ async function checkLogin(username, password) {
   }
 }
 
+const APP_PERMISSIONS = {
+  OPEN: "App_permit_Open",
+  TODO: "App_permit_toDoList",
+  DOING: "App_permit_Doing",
+  DONE: "App_permit_Done",
+  CREATE: "App_permit_Create",
+};
+
 async function checkAppPermit(username, state, appAcronym) {
-  const APP_PERMISSIONS = {
-    OPEN: "App_permit_Open",
-    TODO: "App_permit_toDoList",
-    DOING: "App_permit_Doing",
-    DONE: "App_permit_Done",
-    CREATE: "App_permit_Create",
-  };
+  // const APP_PERMISSIONS = {
+  //   OPEN: "App_permit_Open",
+  //   TODO: "App_permit_toDoList",
+  //   DOING: "App_permit_Doing",
+  //   DONE: "App_permit_Done",
+  //   CREATE: "App_permit_Create",
+  // };
   // validate state
   if (!(state in APP_PERMISSIONS)) {
     const error = new Error();
@@ -162,10 +170,29 @@ exports.createTask = async function (req, res) {
 
 exports.getTaskbyState = async function (req, res) {
   const connection = await db.getConnection();
-  const query = "SELECT * FROM task";
+  const { username, password, task_app_acronym, state } = req.body;
   try {
-    const [result] = await connection.execute(query);
-    res.send(result);
+    if (!state || typeof state !== "string" || !(state in APP_PERMISSIONS)) {
+      return res.status(400).send({ code: "Invalid or missing task state" });
+    }
+
+    if (!task_app_acronym || typeof task_app_acronym !== "string") {
+      return res.status(400).send({ code: "Invalid or missing task app acronym" });
+    }
+
+    if (username && password) {
+      const isValidLogin = await checkLogin(username, password);
+      if (!isValidLogin) {
+        return res.status(400).send({ code: "E3001" });
+      }
+    } else {
+      return res.status(400).send({ code: "E3001" });
+    }
+
+    const getTasksByStateQuery = "SELECT * FROM task WHERE (Task_state = ?) AND (Task_app_Acronym = ?);";
+    const [tasks] = await connection.execute(getTasksByStateQuery, [state, task_app_acronym]);
+
+    res.json(tasks);
   } catch (err) {
     res.status(err.status || 500).json({ code: err.code });
   }
