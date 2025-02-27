@@ -25,6 +25,36 @@ async function checkLogin(username, password) {
   }
 }
 
+async function checkAppPermit(username, state, appAcronym) {
+  const APP_PERMISSIONS = {
+    OPEN: "App_permit_Open",
+    TODO: "App_permit_toDoList",
+    DOING: "App_permit_Doing",
+    DONE: "App_permit_Done",
+    CREATE: "App_permit_Create",
+  };
+  // validate state
+  if (!(state in APP_PERMISSIONS)) {
+    const error = new Error();
+    error.code = "E2023";
+    throw error;
+  }
+
+  const columnName = APP_PERMISSIONS[state];
+
+  const getAppQuery = `SELECT ${columnName} FROM application WHERE App_Acronym = ?`;
+  const [appPermits] = await db.execute(getAppQuery, [appAcronym]);
+  const permittedGroup = appPermits[0][columnName];
+
+  const getGroupsQuery = "SELECT user_group_groupName FROM user_group WHERE (user_group_username = ?);";
+
+  const [groups] = await db.execute(getGroupsQuery, [username]);
+
+  const flatGroups = groups.map((group) => group.user_group_groupName);
+
+  return flatGroups.includes(permittedGroup);
+}
+
 exports.createTask = async function (req, res) {
   const { task_app_acronym, task_name, task_description, task_plan, username, password } = req.body;
   // const { username, password } = req.body;
@@ -91,9 +121,26 @@ exports.createTask = async function (req, res) {
       return res.status(400).send({ code: "E3001" });
     }
 
-    res.send(isValidLogin);
-
     // transaction errors
+    const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
+    const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
+    console.log(app_Rnumber);
+
+    if (app_Rnumber.length === 0) {
+      await connection.rollback();
+      return res.status(400).send({ code: "App not found" });
+    }
+
+    const isPermitted = await checkAppPermit(username, "CREATE", task_app_acronym);
+    if (!isPermitted) {
+      await connection.rollback();
+      return res.status(400).send({ code: "No create permission" });
+    }
+
+    if (task_plan) {
+    }
+
+    res.send(isValidLogin);
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "???" });
