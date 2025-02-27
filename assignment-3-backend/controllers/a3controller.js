@@ -164,7 +164,7 @@ exports.createTask = async function (req, res) {
     res.json({ code: "Task created successfully" });
   } catch (err) {
     console.log(err.message);
-    res.status(err.status || 500).json({ code: err.code || "???" });
+    res.status(err.status || 500).json({ code: err.code || "create task catch all" });
   }
 };
 
@@ -194,10 +194,112 @@ exports.getTaskbyState = async function (req, res) {
 
     res.json(tasks);
   } catch (err) {
-    res.status(err.status || 500).json({ code: err.code });
+    console.log(err.message);
+    res.status(err.status || 500).json({ code: err.code || "get task catch all" });
   }
 };
 
 exports.promoteTask2Done = async function (req, res) {
-  res.send("promote task 2 done");
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const { username, password, task_id, notes } = req.body;
+
+    if (!task_id || typeof task_id !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "Invalid or missing task id" });
+    }
+
+    if (notes && typeof notes !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "Invalid notes format" });
+    }
+
+    if (notes && notes.length > 65535) {
+      await connection.rollback();
+      return res.status(400).json({ code: "Notes too long" });
+    }
+
+    if (username && password) {
+      const isValidLogin = await checkLogin(username, password);
+      if (!isValidLogin) {
+        return res.status(400).send({ code: "E3001" });
+      }
+    } else {
+      return res.status(400).send({ code: "E3001" });
+    }
+
+    const getTaskQuery = "SELECT Task_state, Task_notes, Task_app_Acronym FROM task WHERE (Task_id = ?);";
+    const [getTaskResult] = await connection.execute(getTaskQuery, [task_id]);
+    if (getTaskResult.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ code: "Task not found" });
+    }
+
+    const taskState = getTaskResult[0].Task_state;
+    if (taskState !== "DOING") {
+      await connection.rollback();
+      return res.status(400).json({ code: "Task not in doing state" });
+    }
+
+    let parsedNotes = null;
+    if (notes) {
+      const note = {
+        text: notes,
+        creator: username,
+        date_posted: new Date(),
+        type: 0,
+      };
+
+      if (getTaskResult[0]?.Task_notes) {
+        parsedNotes = JSON.parse(getTaskResult[0].Task_notes);
+      } else {
+        parsedNotes = [];
+      }
+      parsedNotes.unshift(note);
+    }
+
+    const task_app_acronym = getTaskResult[0].Task_app_Acronym;
+    const isPermitted = await checkAppPermit(username, "DOING", task_app_acronym);
+    if (!isPermitted) {
+      await connection.rollback();
+      return res.status(400).send({ code: "No promote task to done permission" });
+    }
+
+    const updateTaskQuery = "UPDATE task SET Task_state = 'DONE', Task_notes = ? WHERE (Task_id = ?);";
+    const [updateTaskResult] = await connection.execute(updateTaskQuery, [parsedNotes, task_id]);
+
+    // get the project lead group (which is the group in app_permit_done)
+    const getPermitDoneQuery = "SELECT App_permit_Done FROM application WHERE (App_Acronym = ?)";
+    const [getPermitDoneResult] = await connection.execute(getPermitDoneQuery, [task_app_acronym]);
+    const projectLeadGroup = getPermitDoneResult[0].App_permit_Done;
+
+    // get all the emails of users in the project lead group
+    const getUsersQuery =
+      "SELECT user_username, user_email FROM user LEFT JOIN user_group ON user.user_username=user_group.user_group_username WHERE (user_enabled=1) AND (user_group_groupName= ? );";
+    const [getUsersResult] = await connection.execute(getUsersQuery, [projectLeadGroup]);
+    const emails = [];
+    getUsersResult.forEach((user) => {
+      if (user.user_email) {
+        emails.push(user.user_email);
+      }
+    });
+    console.log(emails);
+
+    for (let i = 0; i < emails.length; i++) {
+      await sendEmail(
+        emails[i],
+        `Seek approval for task ${task_id}`,
+        `A user has triggered a seek approval action for task ${task_id} at ${new Date().toLocaleString()}. Please log on to TMS to approve or reject the task.`
+      );
+    }
+
+    await connection.commit();
+
+    res.json({ code: "successful promote task 2 done" });
+  } catch (err) {
+    console.log(err.message);
+    res.status(err.status || 500).json({ code: err.code || "promote task catch all" });
+  }
 };
