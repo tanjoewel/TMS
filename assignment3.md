@@ -8,6 +8,8 @@
   - Hence, we are kind of screwed if we want to scale up the app, because in a monolith everything is in the controller.
 - The solution is to take **parts** of the controller that cannot perform (perhaps it is a complex part of the controller that does a lot of work), and turn it into a **microservice**.
 
+## As with everything, there are advantages and disadvantages. Here are some advantages of using a monolithic architecure
+
 ## Microservices
 
 - The annoying thing about understanding microservices is that there is no agreed upon universal definition of what it is. Instead, it is probably more appropriate to understand microservices through things like its structure, benefits and ideas.
@@ -193,3 +195,31 @@ Scalability from [this blog post](https://apitoolkit.io/blog/rest-api-scalabilit
   - Kevin: Not too sure, get back later
 - Format: 'E' and then 4 numbers so `EXXXX`.
   - The first number tells us what it is (replaces the letters that we previously used), and then the last 3 numbers are just ascending.
+
+### Presentation flow and idea
+
+- Hi Chuan Wu
+- The existing architecure -> MVC, and how it is monolithic
+  - All the business logic is in the controller
+- The disadvantage of monolithic architecture (should I briefly mention some advantages?)
+  - The main disadvantage is the inability to scale.
+  - Database has a hard limit to the memory, essentially the size of the disk space available in the machine hosting the database.
+  - The controller also has a physical limit.
+- The solution to the problem of scaling (this also serves as the motivation and introduction to microservices)
+  - Take out parts of the controller that can run by itself, containerize it and deploy it somewhere else (now its typically the cloud), and then it can run independently of whatever is left in the monolithic controller.
+  - The part to be containerized needs to be modular and stateless, meaning that it should be able to perform its operation despite being effectively separated from the rest of the application.
+  - By doing so, we free up resources in the monolithic controller. In addition, because the containerized part is stateless, we can also parallelize its execution from the monolithic controller, which also improves overall performance of the application itself.
+  - An additional benefit is that by deploying them on the cloud, we can also enjoy other benefits like utilizing their load balancing services.
+- How to containerize
+  - Use Docker to create a container image.
+    - A container contains the source code, the runtime, system tools, system libraries and settings (environment configurations?). [Docs](https://www.docker.com/resources/what-container/)
+  - Use Kubernetes to deploy.
+- Ways to communicate with a container
+  - Since the container is no longer with the monolithic controller, we need to change the way we communicate with it.
+  - There are 4 main ways to communicate, using REST APIs, GRPC (Google Remote Procedure Call), GraphQL, and websockets.
+    - For this assignment, we will be focusing on REST APIs. However, which technology we decide to use in which project depends heavily on the nature of the project.
+    - (In case CW ask): First say that Jingling will be talking about it, but if he pushes or if Jingling cannot answer, there are a few reasons why we use REST APIs
+      - REST APIs are stateless by design, which is good for microservices since they too are supposed to be stateless.
+      - They can carry JSON payloads, which is what we will be using to deliver our data.
+      - Our application is currently relatively small, so it does not make much sense to go through the trouble of setting up GRPC when REST APIs will perform just fine on our app.
+  - Done, go to Jingling.
