@@ -50,6 +50,12 @@
    - Unidirection
    - JSON or XSM payload
 1. GRPC (Google Remote Procedure Call)
+   - Cross-platform high-performance remote procedure call framework.
+   - From ChatGPT, here is how to set up grpc to communicate with kubernetes microservice. These steps are actually quite similar to GraphQL.
+     - 1️⃣ Set Up a gRPC Server in your microservice
+     - 2️⃣ Expose the gRPC Service inside Kubernetes
+     - 3️⃣ Allow Another Service or External Clients to Communicate
+     - 4️⃣ Use gRPC Clients to Call the Service
    - Unidirectional or bidirectional
    - Uses [protobuf](https://protobuf.dev/) which is a lot more complex compared to JSON object
    - Runs on HTTP 2.2, which m,eans we need a proxy server to convert to HTTP 1.1 before the endpoint can use it
