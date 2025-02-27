@@ -8,7 +8,19 @@
   - Hence, we are kind of screwed if we want to scale up the app, because in a monolith everything is in the controller.
 - The solution is to take **parts** of the controller that cannot perform (perhaps it is a complex part of the controller that does a lot of work), and turn it into a **microservice**.
 
-## As with everything, there are advantages and disadvantages. Here are some advantages of using a monolithic architecure
+### As with everything, there are advantages and disadvantages.
+
+[Docs](https://medium.com/swlh/scaling-monolithic-applications-3c69193f942a)
+
+- Advantages
+  - Communication costs between components is very low (since they are in the same application stack). No need for complex things like networking.
+  - Code re-usability (helper classes etc which might not be good practice under CW anyway)
+  - Effort: there is a lot of things that go into starting a new project (configuration, build scripting, tooling, network configuration etc.)
+- Disadvantages
+  - Tight coupling leading to lower fault tolerance. If a single module fails, it is possible that the system goes down due to a cascading effect.
+  - **Scaling**
+  - Lack of modularity, which is basically the same thing as the tight coupling actually, but it also causes another problem because
+    - We cannot re-use the functionality of a module within another module.
 
 ## Microservices
 
@@ -22,6 +34,14 @@
   - Configuration – Environment variables, startup scripts
 - When we containerize, we need to change the URL of the Axios requests because the container is no longer in localhost.
 - When we use microservices, there is a lot more work that has to be done to ensure the frontend and backend are on the same page.
+
+### Advantages and disadvantages of microservices
+
+- Advantages
+  - Parallelism and concurrency
+  - Scalability
+    - This is the most important advantage. Basically since microservices are stateless, if the load on the microservice is great, we can just spin up another server and it does not need to learn any prior state to perform its task.
+    - Can also leverage cloud technologies if it is deployed on the cloud
 
 ### Ways of implementing microservices
 
