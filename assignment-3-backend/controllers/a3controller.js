@@ -125,6 +125,7 @@ exports.createTask = async function (req, res) {
     const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
     const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
     console.log(app_Rnumber);
+    const app_RnumberValue = app_Rnumber[0].App_Rnumber;
 
     if (app_Rnumber.length === 0) {
       await connection.rollback();
@@ -138,9 +139,21 @@ exports.createTask = async function (req, res) {
     }
 
     if (task_plan) {
+      const getTaskPlanQuery = "SELECT * FROM plan WHERE (Plan_MVP_name = ?) AND (Plan_app_Acronym = ?)";
+      const [plan] = await connection.execute(getTaskPlanQuery, [task_plan, task_app_acronym]);
+      if (plan.length === 0) {
+        await connection.rollback();
+        return res.status(400).send({ code: "Task plan not found" });
+      }
     }
 
-    res.send(isValidLogin);
+    const newRNumber = app_RnumberValue + 1;
+    const updateRNumberQuery = "UPDATE application SET App_RNumber = ? WHERE App_Acronym = ?";
+    const updateRNumberResult = await connection.execute(updateRNumberQuery, [newRNumber, task_app_acronym]);
+
+    await connection.commit();
+
+    res.json({ code: "Task created successfully" });
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "???" });
