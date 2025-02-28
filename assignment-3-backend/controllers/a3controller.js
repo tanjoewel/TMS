@@ -221,7 +221,7 @@ exports.getTaskbyState = async function (req, res) {
     }
 
     if (!state || typeof state !== "string" || !(state in APP_PERMISSIONS)) {
-      return res.status(400).send({ code: "Invalid or missing task state" });
+      return res.status(400).send({ code: "E2008" });
     }
 
     if (!task_app_acronym || typeof task_app_acronym !== "string") {
