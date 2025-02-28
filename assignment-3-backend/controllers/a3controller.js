@@ -152,20 +152,16 @@ exports.createTask = async function (req, res) {
     }
 
     // transaction errors
-    // const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
-    // const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
     const app_RnumberValue = app_Rnumber[0].App_Rnumber;
 
     if (task_plan) {
       const getTaskPlanQuery = "SELECT * FROM plan WHERE (Plan_MVP_name = ?) AND (Plan_app_Acronym = ?)";
       const [plan] = await connection.execute(getTaskPlanQuery, [task_plan, task_app_acronym]);
-      console.log(task_plan, task_app_acronym);
       if (plan.length === 0) {
         await connection.rollback();
         return res.status(400).send({ code: "E4001" });
       }
     }
-    // need to add notes that task is created successfully
     const note = [
       {
         text: "Task created",
@@ -208,7 +204,7 @@ exports.createTask = async function (req, res) {
     res.json({ code: "S0001" });
   } catch (err) {
     console.log(err.message);
-    res.status(err.status || 500).json({ code: err.code || "create task catch all" });
+    res.status(err.status || 500).json({ code: err.code || "E5001" });
   }
 };
 
@@ -257,7 +253,7 @@ exports.getTaskbyState = async function (req, res) {
     res.json(tasks);
   } catch (err) {
     console.log(err.message);
-    res.status(err.status || 500).json({ code: err.code || "get task catch all" });
+    res.status(err.status || 500).json({ code: err.code || "E5001" });
   }
 };
 
@@ -271,7 +267,7 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).json({ code: "E1002" });
     }
 
-    const { username, password, task_id, notes } = req.body;
+    const { username, password, task_id, task_notes } = req.body;
 
     // payload errors
     if (!username || typeof username !== "string") {
@@ -289,7 +285,7 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).json({ code: "E2007" });
     }
 
-    if (notes && typeof notes !== "string") {
+    if (task_notes && typeof task_notes !== "string") {
       await connection.rollback();
       return res.status(400).json({ code: "E2009" });
     }
@@ -343,10 +339,10 @@ exports.promoteTask2Done = async function (req, res) {
       },
     ];
 
-    let parsedNotes = task[0]?.Task_notes ? JSON.parse(task[0].Task_notes) : [];
-    if (notes) {
+    let parsedNotes = getTaskResult[0]?.Task_notes ? JSON.parse(getTaskResult[0].Task_notes) : [];
+    if (task_notes) {
       const note = {
-        text: notes,
+        text: task_notes,
         creator: username,
         date_posted: new Date(),
         state: "DOING",
@@ -394,6 +390,6 @@ exports.promoteTask2Done = async function (req, res) {
     res.json({ code: "successful promote task 2 done" });
   } catch (err) {
     console.log(err.message);
-    res.status(err.status || 500).json({ code: err.code || "promote task catch all" });
+    res.status(err.status || 500).json({ code: err.code || "E5001" });
   }
 };
