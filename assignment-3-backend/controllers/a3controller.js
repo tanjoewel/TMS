@@ -70,7 +70,7 @@ exports.createTask = async function (req, res) {
   try {
     await connection.beginTransaction();
 
-    if (Object.keys(req.queries).length > 0) {
+    if (Object.keys(req.query).length > 0) {
       await connection.rollback();
       return res.status(400).json({ code: "E1002" });
     }
@@ -151,16 +151,45 @@ exports.createTask = async function (req, res) {
     if (task_plan) {
       const getTaskPlanQuery = "SELECT * FROM plan WHERE (Plan_MVP_name = ?) AND (Plan_app_Acronym = ?)";
       const [plan] = await connection.execute(getTaskPlanQuery, [task_plan, task_app_acronym]);
+      console.log(task_plan, task_app_acronym);
       if (plan.length === 0) {
         await connection.rollback();
         return res.status(400).send({ code: "E4001" });
       }
     }
     // need to add notes that task is created successfully
+    const note = [
+      {
+        text: "Task created",
+        creator: username,
+        date_posted: new Date(),
+        state: "OPEN",
+        type: 0,
+      },
+    ];
+
+    // generate task ID before incrementing the running number
+    const task_id = `${task_app_acronym}_${app_RnumberValue}`;
 
     const newRNumber = app_RnumberValue + 1;
     const updateRNumberQuery = "UPDATE application SET App_RNumber = ? WHERE App_Acronym = ?";
     const updateRNumberResult = await connection.execute(updateRNumberQuery, [newRNumber, task_app_acronym]);
+
+    // create the task
+    const createTaskQuery =
+      "INSERT INTO task (Task_id, Task_name, Task_description, Task_notes, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const createTaskResult = await connection.execute(createTaskQuery, [
+      task_id,
+      task_name,
+      task_description || null,
+      note,
+      task_plan || null,
+      task_app_acronym,
+      "OPEN",
+      username,
+      username,
+      new Date(),
+    ]);
 
     await connection.commit();
 
@@ -175,7 +204,7 @@ exports.getTaskbyState = async function (req, res) {
   const connection = await db.getConnection();
   const { username, password, task_app_acronym, state } = req.body;
   try {
-    if (Object.keys(req.queries).length > 0) {
+    if (Object.keys(req.query).length > 0) {
       await connection.rollback();
       return res.status(400).json({ code: "E1002" });
     }
@@ -225,7 +254,7 @@ exports.promoteTask2Done = async function (req, res) {
   try {
     await connection.beginTransaction();
 
-    if (Object.keys(req.queries).length > 0) {
+    if (Object.keys(req.query).length > 0) {
       await connection.rollback();
       return res.status(400).json({ code: "E1002" });
     }
@@ -253,7 +282,7 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).json({ code: "Invalid notes format" });
     }
 
-    if (notes && notes.length > 65535) {
+    if (notes && notes.length > Math.pow(2, 32) - 1) {
       await connection.rollback();
       return res.status(400).json({ code: "Notes too long" });
     }
@@ -288,7 +317,8 @@ exports.promoteTask2Done = async function (req, res) {
         text: notes,
         creator: username,
         date_posted: new Date(),
-        type: 0,
+        state: "DOING",
+        type: 1,
       };
 
       if (getTaskResult[0]?.Task_notes) {
