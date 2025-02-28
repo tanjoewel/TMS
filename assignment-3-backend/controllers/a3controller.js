@@ -70,37 +70,56 @@ exports.createTask = async function (req, res) {
   try {
     await connection.beginTransaction();
 
-    // payload errors
-    if (!task_app_acronym || typeof task_app_acronym !== "string") {
+    if (Object.keys(req.queries).length > 0) {
       await connection.rollback();
-      return res.status(400).json({ code: "E9908" });
+      return res.status(400).json({ code: "E1002" });
     }
 
-    // check required fields
+    // payload errors
+    if (!username || typeof username !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2001" });
+    }
+
+    if (!password || typeof password !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2002" });
+    }
+
+    const taskNameRegex = /^[a-zA-Z0-9\s]{1,50}$/;
     if (!task_name || typeof task_name !== "string") {
       await connection.rollback();
-      return res.status(400).json({ code: "E9907" });
+      return res.status(400).json({ code: "E2003" });
     }
 
-    // task_plan is optional, so only check if it is a string upon confirmation it exists
+    if (!taskNameRegex.test(task_name)) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2003" });
+    }
+
+    if (task_name.length > 50) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2003" });
+    }
+
+    if (!task_app_acronym || typeof task_app_acronym !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2004" });
+    }
+
     if (task_plan && typeof task_plan !== "string") {
       await connection.rollback();
       return res.status(400).json({ code: "E9906" });
     }
 
-    // same as task_plan, task_description is optional
     if (task_description && typeof task_description !== "string") {
       await connection.rollback();
       return res.status(400).json({ code: "E9905" });
     }
 
     // check format
-    const taskNameRegex = /^[a-zA-Z0-9\s]{1,50}$/;
+
     const planRegex = /^[a-zA-Z0-9_ -]{1,50}$/;
-    if (!taskNameRegex.test(task_name)) {
-      await connection.rollback();
-      return res.status(400).json({ code: "E9904" });
-    }
 
     if (task_plan && !planRegex.test(task_plan)) {
       await connection.rollback();
@@ -113,16 +132,8 @@ exports.createTask = async function (req, res) {
     }
 
     // IAM errors
-    if (!username || typeof username !== "string") {
-      await connection.rollback();
-      return res.status(400).json({ code: "E9900" });
-    }
 
-    if (!password || typeof password !== "string") {
-      await connection.rollback();
-      return res.status(400).json({ code: "E9901" });
-    }
-
+    // replace with the actual function
     const isValidLogin = await checkLogin(username, password);
     if (!isValidLogin) {
       await connection.rollback();
@@ -132,7 +143,6 @@ exports.createTask = async function (req, res) {
     // transaction errors
     const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
     const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
-    console.log(app_Rnumber);
     const app_RnumberValue = app_Rnumber[0].App_Rnumber;
 
     if (app_Rnumber.length === 0) {
@@ -154,6 +164,7 @@ exports.createTask = async function (req, res) {
         return res.status(400).send({ code: "Task plan not found" });
       }
     }
+    // need to add notes that task is created successfully
 
     const newRNumber = app_RnumberValue + 1;
     const updateRNumberQuery = "UPDATE application SET App_RNumber = ? WHERE App_Acronym = ?";
@@ -172,22 +183,40 @@ exports.getTaskbyState = async function (req, res) {
   const connection = await db.getConnection();
   const { username, password, task_app_acronym, state } = req.body;
   try {
+    if (Object.keys(req.queries).length > 0) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E1002" });
+    }
+
+    // payload errors
+    if (!username || typeof username !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2001" });
+    }
+
+    if (!password || typeof password !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2002" });
+    }
+
     if (!state || typeof state !== "string" || !(state in APP_PERMISSIONS)) {
       return res.status(400).send({ code: "Invalid or missing task state" });
     }
 
     if (!task_app_acronym || typeof task_app_acronym !== "string") {
-      return res.status(400).send({ code: "Invalid or missing task app acronym" });
+      return res.status(400).send({ code: "E2004" });
     }
 
-    if (username && password) {
-      const isValidLogin = await checkLogin(username, password);
-      if (!isValidLogin) {
-        return res.status(400).send({ code: "E3001" });
-      }
-    } else {
+    // IAM errors
+
+    // replace with the actual function
+    const isValidLogin = await checkLogin(username, password);
+    if (!isValidLogin) {
+      await connection.rollback();
       return res.status(400).send({ code: "E3001" });
     }
+
+    // transaction errors
 
     const getTasksByStateQuery = "SELECT * FROM task WHERE (Task_state = ?) AND (Task_app_Acronym = ?);";
     const [tasks] = await connection.execute(getTasksByStateQuery, [state, task_app_acronym]);
@@ -204,7 +233,23 @@ exports.promoteTask2Done = async function (req, res) {
   try {
     await connection.beginTransaction();
 
+    if (Object.keys(req.queries).length > 0) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E1002" });
+    }
+
     const { username, password, task_id, notes } = req.body;
+
+    // payload errors
+    if (!username || typeof username !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2001" });
+    }
+
+    if (!password || typeof password !== "string") {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2002" });
+    }
 
     if (!task_id || typeof task_id !== "string") {
       await connection.rollback();
@@ -221,14 +266,16 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).json({ code: "Notes too long" });
     }
 
-    if (username && password) {
-      const isValidLogin = await checkLogin(username, password);
-      if (!isValidLogin) {
-        return res.status(400).send({ code: "E3001" });
-      }
-    } else {
+    // IAM errors
+
+    // replace with the actual function
+    const isValidLogin = await checkLogin(username, password);
+    if (!isValidLogin) {
+      await connection.rollback();
       return res.status(400).send({ code: "E3001" });
     }
+
+    // transaction errors
 
     const getTaskQuery = "SELECT Task_state, Task_notes, Task_app_Acronym FROM task WHERE (Task_id = ?);";
     const [getTaskResult] = await connection.execute(getTaskQuery, [task_id]);
