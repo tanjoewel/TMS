@@ -137,6 +137,14 @@ exports.createTask = async function (req, res) {
       return res.status(400).send({ code: "E3001" });
     }
 
+    const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
+    const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
+
+    if (app_Rnumber.length === 0) {
+      await connection.rollback();
+      return res.status(400).send({ code: "E3002" });
+    }
+
     const isPermitted = await checkAppPermit(username, "CREATE", task_app_acronym);
     if (!isPermitted) {
       await connection.rollback();
@@ -144,8 +152,8 @@ exports.createTask = async function (req, res) {
     }
 
     // transaction errors
-    const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
-    const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
+    // const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
+    // const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
     const app_RnumberValue = app_Rnumber[0].App_Rnumber;
 
     if (task_plan) {
@@ -295,7 +303,15 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).send({ code: "E3001" });
     }
 
-    const task_app_acronym = getTaskResult[0].Task_app_Acronym;
+    const getTaskAppPermitQuery = "SELECT Task_app_Acronym FROM task WHERE (Task_id = ?);";
+    const [getTaskAppPermitResult] = await connection.execute(getTaskAppPermitQuery, [task_id]);
+
+    if (getTaskAppPermitResult.length === 0) {
+      await connection.rollback();
+      return res.status(400).send({ code: "E3002" });
+    }
+
+    const task_app_acronym = getTaskAppPermitResult[0].Task_app_Acronym;
     const isPermitted = await checkAppPermit(username, "DOING", task_app_acronym);
     if (!isPermitted) {
       await connection.rollback();
@@ -306,10 +322,10 @@ exports.promoteTask2Done = async function (req, res) {
 
     const getTaskQuery = "SELECT Task_state, Task_notes, Task_app_Acronym FROM task WHERE (Task_id = ?);";
     const [getTaskResult] = await connection.execute(getTaskQuery, [task_id]);
-    if (getTaskResult.length === 0) {
-      await connection.rollback();
-      return res.status(400).json({ code: "E3002" });
-    }
+    // if (getTaskResult.length === 0) {
+    //   await connection.rollback();
+    //   return res.status(400).json({ code: "E3002" });
+    // }
 
     const taskState = getTaskResult[0].Task_state;
     if (taskState !== "DOING") {
@@ -317,7 +333,17 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).json({ code: "E4002" });
     }
 
-    let parsedNotes = null;
+    const auditNote = [
+      {
+        text: "Task promoted to 'DONE'",
+        creator: username,
+        date_posted: new Date(),
+        state: "DOING",
+        type: 0,
+      },
+    ];
+
+    let parsedNotes = task[0]?.Task_notes ? JSON.parse(task[0].Task_notes) : [];
     if (notes) {
       const note = {
         text: notes,
@@ -326,19 +352,16 @@ exports.promoteTask2Done = async function (req, res) {
         state: "DOING",
         type: 1,
       };
-
-      if (getTaskResult[0]?.Task_notes) {
-        parsedNotes = JSON.parse(getTaskResult[0].Task_notes);
-      } else {
-        parsedNotes = [];
-      }
       parsedNotes.unshift(note);
-      // check if the new parsedNotes is too long
-      const parsedNotesString = JSON.stringify(parsedNotes);
-      if (parsedNotesString.length > Math.pow(2, 32) - 1) {
-        await connection.rollback();
-        return res.status(400).json({ code: "E4004" });
-      }
+    }
+
+    parsedNotes.unshift(auditNote);
+
+    // check if the new parsedNotes is too long
+    const parsedNotesString = JSON.stringify(parsedNotes);
+    if (parsedNotesString.length > Math.pow(2, 32) - 1) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E4004" });
     }
 
     const updateTaskQuery = "UPDATE task SET Task_state = 'DONE', Task_notes = ? WHERE (Task_id = ?);";

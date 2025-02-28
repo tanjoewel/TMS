@@ -20,11 +20,11 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use("/", routes);
-
 app.get("/", async (req, res) => {
   res.send("Server is up and running!");
 });
+
+app.use("/", routes);
 
 app.listen(port, () => {
   console.log("App listening");
