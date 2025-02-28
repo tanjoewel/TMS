@@ -169,6 +169,10 @@ exports.createTask = async function (req, res) {
     ];
 
     // generate task ID before incrementing the running number
+    if (app_RnumberValue === Math.pow(2, 31) - 1 || app_RnumberValue > Math.pow(2, 31) - 1) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E4003" });
+    }
     const task_id = `${task_app_acronym}_${app_RnumberValue}`;
 
     const newRNumber = app_RnumberValue + 1;
@@ -274,17 +278,12 @@ exports.promoteTask2Done = async function (req, res) {
 
     if (!task_id || typeof task_id !== "string") {
       await connection.rollback();
-      return res.status(400).json({ code: "Invalid or missing task id" });
+      return res.status(400).json({ code: "E2007" });
     }
 
     if (notes && typeof notes !== "string") {
       await connection.rollback();
-      return res.status(400).json({ code: "Invalid notes format" });
-    }
-
-    if (notes && notes.length > Math.pow(2, 32) - 1) {
-      await connection.rollback();
-      return res.status(400).json({ code: "Notes too long" });
+      return res.status(400).json({ code: "E2009" });
     }
 
     // IAM errors
@@ -296,19 +295,26 @@ exports.promoteTask2Done = async function (req, res) {
       return res.status(400).send({ code: "E3001" });
     }
 
+    const task_app_acronym = getTaskResult[0].Task_app_Acronym;
+    const isPermitted = await checkAppPermit(username, "DOING", task_app_acronym);
+    if (!isPermitted) {
+      await connection.rollback();
+      return res.status(400).send({ code: "E3002" });
+    }
+
     // transaction errors
 
     const getTaskQuery = "SELECT Task_state, Task_notes, Task_app_Acronym FROM task WHERE (Task_id = ?);";
     const [getTaskResult] = await connection.execute(getTaskQuery, [task_id]);
     if (getTaskResult.length === 0) {
       await connection.rollback();
-      return res.status(400).json({ code: "Task not found" });
+      return res.status(400).json({ code: "E3002" });
     }
 
     const taskState = getTaskResult[0].Task_state;
     if (taskState !== "DOING") {
       await connection.rollback();
-      return res.status(400).json({ code: "Task not in doing state" });
+      return res.status(400).json({ code: "E4002" });
     }
 
     let parsedNotes = null;
@@ -327,13 +333,12 @@ exports.promoteTask2Done = async function (req, res) {
         parsedNotes = [];
       }
       parsedNotes.unshift(note);
-    }
-
-    const task_app_acronym = getTaskResult[0].Task_app_Acronym;
-    const isPermitted = await checkAppPermit(username, "DOING", task_app_acronym);
-    if (!isPermitted) {
-      await connection.rollback();
-      return res.status(400).send({ code: "No promote task to done permission" });
+      // check if the new parsedNotes is too long
+      const parsedNotesString = JSON.stringify(parsedNotes);
+      if (parsedNotesString.length > Math.pow(2, 32) - 1) {
+        await connection.rollback();
+        return res.status(400).json({ code: "E4004" });
+      }
     }
 
     const updateTaskQuery = "UPDATE task SET Task_state = 'DONE', Task_notes = ? WHERE (Task_id = ?);";
@@ -354,15 +359,12 @@ exports.promoteTask2Done = async function (req, res) {
         emails.push(user.user_email);
       }
     });
-    console.log(emails);
 
-    for (let i = 0; i < emails.length; i++) {
-      await sendEmail(
-        emails[i],
-        `Seek approval for task ${task_id}`,
-        `A user has triggered a seek approval action for task ${task_id} at ${new Date().toLocaleString()}. Please log on to TMS to approve or reject the task.`
-      );
-    }
+    sendEmail(
+      emails,
+      `Seek approval for task ${task_id}`,
+      `A user has triggered a seek approval action for task ${task_id} at ${new Date().toLocaleString()}. Please log on to TMS to approve or reject the task.`
+    );
 
     await connection.commit();
 
