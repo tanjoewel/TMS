@@ -5,10 +5,10 @@
 
   - There is a hard limit to the memory of the database.
   - From ChatGPT(research this more)
-    - Disk space
+    - [Disk space](https://www.google.com/search?q=mysql+disk+space+full+error&rlz=1C1CHZN_enSG1144SG1144&oq=mysql+disk+space+full+error&gs_lcrp=EgZjaHJvbWUyCwgAEEUYChg5GKABMgkIARAhGAoYoAHSAQgzMDg5ajFqN6gCALACAA&sourceid=chrome&ie=UTF-8)
       - Queries can store temporary tables, results or logs and will fail if the disk is full.
-      - RAM: [queries that require joins, aggregations require RAM](https://www.singlestore.com/blog/mysql-error-out-of-memory/#:~:text=The%20%22out%20of%20memory%22%20error,returned%20by%20the%20SQL%20queries.). If the query exceeds the RAM allocated to MySQL, it will crash with a "Out of memory" error.
-      - CPU: [MySQL has a hard limit on the execution time of queries](https://dev.mysql.com/blog-archive/server-side-select-statement-timeouts/). If the CPU is not able to complete the query in time, it will time out and cause an error.
+    - RAM: [queries that require joins, aggregations require RAM](https://www.singlestore.com/blog/mysql-error-out-of-memory/#:~:text=The%20%22out%20of%20memory%22%20error,returned%20by%20the%20SQL%20queries.). If the query exceeds the RAM allocated to MySQL, it will crash with a "Out of memory" error.
+    - CPU: [MySQL has a hard limit on the execution time of queries](https://dev.mysql.com/blog-archive/server-side-select-statement-timeouts/). If the CPU is not able to complete the query in time, it will time out and cause an error.
 
 - The controller also has its limitations, in particular it can only [**scale up to a physical limit**](https://dev.to/evle/what-exactly-is-the-memory-limit-of-nodejs-4cpi).
   - The hard limit is the RAM of the server.
