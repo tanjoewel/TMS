@@ -201,7 +201,7 @@ exports.createTask = async function (req, res) {
 
     await connection.commit();
 
-    res.json({ code: "S0001" });
+    res.json({ code: "S0001", task_id: task_id });
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "E5001" });
@@ -210,7 +210,8 @@ exports.createTask = async function (req, res) {
 
 exports.getTaskbyState = async function (req, res) {
   const connection = await db.getConnection();
-  const { username, password, task_app_acronym, state } = req.body;
+  let { username, password, task_app_acronym, task_state } = req.body;
+  task_state = task_state.toUpperCase();
   try {
     if (Object.keys(req.query).length > 0) {
       await connection.rollback();
@@ -228,7 +229,7 @@ exports.getTaskbyState = async function (req, res) {
       return res.status(400).json({ code: "E2002" });
     }
 
-    if (!state || typeof state !== "string" || !(state in APP_PERMISSIONS)) {
+    if (!task_state || typeof task_state !== "string" || !(task_state in APP_PERMISSIONS)) {
       return res.status(400).send({ code: "E2008" });
     }
 
@@ -248,9 +249,11 @@ exports.getTaskbyState = async function (req, res) {
     // transaction errors
 
     const getTasksByStateQuery = "SELECT * FROM task WHERE (Task_state = ?) AND (Task_app_Acronym = ?);";
-    const [tasks] = await connection.execute(getTasksByStateQuery, [state, task_app_acronym]);
+    const [tasks] = await connection.execute(getTasksByStateQuery, [task_state, task_app_acronym]);
 
-    res.json(tasks);
+    // tasks[0].Task_notes = JSON.parse(tasks[0].Task_notes);
+
+    res.json({ code: "S0001", tasks });
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "E5001" });
@@ -387,7 +390,7 @@ exports.promoteTask2Done = async function (req, res) {
 
     await connection.commit();
 
-    res.json({ code: "successful promote task 2 done" });
+    res.json({ code: "S0001" });
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "E5001" });
