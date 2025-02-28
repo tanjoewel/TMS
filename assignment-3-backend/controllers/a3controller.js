@@ -107,28 +107,25 @@ exports.createTask = async function (req, res) {
       return res.status(400).json({ code: "E2004" });
     }
 
+    const planRegex = /^[a-zA-Z0-9_ -]{1,50}$/;
     if (task_plan && typeof task_plan !== "string") {
       await connection.rollback();
-      return res.status(400).json({ code: "E9906" });
+      return res.status(400).json({ code: "E2005" });
+    }
+
+    if (task_plan && !planRegex.test(task_plan)) {
+      await connection.rollback();
+      return res.status(400).json({ code: "E2005" });
     }
 
     if (task_description && typeof task_description !== "string") {
       await connection.rollback();
-      return res.status(400).json({ code: "E9905" });
-    }
-
-    // check format
-
-    const planRegex = /^[a-zA-Z0-9_ -]{1,50}$/;
-
-    if (task_plan && !planRegex.test(task_plan)) {
-      await connection.rollback();
-      return res.status(400).json({ code: "E9903" });
+      return res.status(400).json({ code: "E2006" });
     }
 
     if (task_description && task_description.length > 65535) {
       await connection.rollback();
-      return res.status(400).json({ code: "E9902" });
+      return res.status(400).json({ code: "E2006" });
     }
 
     // IAM errors
@@ -140,28 +137,23 @@ exports.createTask = async function (req, res) {
       return res.status(400).send({ code: "E3001" });
     }
 
+    const isPermitted = await checkAppPermit(username, "CREATE", task_app_acronym);
+    if (!isPermitted) {
+      await connection.rollback();
+      return res.status(400).send({ code: "E3002" });
+    }
+
     // transaction errors
     const getAppRunningNumberQuery = "SELECT App_Rnumber FROM application WHERE (App_Acronym = ?);";
     const [app_Rnumber] = await connection.execute(getAppRunningNumberQuery, [task_app_acronym]);
     const app_RnumberValue = app_Rnumber[0].App_Rnumber;
-
-    if (app_Rnumber.length === 0) {
-      await connection.rollback();
-      return res.status(400).send({ code: "App not found" });
-    }
-
-    const isPermitted = await checkAppPermit(username, "CREATE", task_app_acronym);
-    if (!isPermitted) {
-      await connection.rollback();
-      return res.status(400).send({ code: "No create permission" });
-    }
 
     if (task_plan) {
       const getTaskPlanQuery = "SELECT * FROM plan WHERE (Plan_MVP_name = ?) AND (Plan_app_Acronym = ?)";
       const [plan] = await connection.execute(getTaskPlanQuery, [task_plan, task_app_acronym]);
       if (plan.length === 0) {
         await connection.rollback();
-        return res.status(400).send({ code: "Task plan not found" });
+        return res.status(400).send({ code: "E4001" });
       }
     }
     // need to add notes that task is created successfully
@@ -172,7 +164,7 @@ exports.createTask = async function (req, res) {
 
     await connection.commit();
 
-    res.json({ code: "Task created successfully" });
+    res.json({ code: "S0001" });
   } catch (err) {
     console.log(err.message);
     res.status(err.status || 500).json({ code: err.code || "create task catch all" });
