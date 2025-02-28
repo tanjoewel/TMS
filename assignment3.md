@@ -2,10 +2,18 @@
 
 - A monolithic architecture (like MVC) has all the business logic in the controller. Recall that in MVC, the view is just the frontend and it calls the controller with Axios. The database is for example MySQL and we can query it with SQL queries using `mysql2` npm package.
 - The database has its limitations with memory and overhead. (need to research more on this)
+
   - There is a hard limit to the memory of the database.
-- The controller also has its limitations, in particular it can only **scale up to a physical limit**.
-  - I'm not too sure what the physical limit is, I think it is the RAM and the space in the server that is running the controller logic.
-  - Hence, we are kind of screwed if we want to scale up the app, because in a monolith everything is in the controller.
+  - From ChatGPT(research this more)
+    - Disk space
+      - Queries can store temporary tables, results or logs and will fail if the disk is full.
+      - RAM: [queries that require joins, aggregations require RAM](https://www.singlestore.com/blog/mysql-error-out-of-memory/#:~:text=The%20%22out%20of%20memory%22%20error,returned%20by%20the%20SQL%20queries.). If the query exceeds the RAM allocated to MySQL, it will crash with a "Out of memory" error.
+      - CPU: [MySQL has a hard limit on the execution time of queries](https://dev.mysql.com/blog-archive/server-side-select-statement-timeouts/). If the CPU is not able to complete the query in time, it will time out and cause an error.
+
+- The controller also has its limitations, in particular it can only [**scale up to a physical limit**](https://dev.to/evle/what-exactly-is-the-memory-limit-of-nodejs-4cpi).
+  - The hard limit is the RAM of the server.
+  - There is a softer limit which is the V8 memory usage. However, you can easily change this to be the RAM of the server.
+  - Before reaching the hard limits, there are also [performance issues and poor user experience](https://dev.to/imsushant12/scaling-nodejs-applications-best-practices-techniques-and-tools-3406) that you have to worry about.
 - The solution is to take **parts** of the controller that cannot perform (perhaps it is a complex part of the controller that does a lot of work), and turn it into a **microservice**.
 
 ### As with everything, there are advantages and disadvantages.
@@ -34,6 +42,7 @@
   - Configuration – Environment variables, startup scripts
 - When we containerize, we need to change the URL of the Axios requests because the container is no longer in localhost.
 - When we use microservices, there is a lot more work that has to be done to ensure the frontend and backend are on the same page.
+- Example to use: Netflix
 
 ### Advantages and disadvantages of microservices
 
@@ -42,6 +51,17 @@
   - Scalability
     - This is the most important advantage. Basically since microservices are stateless, if the load on the microservice is great, we can just spin up another server and it does not need to learn any prior state to perform its task.
     - Can also leverage cloud technologies if it is deployed on the cloud
+
+### How microservices can scale past the monolithic limits
+
+- Database
+  - Disk space: distributing loads by splitting data across multiple services. Each service manages a subset of the data and uses the storage independently.
+  - RAM limit: split data processing tasks across multiple services.
+  - CPU limit: parallelizing workloads
+- NodeJS (controller)
+  - Parallelizing independent modules
+  - Load balancing with cloud technologies
+  - RAM limit: split data processing tasks across multiple services.
 
 ### Ways of implementing microservices
 
