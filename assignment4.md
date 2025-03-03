@@ -1,5 +1,7 @@
 # Assignment 4 notes
 
+## Learning notes
+
 ### Docker
 
 - Container engine
@@ -98,3 +100,11 @@
        - Docker load (no more JFrog artifactory). This will be done by site engineer.
        - Docker run
          - Site engineer will have his own parameters he needs to update in the .env file. So in essence our .env file will be overwritten. Our password needs to be kept in a password vault with a certificate pointing to it.
+
+## Research notes
+
+- Use this base image: docker pull node:22.14.0-alpine3.21
+
+![22.14.0-alpine3.21 stats](notes-images/image.png)
+
+- The 20.17 images have more vulnerability issues.
