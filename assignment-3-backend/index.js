@@ -3,21 +3,13 @@ const express = require("express");
 var cookieParser = require("cookie-parser");
 
 // security
-const cors = require("cors");
 
 // routes
 const routes = require("./routes/a3routes");
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-
 const port = process.env.PORT;
-
 const app = express();
-app.use(cors(corsOptions));
+
 app.use(express.json());
 
 app.get("/", async (req, res) => {
@@ -26,6 +18,6 @@ app.get("/", async (req, res) => {
 
 app.use("/", routes);
 
-app.listen(port, () => {
-  console.log("App listening");
+app.listen(port, "0.0.0.0", () => {
+  console.log(`App listening!`);
 });
